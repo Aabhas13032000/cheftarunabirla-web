@@ -1,0 +1,33 @@
+<%- include('../header/header.ejs',{cssFile : 'login'}) %> 
+
+<div class="container-fluid outer_login_box">
+    <div class="card login_card">
+        <div class="heading">
+            <h3>Welcome Back</h3>
+            <h6>Please login to continue</h6>
+        </div>
+        <div class="form">
+            <div class="alert <%= message_class %>" role="alert">
+                <%= message %>
+              </div>
+            <form action="/login" method="post" autocomplete="on">
+                <div class="form-input">
+                    <label class="input-label" for="email">Email</label>
+                    <input type="email" class="input-class" name="email" id="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-input">
+                    <label class="input-label" for="password">Password</label>
+                    <input type="password" class="input-class" name="password" id="password" minlength="8" placeholder="Enter your password" required>
+                </div>
+                <div class="button">
+                    <button type="submit" class="login_button">
+                        <span class="text">Login</span>
+                        <span class="iconify" data-icon="bytesize:arrow-right"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<%- include('../footer/footer.ejs') %> 

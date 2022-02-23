@@ -1,0 +1,175 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+
+<div class="modal fade" id="addBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Add Images</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="">Images</label>
+                    <input class="form-control" onchange="uploadImages()" style="margin-bottom: 10px;" type="file" multiple id="gallery_images" name="images" accept="image/*">
+                </div>
+                <div id="preview" class="row preview_images">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid user_data" onscroll="getMoreImages()">
+    <br>
+    <div class="tabs">
+        <div>
+            <a class="inner_tab">Gallery</a>
+        </div>
+        <button data-bs-toggle="modal" data-bs-target="#addBook">Add Images</button>
+    </div>
+    <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-6 col-6" id="column_one">
+        
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-6 col-6" id="column_two">
+
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-6 col-6" id="column_three">
+
+        </div>
+    </div>
+</div>
+
+<!--Bootstrap js-->
+<script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!---->
+
+<script>
+
+    var offset = 0;
+    // var notapprovedoffset = 0;
+
+    // //Change Tabs
+    // document.querySelectorAll('.inner_tab').forEach(item => {
+    //     item.addEventListener('click', event => {
+    //         var selected_list = document.getElementsByClassName('selected_tab')[0];
+    //         selected_list.classList.remove('selected_tab');
+    //         item.classList.add('selected_tab');
+    //         if(selected_list.innerHTML != item.innerHTML) {
+    //             document.getElementById('column_one').innerHTML = '';
+    //             document.getElementById('column_two').innerHTML = '';
+    //             document.getElementById('column_three').innerHTML = '';
+    //         }
+    //         if(item.innerHTML == 'Approved'){
+    //             getImages('1',approvedoffset);
+    //         } else if(item.innerHTML == 'Not Approved'){
+    //             getImages('0',notapprovedoffset);
+    //         }
+    //     });
+    // });
+
+    function uploadImages() {
+        $(parent.document).find('#image_loader').css('display','flex');
+        var imageFiles = document.getElementById('gallery_images').files;
+        //   console.log(imageFiles);
+        var form = new FormData();
+        //   document.getElementById('preview').innerHTML = '';
+
+        for(var i=0;i<imageFiles.length;i++){
+            if(imageFiles[i] != undefined){
+                form.append(`gallery_images`, imageFiles[i]);
+            }
+        }
+
+        $.ajax({
+            url : "/saveGalleryImages",
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : form,
+            success: function(response){
+                console.log(response.files);
+                $(parent.document).find('#image_loader').css('display','none');
+                alert('Images Added successfully!!');
+                location.reload();
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+  }
+
+    function getMoreImages() {
+        offset = offset+20;
+        getGalleryImages(offset);
+    }
+
+    function deleteCurrentGalleryImages(path) {
+        if(confirm('Do you want to delete it?') == true){
+            if(path != '/images/extra/nopreview.jpeg') {
+                $.ajax({
+                    url : '/deleteGalleryPhoto',
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        path:path
+                    },
+                    success: function(response){
+                        console.log('Removed Successfully');
+                        location.reload();
+                    },
+                    error: function(err){
+                        console.log(err);
+                        alert('Some error occured !!');
+                    }
+                });
+            }
+        } 
+    }
+
+    function getGalleryImages(offset) {
+        const windowWidth = window.innerWidth;
+        // console.log(windowWidth)
+        $.ajax({
+            url :  `/getGalleryImages/${offset}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                // console.log(response);
+                if(windowWidth <= 768){
+                    for(var i=0;i<response.data.length;i++){
+                        if(document.getElementById(response.data[i].path) == null){
+                            if(i%2 == 0){
+                                $('#column_one').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                            } else {
+                                $('#column_two').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                            }
+                        }
+                    }
+                } else {
+                    for(var i=0;i<response.data.length;i++){
+                        if(document.getElementById(response.data[i].path) == null){
+                            if(i%3 == 0){
+                                $('#column_one').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                            } else if(i%3 == 1){
+                                $('#column_two').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                            } else if(i%3 == 2){
+                                $('#column_three').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                            }
+                        }
+                    }
+                }
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+    }
+
+    window.onload = getGalleryImages(offset);
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 

@@ -1,0 +1,789 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+ 
+<div class="container-fluid user_data">
+    <br>
+    <div class="modal fade" id="allvideos" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Books Videos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <h6>ONLY VIDEO PRICE: <span id="onlyvideoprice"></span></h6>
+                        </div>
+                        <div class="col-6">
+                            <h6>ONLY VIDEO DISCOUNT PRICE: <span id="onlyvideoprice"></span></h6>
+                        </div>
+                    </div>
+                    <br>
+                    <form onsubmit="addcoursevideo(event)" class="course_video" id="course_video_form_" method="post">
+                        <div class="form-group">
+                            <input type="url" id="course_video" name="course_video" class="form-control" placeholder="Enter Course Video URL" style="margin-bottom: 10px;" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="video_name" name="video_name" class="form-control" placeholder="Enter Video Display Name"  style="margin-bottom: 10px;" required>
+                        </div>
+                        <div class="button">
+                            <button type="submit" id="course_video_button" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
+                        </div>
+                    </form>
+                    <table style="table-layout: auto;">
+                        <thead>
+                            <th>URL</th>
+                            <th>NAME</th>
+                            <th>OPTIONS</th>
+                        </thead>
+                        <tbody id="category_data">
+                            
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="addBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Book</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="addBook(event)" id="form" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <input type="text" id="title" name="title" class="form-control" placeholder="Enter Book Name"  style="margin-bottom: 10px;" required>
+                                    <div id="validationServernameFeedback" style="margin: 10px 0px;" class="invalid-feedback">
+                                      Book name already exists.
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="category" style="margin-bottom: 10px;" name="category" aria-label="Images Categories" required>
+                                      <option value="">Select book category</option>
+                                      <option value="e_book">E-book</option>
+                                      <option value="physical">Physical</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="includes_videos" style="margin-bottom: 10px;" name="category" aria-label="Images Categories" required>
+                                      <option value="">Video included</option>
+                                      <option value="yes">Yes</option>
+                                      <option value="no">No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="days" name="days" class="form-control" placeholder="Enter Subscription Days" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="video_days" name="video_days" class="form-control" placeholder="Enter Video Subscription Days" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
+                                </div>
+                                <!-- <div class="form-group">
+                                    <label for="">PDF</label>
+                                    <input class="form-control" onchange="uploadPDF()" style="margin-bottom: 10px;" type="file" id="pdf" name="pdf" accept="application/pdf">
+                                </div>
+                                <div id="preview_pdf">
+                                    
+                                </div> -->
+                            </div>
+                            <div class="col-lg-6 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <input type="number" id="price" name="price" class="form-control" placeholder="Enter Only Book Price" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="discount_price" name="discount_price" class="form-control" placeholder="Enter Only Book Discount Price" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="price_with_video" name="price_with_video" class="form-control" placeholder="Enter Price With Videos" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="discount_price_with_video" name="discount_price_with_video" class="form-control" placeholder="Enter Discount Price With Videos" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="only_video_price" name="only_video_price" class="form-control" placeholder="Enter Only Video Price" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="only_video_discount_price" name="only_video_discount_price" class="form-control" placeholder="Enter Only Video Discount Price" style="margin-bottom: 10px;" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <label for="">Images</label>
+                                    <input class="form-control" onchange="uploadImages('add')" style="margin-bottom: 10px;" type="file" multiple id="book_images" name="images" accept="image/*">
+                                </div>
+                                <div id="preview" class="row preview_images">
+                                    
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="button">
+                                    <button type="submit" id="book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Book</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="editBookSave(event)" id="form_" class="edit_form" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <input type="text" id="edittitle" name="edittitle" class="form-control" placeholder="Enter Book Name"  style="margin-bottom: 10px;" required>
+                                    <div id="editvalidationServernameFeedback" style="margin: 10px 0px;" class="invalid-feedback">
+                                      Book name already exists.
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="editcategory" style="margin-bottom: 10px;" name="editcategory" aria-label="Images Categories" required>
+                                      <option value="" id="editcategoryoption">Select book category</option>
+                                      <option value="e_book">E-book</option>
+                                      <option value="physical">Physical</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="editincludes_videos" style="margin-bottom: 10px;" name="category" aria-label="Images Categories" required>
+                                      <option value="" id="editincludes_videos_option">Video included</option>
+                                      <option value="yes">Yes</option>
+                                      <option value="no">No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="editdays" name="editdays" class="form-control" placeholder="Enter Subscription Days" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="editvideo_days" name="video_days" class="form-control" placeholder="Enter Video Subscription Days" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" id="editdescription" name="editdescription" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
+                                </div>
+                                <!-- <div class="form-group">
+                                    <label for="">PDF</label>
+                                    <input class="form-control" onchange="uploadPDF()" style="margin-bottom: 10px;" type="file" id="pdf" name="pdf" accept="application/pdf">
+                                </div>
+                                <div id="preview_pdf">
+                                    
+                                </div> -->
+                            </div>
+                            <div class="col-lg-6 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <input type="number" id="editprice" name="editprice" class="form-control" placeholder="Enter Book Price" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="editdiscount_price" name="editdiscount_price" class="form-control" placeholder="Enter Discount Price" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="editprice_with_video" name="price_with_video" class="form-control" placeholder="Enter Price With Videos" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="editdiscount_price_with_video" name="discount_price_with_video" class="form-control" placeholder="Enter Discount Price With Videos" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="editonly_video_price" name="only_video_price" class="form-control" placeholder="Enter Only Video Price" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="editonly_video_discount_price" name="only_video_discount_price" class="form-control" placeholder="Enter Only Video Discount Price" style="margin-bottom: 10px;" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <label for="">Images</label>
+                                    <input class="form-control" onchange="uploadImages('edit')" style="margin-bottom: 10px;" type="file" multiple id="edit_book_images" name="images" accept="image/*">
+                                </div>
+                                <div id="editpreview" class="row preview_images">
+                                    
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="button">
+                                    <button type="submit" id="edit_book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="add_button">
+      <a href="#">Books</a>
+      <button type="button" data-bs-toggle="modal" data-bs-target="#addBook">Add Book</button>
+    </div>
+    <table>
+        <thead>
+            <th>BOOK NAME</th>
+            <th>CATEGORY</th>
+            <th>PRICE<br>WITHOUT<br>VIDEO</th>
+            <th>DISCOUNT PRICE<br>WITHOUT<br>VIDEO</th>
+            <th>PRICE<br>WITH<br>VIDEO</th>
+            <th>DISCOUNT PRICE<br>WITH<br>VIDEO</th>
+            <th>DAYS</th>
+            <th>VIDEO<br>DAYS</th>
+            <th>VIDEO<br>PACKAGE</th>
+            <th>OPTIONS</th>
+        </thead>
+        <tbody id="data">
+
+        </tbody>
+      </table>
+      <br>
+      <div id="tableLoader">
+        <p>Loading...</p>
+      </div>
+</div>
+
+<!--Bootstrap js-->
+<script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!---->
+
+<script>
+
+var editBookModal = new bootstrap.Modal(document.getElementById('editBook'));
+var allVideosModal = new bootstrap.Modal(document.getElementById('allvideos'));
+
+function addBook(event){
+      event.preventDefault();
+
+      var title = document.getElementById('title').value;
+      var category = document.getElementById('category').value;
+      var price = document.getElementById('price').value;
+      var discount_price = document.getElementById('discount_price').value;
+      var days = document.getElementById('days').value;
+      var description = document.getElementById('description').value;
+      var gallery = document.getElementsByClassName("gallery_image_path");
+      var price_with_video = document.getElementById('price_with_video').value;
+      var discont_price_with_video = document.getElementById('discount_price_with_video').value;
+      var only_video_price = document.getElementById('only_video_price').value;
+      var only_video_discount_price = document.getElementById('only_video_discount_price').value;
+      var includes_videos = document.getElementById('includes_videos').value;
+      var video_days = document.getElementById('video_days').value;
+      var gallery_values = [];
+      if(gallery.length != 0) {
+        for(var i =0;i<gallery.length;i++) {
+            gallery_values.push(gallery[i].value);
+        }
+        // console.log(gallery_values);
+        $.ajax({
+                url : '/addBook',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    title:title,
+                    category:category,
+                    price:price,
+                    discount_price:discount_price,
+                    gallery:gallery_values,
+                    description:description,
+                    days:days,
+                    price_with_video:price_with_video,
+                    discont_price_with_video:discont_price_with_video,
+                    only_video_price:only_video_price,
+                    only_video_discount_price:only_video_discount_price,
+                    includes_videos:includes_videos,
+                    video_days:video_days,
+                },
+                success: function(response){
+                    alert('Books added successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+      }
+  }
+
+  function editBookSave(event){
+      event.preventDefault();
+
+      var title = document.getElementById('edittitle').value;
+      var category = document.getElementById('editcategory').value;
+      var price = document.getElementById('editprice').value;
+      var discount_price = document.getElementById('editdiscount_price').value;
+      var days = document.getElementById('editdays').value;
+      var description = document.getElementById('editdescription').value;
+      var price_with_video = document.getElementById('editprice_with_video').value;
+      var discont_price_with_video = document.getElementById('editdiscount_price_with_video').value;
+      var only_video_price = document.getElementById('editonly_video_price').value;
+      var only_video_discount_price = document.getElementById('editonly_video_discount_price').value;
+      var includes_videos = document.getElementById('editincludes_videos').value;
+      var video_days = document.getElementById('editvideo_days').value;
+      var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+            $.ajax({
+                url : `/editBook/${id}`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    title:title,
+                    category:category,
+                    price:price,
+                    discount_price:discount_price,
+                    description:description,
+                    days:days,
+                    price_with_video:price_with_video,
+                    discont_price_with_video:discont_price_with_video,
+                    only_video_price:only_video_price,
+                    only_video_discount_price:only_video_discount_price,
+                    includes_videos:includes_videos,
+                    video_days:video_days,
+                },
+                success: function(response){
+                    alert('Books edited successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+  }
+
+function deleteCurrentGalleryImage(id,input_id) {
+    var path = document.getElementById(input_id).value;
+    console.log(path);
+    if(path != '/images/extra/nopreview.jpeg') {
+        $.ajax({
+            url : '/deletePhoto',
+            dataType: "json",
+            type: "POST",
+            data: {
+                path:path
+            },
+            success: function(response){
+                alert('Removed Successfully');
+                document.getElementById(id).remove();
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+    }
+}
+
+function deleteCurrentGalleryImage(id,input_id) {
+    var path = document.getElementById(input_id).value;
+    if(confirm('Do you want to delete it?') == true){
+        console.log(path);
+        if(path != '/images/extra/nopreview.jpeg') {
+            $.ajax({
+                url : '/deletePhoto',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    path:path
+                },
+                success: function(response){
+                    alert('Removed Successfully');
+                    document.getElementById(id).remove();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        }
+    } 
+}
+
+function checkBook(name,value) {
+    if(document.getElementById('title').classList.contains('is-invalid')) {
+        document.getElementById('title').classList.remove('is-invalid')
+    }
+    if(document.getElementById('title').classList.contains('is-valid')) {
+        document.getElementById('title').classList.remove('is-valid')
+    }
+    if(document.getElementById('edittitle').classList.contains('is-invalid')) {
+        document.getElementById('edittitle').classList.remove('is-invalid')
+    }
+    if(document.getElementById('edittitle').classList.contains('is-valid')) {
+        document.getElementById('edittitle').classList.remove('is-valid')
+    }
+    if(name.length != 0){
+        $.ajax({
+            url : `/checkBook/${name}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                if(response.data.length == 0){
+                    if(value == 'edit'){
+                        document.getElementById('edit_book_verify').removeAttribute('disabled');
+                        document.getElementById('edittitle').classList.add('is-valid');
+                    } else {
+                        document.getElementById('book_verify').removeAttribute('disabled');
+                        document.getElementById('title').classList.add('is-valid');
+                    }
+                } else {
+                    if(value == 'edit'){
+                        document.getElementById('edit_book_verify').setAttribute('disabled','disabled');
+                        document.getElementById('edittitle').classList.add('is-invalid');
+                    } else {
+                        document.getElementById('book_verify').setAttribute('disabled','disabled');
+                        document.getElementById('title').classList.add('is-invalid');
+                    }
+                }
+                // console.log(response);
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+    } else {
+        if(value == 'edit'){
+        } else {
+            document.getElementById('book_verify').setAttribute('disabled','disabled');
+            document.getElementById('title').classList.add('is-invalid');
+        }
+        if(document.getElementById('title').classList.contains('is-invalid')) {
+            document.getElementById('title').classList.remove('is-invalid')
+        }
+        if(document.getElementById('title').classList.contains('is-valid')) {
+            document.getElementById('title').classList.remove('is-valid')
+        }
+        if(document.getElementById('edittitle').classList.contains('is-invalid')) {
+            document.getElementById('edittitle').classList.remove('is-invalid')
+        }
+        if(document.getElementById('edittitle').classList.contains('is-valid')) {
+            document.getElementById('edittitle').classList.remove('is-valid')
+        }
+    }
+}
+
+// function uploadPDF() {
+//     var pdfFiles = document.getElementById('pdf').files;
+//     console.log(pdfFiles);
+//     var form = new FormData();
+//     form.append(`pdfFiles`, pdfFiles);
+//     $.ajax({
+//         url : "/savePdf",
+//         type: "POST",
+//         cache: false,
+//         contentType: false,
+//         processData: false,
+//         data : form,
+//         success: function(response){
+//             console.log(response.files);
+//             var path = "http://192.168.1.16:3000/" + response.path.slice(7,response.path.length);
+//             console.log(path);
+//             document.getElementById('pdf').value='';
+//         },
+//         error: function(err){
+//             console.log(err.status);
+//         }
+//     });
+// }
+
+  function uploadImages(value) {
+        $(parent.document).find('#image_loader').css('display','flex');
+      if(value != 'edit'){
+        var imageFiles = document.getElementById('book_images').files;
+        //   console.log(imageFiles);
+        var form = new FormData();
+        //   document.getElementById('preview').innerHTML = '';
+
+        for(var i=0;i<imageFiles.length;i++){
+            if(imageFiles[i] != undefined){
+                form.append(`book_images`, imageFiles[i]);
+            }
+        }
+
+        $.ajax({
+            url : "/saveBookImages",
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : form,
+            success: function(response){
+                console.log(response.files);
+                for(var i=0;i<response.files.length;i++) {
+                    var path = response.files[i].slice(6,response.files[i].length);
+                    $('#preview').append('<div class="col-6" id="gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentGalleryImage(\''+ ( "gallery_image_"+ path )  +'\',\'gallery_image_path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="gallery_image_path" name="gallery_image_path" id="gallery_image_path_'+ path +'" value="'+ path +'"></div></div>');
+                }
+                document.getElementById('book_images').value='';
+        $(parent.document).find('#image_loader').css('display','none');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+      } else {
+        var imageFiles = document.getElementById('edit_book_images').files;
+        var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+        //   console.log(imageFiles);
+        var form = new FormData();
+        for(var i=0;i<imageFiles.length;i++){
+            if(imageFiles[i] != undefined){
+                form.append(`book_images`, imageFiles[i]);
+            }
+        }
+
+        $.ajax({
+            url : `/saveEditBookImages/${id}/books`,
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : form,
+            success: function(response){
+                console.log(response.files);
+                for(var i=0;i<response.files.length;i++) {
+                    var path = response.files[i].path.slice(6,response.files[i].path.length);
+                    $('#editpreview').append('<div class="col-6" id="edit_gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteEditCurrentGalleryImage(\''+ ( "edit_gallery_image_"+ path )  +'\',\''+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""></div></div>');
+                }
+                document.getElementById('edit_book_images').value='';
+        $(parent.document).find('#image_loader').css('display','none');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+      }
+  }
+
+
+  function toggleImportant(id) {
+    $.ajax({
+            url : '/markedCategoryImportant',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Edited Successfullyt!!');
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+
+  function deleteBooks(id) {
+    if(confirm('Do you want to delete it?') == true){
+      $.ajax({
+            url : '/deleteBook',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Deleted Successfullyt!!');
+                location.reload();
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+      });
+    } 
+  }
+
+  function deleteEditCurrentGalleryImage(id,path) {
+    if(confirm('Do you want to delete it?') == true){
+        console.log(path);
+        if(path != '/images/extra/nopreview.jpeg') {
+            $.ajax({
+                url : `/deleteEditPhoto`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    path:path
+                },
+                success: function(response){
+                    alert('Removed Successfully');
+                    document.getElementById(id).remove();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        }
+    } 
+}
+
+  function getImages(id,value) {
+    $.ajax({
+            url : `/getImages/${id}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                console.log(response);
+                if(value == 'edit') {
+                    for(var i=0;i<response.data.length;i++) {
+                        var path = response.data[i].path;
+                        $('#editpreview').append('<div class="col-6" id="edit_gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteEditCurrentGalleryImage(\''+ ( "edit_gallery_image_"+ path )  +'\',\''+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""></div></div>');
+                    }
+                } 
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+
+
+  function addcoursevideo(event) {
+    event.preventDefault();
+
+    var course_video = document.getElementById('course_video').value;
+    var video_name = document.getElementById('video_name').value;
+    var id = document.getElementsByClassName('course_video')[0].getAttribute('id').split('_')[3];
+    $.ajax({
+                url : `/addBookVideos`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    path:course_video,
+                    id:id,
+                    video_name:video_name
+                },
+                success: function(response){
+                    alert('Video added successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+}
+
+function deleteCourseVideo(id) {
+    $.ajax({
+                url : `/deleteBookVideo`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    id:id
+                },
+                success: function(response){
+                    alert('Video deleted successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+}
+
+
+function editCourseVideo(id) {
+    var path = document.getElementById('edit_course_video_'+id).value;
+    var name = document.getElementById('edit_course_name_'+id).value;
+    if(path.length !=0 && name.length !=0){
+    $.ajax({
+                url : `/editBookVideos`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    id:id,
+                    path:path,
+                    name:name
+                },
+                success: function(response){
+                    // alert('Video edited successfully');
+                    // location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+    }
+}
+
+  function videoCourses(id) {
+    document.getElementById('category_data').innerHTML = '';
+    $.ajax({
+            url : `/getBookVideos/${id}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                // console.log(response);
+                for(var i=0;i<response.data.length;i++) {
+                        var path = response.data[i].path;
+                        $('#category_data').append('<tr><td><div class="form-group"><input type="url" id="edit_course_video_'+ response.data[i].id +'" name="course_video" class="form-control" placeholder="Enter Course Video URL" style="margin-bottom: 0px;" value="'+ response.data[i].path +'" onchange="editCourseVideo(\''+ response.data[i].id +'\')" required></div></td><td><div class="form-group"><input type="url" id="edit_course_name_'+ response.data[i].id +'" name="course_video" class="form-control" placeholder="Enter Course Video Name" style="margin-bottom: 0px;" onchange="editCourseVideo(\''+ response.data[i].id +'\')" value="'+ response.data[i].name +'" required></div></td><td><a class="delete" onclick="deleteCourseVideo('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></td></tr>');
+                    }
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+    });
+    document.getElementsByClassName('course_video')[0].setAttribute('id',`course_video_form_${id}`); 
+    allVideosModal.toggle();
+  }
+
+  function editBooks(id,title,price,discount_price,category,days,description,price_with_video,includes_videos,discont_price_with_video,	video_days,only_video_price,only_video_discount_price) {
+      document.getElementById('editpreview').innerHTML = '';
+      getImages(id,'edit');
+      document.getElementById('edittitle').value = title;
+      document.getElementById('editcategory').value = category;
+      document.getElementById('editprice').value = price;
+      document.getElementById('editdiscount_price').value = discount_price;
+      document.getElementById('editprice_with_video').value = price_with_video;
+      document.getElementById('editdiscount_price_with_video').value = discont_price_with_video;
+      document.getElementById('editonly_video_price').value = only_video_price;
+      document.getElementById('editonly_video_discount_price').value = only_video_discount_price;
+      document.getElementById('editincludes_videos').value = includes_videos;
+      document.getElementById('editdays').value = days;
+      document.getElementById('editvideo_days').value = video_days;
+      document.getElementById('editdescription').value = description;
+      document.getElementsByClassName('edit_form')[0].setAttribute('id',`form_${id}`);
+      editBookModal.toggle();
+      
+  }
+
+
+
+  function getBooks() {
+    $.ajax({
+            url : '/getBooks',
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].price_with_video +'</td><td>'+ response.data[i].discont_price_with_video +'</td><td>'+ response.data[i].days +'</td><td>'+ response.data[i].video_days +'</td><td>'+ response.data[i].includes_videos +'</td> <td> <div class="options"> <a class="edit" onclick="editBooks(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].description+'\',\''+response.data[i].price_with_video+'\',\''+response.data[i].includes_videos+'\',\''+response.data[i].discont_price_with_video+'\',\''+response.data[i].video_days+'\',\''+response.data[i].only_video_price+'\',\''+response.data[i].only_video_discount_price+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBooks('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td> </tr>');
+                  }
+                } else {
+                    $('#data').append('<tr><td>No Books present</td></tr>')
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+  
+  window.onload = getBooks();
+
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 

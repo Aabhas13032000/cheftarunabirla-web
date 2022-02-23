@@ -1,0 +1,535 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+
+<div class="container-fluid user_data">
+    <br>
+    <!-- Modal -->
+    <div class="modal fade" id="addBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Slider</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="addSlider(event)" id="form" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <label for="">Images</label>
+                                    <input class="form-control" onchange="uploadImages()" style="margin-bottom: 10px;" type="file" id="slider_images" name="images" accept="image/*">
+                                </div>
+                                <div id="preview" class="row preview_images">
+                                    
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Video Url</label>
+                                    <input type="url" id="slider_video" name="slider_video" class="form-control" placeholder="Enter Slider Video URL" style="margin-bottom: 10px;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">If Video Upload thumbnail</label>
+                                    <input class="form-control" onchange="uploadThumbnailImages()" style="margin-bottom: 20px;" type="file" id="thumbnail_images" name="images" accept="image/*">
+                                </div>
+                                <div id="thumbnail_preview" class="row preview_images">
+                                    
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="show_category" style="margin-bottom: 10px;" name="show_category" aria-label="Images Categories" onchange="getItems('add')" required>
+                                      <option value="">Select Linked category</option>
+                                      <option value="no">No Category</option>
+                                      <option value="course">Course</option>
+                                      <option value="product">Product</option>
+                                      <option value="book">Book</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="linked_item" style="margin-bottom: 10px;" name="linked_item" aria-label="Images Categories" required>
+                                      <option value="no_linked_item">Select Linked Item</option>
+                                    </select>
+                                </div>
+                                <div class="button">
+                                    <button type="submit" id="book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editSlider" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Linked Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="editSliderSave(event)" class="edit_form" id="form_" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <select class="form-control" id="editshow_category" style="margin-bottom: 10px;" name="editshow_category" onchange="getItems('edit')" aria-label="Images Categories" required>
+                                      <option value="" id="editshow_category_option">Select Linked category</option>
+                                      <option value="no">No Category</option>
+                                      <option value="course">Course</option>
+                                      <option value="product">Product</option>
+                                      <option value="book">Book</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="editlinked_array" style="margin-bottom: 10px;" name="editlinked_array" aria-label="Images Categories" required>
+                                      <option value="">Select Linked category First</option>
+                                    </select>
+                                </div>
+                                <div class="button">
+                                    <button type="submit" id="book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="add_button">
+      <a href="#">Slider</a>
+      <button type="button" data-bs-toggle="modal" data-bs-target="#addBook">Add Slider</button>
+    </div>
+    <table>
+        <thead>
+            <th>PATH</th>
+            <th>THUMBNAIL</th>
+            <th>CATEGORY</th>
+            <th>LINKED CATEGORY</th>
+            <th>LINKED ITEM</th>
+            <th>DATE</th>
+            <th>OPTIONS</th>
+        </thead>
+        <tbody id="data">
+
+        </tbody>
+      </table>
+      <br>
+      <div id="tableLoader">
+        <p>Loading...</p>
+      </div>
+</div>
+
+<!--Bootstrap js-->
+<script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!---->
+
+<script>
+    var editSliderModal = new bootstrap.Modal(document.getElementById('editSlider'));
+
+    function getItems(form_value) {
+        if(form_value == 'add') {
+            var value = document.getElementById('show_category').value;
+        } else {
+            var value = document.getElementById('editshow_category').value;
+        }
+        var select;
+        console.log(value);
+        if(value == 'course'){
+            $.ajax({
+                url : '/getCourse',
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    if(form_value == 'add') {
+                        select = document.getElementById("linked_item");
+                    } else {
+                        select = document.getElementById("editlinked_array");
+                    }
+                    var length = select.options.length;
+                    for (var i = length-1; i >= 0; i--) {
+                        select.options[i] = null;
+                    }
+                    if(response.data.length != 0){
+                        var option2 = document.createElement("option");
+                        option2.text = 'No linking';
+                        option2.value= 'no_linked_item';
+                        select.add(option2);
+                        var option3 = document.createElement("option");
+                        option3.text = 'Multiple';
+                        option3.value= 'multiple';
+                        select.add(option3);
+                        for(var i=0;i<response.data.length;i++){
+                            var option = document.createElement("option");
+                            option.text = response.data[i].title;
+                            option.value= response.data[i].id;
+                            select.add(option);
+                        }
+                    } else {
+                        var option = document.createElement("option");
+                        option.text = "No Courses present";
+                        option.value= 'no_linked_item';
+                        select.add(option);
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        } else if(value == 'product'){
+            $.ajax({
+                url : '/getProducts',
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    if(form_value == 'add') {
+                        select = document.getElementById("linked_item");
+                    } else {
+                        select = document.getElementById("editlinked_array");
+                    }
+                    var length = select.options.length;
+                    for (var i = length-1; i >= 0; i--) {
+                        select.options[i] = null;
+                    }
+                    if(response.data.length != 0){
+                        var option2 = document.createElement("option");
+                        option2.text = 'No linking';
+                        option2.value= 'no_linked_item';
+                        select.add(option2);
+                        var option3 = document.createElement("option");
+                        option3.text = 'Multiple';
+                        option3.value= 'multiple';
+                        select.add(option3);
+                        for(var i=0;i<response.data.length;i++){
+                            var option = document.createElement("option");
+                            option.text = response.data[i].name;
+                            option.value= response.data[i].id;
+                            select.add(option);
+                        }
+                    } else {
+                        var option = document.createElement("option");
+                        option.text = "No Courses present";
+                        option.value= 'no_linked_item';
+                        select.add(option);
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        } else if(value == 'book'){
+            $.ajax({
+                url : '/getBooks',
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    if(form_value == 'add') {
+                        select = document.getElementById("linked_item");
+                    } else {
+                        select = document.getElementById("editlinked_array");
+                    }
+                    var length = select.options.length;
+                    for (var i = length-1; i >= 0; i--) {
+                        select.options[i] = null;
+                    }
+                    if(response.data.length != 0){
+                        var option2 = document.createElement("option");
+                        option2.text = 'No linking';
+                        option2.value= 'no_linked_item';
+                        select.add(option2);
+                        var option3 = document.createElement("option");
+                        option3.text = 'Multiple';
+                        option3.value= 'multiple';
+                        select.add(option3);
+                        for(var i=0;i<response.data.length;i++){
+                            var option = document.createElement("option");
+                            option.text = response.data[i].title;
+                            option.value= response.data[i].id;
+                            select.add(option);
+                        }
+                    } else {
+                        var option = document.createElement("option");
+                        option.text = "No Courses present";
+                        option.value= 'no_linked_item';
+                        select.add(option);
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        } else {
+            if(form_value == 'add') {
+                select = document.getElementById("linked_array");
+            } else {
+                select = document.getElementById("editlinked_array");
+            }
+            var length = select.options.length;
+            for (var i = length-1; i >= 0; i--) {
+                select.options[i] = null;
+            }
+            var option2 = document.createElement("option");
+            option2.text = 'No linking';
+            option2.value= 'no_linked_item';
+            select.add(option2);
+        }
+    }
+
+    function editSliderSave(event){
+      event.preventDefault();
+
+      var show_category = document.getElementById('editshow_category').value;
+      var linked_item = document.getElementById('editlinked_array').value;
+      var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+
+      $.ajax({
+                url : `/editslider`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    show_category:show_category,
+                    linked_item:linked_item,
+                    id:id
+                },
+                success: function(response){
+                    alert('Slider edited successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+    }
+
+    function addSlider(event){
+      event.preventDefault();
+
+      var image = document.getElementsByClassName('gallery_image_path')[0];
+      var video = document.getElementById('slider_video').value;
+      var show_category = document.getElementById('show_category').value;
+      var linked_item = document.getElementById('linked_item').value;
+
+      console.log(image);
+      console.log(video);
+      if(image == undefined && video.length ==0){
+        alert('Add something first!!');
+      }
+      if(image != undefined && video.length !=0){
+        alert('You can\'t add both!!');
+        location.reload();
+      }
+      if(image != undefined && video.length ==0){
+        $.ajax({
+                url : '/addSlider',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    path:image.value,
+                    category:'image',
+                    show_category:show_category,
+                    thumbnail:'',
+                    linked_item:linked_item
+                },
+                success: function(response){
+                    alert('Slider added successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+      }
+      if(image == undefined && video.length !=0){
+        var thumbnail = document.getElementsByClassName('thumbnail_image_path')[0];
+        $.ajax({
+                url : '/addSlider',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    path:video,
+                    category:'video',
+                    show_category:show_category,
+                    thumbnail:thumbnail.value,
+                    linked_item:linked_item
+                },
+                success: function(response){
+                    alert('Slider added successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+      }
+    }
+
+    function deleteCurrentGalleryImage(id,input_id) {
+        var path = document.getElementById(input_id).value;
+        if(confirm('Do you want to delete it?') == true){
+            console.log(path);
+            if(path != '/images/extra/nopreview.jpeg') {
+                $.ajax({
+                    url : '/deletePhoto',
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        path:path
+                    },
+                    success: function(response){
+                        alert('Removed Successfully');
+                        document.getElementById(id).remove();
+                        document.getElementById('slider_images').value = '';
+                    },
+                    error: function(err){
+                        console.log(err);
+                        alert('Some error occured !!');
+                    }
+                });
+            }
+        } 
+    }
+
+    function deleteCurrentThumbnailImage(id,input_id) {
+        var path = document.getElementById(input_id).value;
+        if(confirm('Do you want to delete it?') == true){
+            console.log(path);
+            if(path != '/images/extra/nopreview.jpeg') {
+                $.ajax({
+                    url : '/deletePhoto',
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        path:path
+                    },
+                    success: function(response){
+                        alert('Removed Successfully');
+                        document.getElementById(id).remove();
+                        document.getElementById('thumbnail_images').value = '';
+                    },
+                    error: function(err){
+                        console.log(err);
+                        alert('Some error occured !!');
+                    }
+                });
+            }
+        } 
+    }
+
+    function uploadThumbnailImages() {
+        $(parent.document).find('#image_loader').css('display','flex');
+        var fileForm = new FormData();
+        var image = document.getElementById('thumbnail_images').files[0];
+        if(image != undefined) {
+            fileForm.append('slider_image',image);
+            $.ajax({
+                url : "/uploadSliderImage",
+                type: "POST",
+                cache: false,
+                contentType: false,
+                processData: false,
+                data : fileForm,
+                success: function(response){
+                    var path = response.path.slice(6,response.path.length);
+                    $('#thumbnail_preview').append('<div class="col-6" id="thumbnail_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentThumbnailImage(\''+ ( "thumbnail_image_"+ path )  +'\',\'thumbnail_image__path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="thumbnail_image_path" name="gallery_image_path" id="thumbnail_image__path_'+ path +'" value="'+ path +'"></div></div>');
+                    document.getElementById('thumbnail_images').value = '';
+                    $(parent.document).find('#image_loader').css('display','none');
+                },
+                error: function(err){
+                    console.log(err.status);
+                    alert('Some error occured !!');
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function uploadImages() {
+        $(parent.document).find('#image_loader').css('display','flex');
+        var fileForm = new FormData();
+        var image = document.getElementById('slider_images').files[0];
+        if(image != undefined) {
+            fileForm.append('slider_image',image);
+            $.ajax({
+                url : "/uploadSliderImage",
+                type: "POST",
+                cache: false,
+                contentType: false,
+                processData: false,
+                data : fileForm,
+                success: function(response){
+                    var path = response.path.slice(6,response.path.length);
+                    $('#preview').append('<div class="col-6" id="gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentGalleryImage(\''+ ( "gallery_image_"+ path )  +'\',\'gallery_image_path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="gallery_image_path" name="gallery_image_path" id="gallery_image_path_'+ path +'" value="'+ path +'"></div></div>');
+                    document.getElementById('slider_images').value = '';
+                    $(parent.document).find('#image_loader').css('display','none');
+                },
+                error: function(err){
+                    console.log(err.status);
+                    alert('Some error occured !!');
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function deleteSlider(id) {
+    if(confirm('Do you want to delete it?') == true){
+      $.ajax({
+            url : '/deleteSlider',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Deleted Successfullyt!!');
+                location.reload();
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+      });
+    } 
+  }
+
+  function editSlider(id,linked_category){
+    //   if(linked_category == 'no') {
+    //     document.getElementById('editshow_category_option').innerHTML = 'No linking';
+    //     document.getElementById('editshow_category_option').setAttribute('value','no_linked_item');
+    //   } else {
+    //     document.getElementById('editshow_category_option').innerHTML = linked_category;
+    //     document.getElementById('editshow_category_option').setAttribute('value',linked_category);
+    //   }
+      document.getElementsByClassName('edit_form')[0].setAttribute('id',`form_${id}`);
+      editSliderModal.toggle();
+  }
+
+  function getSlider() {
+    $.ajax({
+            url : '/getSlider',
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                      var date = new Date(response.data[i].date);
+                    $('#data').append('<tr> <td style="overflow:hidden"><a href="'+ response.data[i].path +'" target="_blank">'+ (response.data[i].category == 'video'? response.data[i].path : '<img src="'+ response.data[i].path +'" />') +'</a></td><td style="overflow:hidden">'+ (response.data[i].thumbnail.length !=0 ? '<a href="'+ response.data[i].thumbnail +'" target="_blank"><img src="'+ response.data[i].thumbnail +'" /></a>' : 'no thumbnail') +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].linked_category +'</td><td>'+ response.data[i].linked_array +'</td><td>'+ date.toString().slice(0,15) +'</td><td> <div class="options"> <a class="edit" onclick="editSlider(\''+response.data[i].id+'\',\''+response.data[i].linked_category+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteSlider('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr>');
+                  }
+                } else {
+                    $('#data').append('<tr><td>No Slider present</td></tr>');
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+  
+  window.onload = getSlider();
+
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 

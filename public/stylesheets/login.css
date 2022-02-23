@@ -1,0 +1,103 @@
+.outer_login_box {
+    height: 100%;
+    width: 100%;
+    background-color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    font-family: Hellix-Regular;
+    overflow: hidden;
+}
+
+.outer_login_box .login_card {
+    width: 400px;
+    background-color: var(--primary-color);
+    border: 0;
+    border-radius: 20px;
+    box-shadow: 4px 10px 25px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.alert {
+    border-radius: 8px;
+}
+
+.outer_login_box .login_card .heading {
+    width: 100%;
+    padding: 30px 20px;
+}
+
+.outer_login_box .login_card .heading h3 {
+    margin: 0;
+    font-family: Hellix-Medium;
+    color: var(--headings-color);
+}
+
+.outer_login_box .login_card .heading h6 {
+    margin: 10px 0px 0px 0px;
+    font-family: Hellix-Thin;
+    color: var(--smallText-color);
+}
+
+.outer_login_box .login_card .form {
+    width: 100%;
+    padding: 0px 20px 30px 20px;
+}
+
+.outer_login_box .login_card .form .form-input {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.outer_login_box .login_card .form .button {
+    width: 100%;
+    margin-top: 35px;
+}
+
+.outer_login_box .login_card .form .button .login_button {
+    background-color: var(--contrast-color);
+    width: 100%;
+    border-radius: 8px;
+    padding: 10px 20px;
+    border: 0;
+    font-family: Hellix-Medium;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.outer_login_box .login_card .form .button .login_button .text {
+    font-size: 18px;
+}
+
+.outer_login_box .login_card .form .button .login_button .iconify {
+    width: 22px;
+    height: 22px;
+}
+
+.outer_login_box .login_card .form .form-input .input-label {
+    color: var(--smallText-color);
+    margin-bottom: 10px;
+}
+
+.outer_login_box .login_card .form .form-input .input-class {
+    width: 100%;
+    border: 2px solid var(--primary-color);
+    padding: 13px 20px;
+    border-radius: 10px;
+    background-color: var(--secondary-color);
+    transition: 0.3s ease-in;
+    color: var(--smallText-color);
+}
+
+.outer_login_box .login_card .form .form-input .input-class:focus {
+    border: 2px solid var(--contrast-color) !important;
+    outline: none !important;
+}
+
+@media screen and (max-width:567px) {
+    .outer_login_box .login_card {
+        width: 100%;
+    }
+}

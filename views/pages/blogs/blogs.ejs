@@ -1,0 +1,355 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+
+<div class="container-fluid user_data">
+    <br>
+    <!-- Modal -->
+    <div class="modal fade" id="addBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Blogs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="addBlog(event)" id="form" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <input type="text" id="title" name="title" class="form-control" placeholder="Enter Blog Title"  style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Images</label>
+                                    <input class="form-control" onchange="uploadImages('add')" style="margin-bottom: 10px;" type="file" multiple id="blog_images" name="images" accept="image/*">
+                                </div>
+                                <div id="preview" class="row preview_images">
+                                    
+                                </div>
+                                <div class="button">
+                                    <button type="submit" id="book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editBlog" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Blogs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="editBlogSave(event)" id="form_" class="edit_form" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <input type="text" id="edittitle" name="edittitle" class="form-control" placeholder="Enter Blog Title"  style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" id="editdescription" name="editdescription" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Images</label>
+                                    <input class="form-control" onchange="uploadImages('edit')" style="margin-bottom: 10px;" type="file" multiple id="edit_blog_images" name="images" accept="image/*">
+                                </div>
+                                <div id="editpreview" class="row preview_images">
+                                    
+                                </div>
+                                <div class="button">
+                                    <button type="submit" id="edit_book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="add_button">
+      <a href="#">Blogs</a>
+      <button type="button" data-bs-toggle="modal" data-bs-target="#addBook">Add Blog</button>
+    </div>
+    <table>
+        <thead>
+            <th>TITLE</th>
+            <th>DESCRIPTION</th>
+            <th>FROMT IMAGE</th>
+            <th>OPTIONS</th>
+        </thead>
+        <tbody id="data">
+
+        </tbody>
+      </table>
+      <br>
+      <div id="tableLoader">
+        <p>Loading...</p>
+      </div>
+</div>
+
+<!--Bootstrap js-->
+<script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!---->
+
+<script>
+
+    var editBlogModal = new bootstrap.Modal(document.getElementById('editBlog'));
+
+    function addBlog(event){
+      event.preventDefault();
+
+      var title = document.getElementById('title').value;
+      var description = document.getElementById('description').value;
+      var gallery = document.getElementsByClassName("gallery_image_path");
+      var gallery_values = [];
+      if(gallery.length != 0) {
+        for(var i =0;i<gallery.length;i++) {
+            gallery_values.push(gallery[i].value);
+        }
+        $.ajax({
+                url : '/addBlog',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    title:title,
+                    description:description,
+                    gallery:gallery_values,
+                },
+                success: function(response){
+                    alert('Blog added successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        }
+    }
+
+    function editBlogSave(event){
+      event.preventDefault();
+
+      var title = document.getElementById('edittitle').value;
+      var description = document.getElementById('editdescription').value;
+      var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+            $.ajax({
+                url : `/editBlog/${id}`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    title:title,
+                    description:description,
+                },
+                success: function(response){
+                    alert('Blog edited successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+    }
+
+    function deleteCurrentGalleryImage(id,input_id) {
+        var path = document.getElementById(input_id).value;
+        if(confirm('Do you want to delete it?') == true){
+            console.log(path);
+            if(path != '/images/extra/nopreview.jpeg') {
+                $.ajax({
+                    url : '/deletePhoto',
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        path:path
+                    },
+                    success: function(response){
+                        alert('Removed Successfully');
+                        document.getElementById(id).remove();
+                    },
+                    error: function(err){
+                        console.log(err);
+                        alert('Some error occured !!');
+                    }
+                });
+            }
+        } 
+    }
+
+    function deleteEditCurrentGalleryImage(id,path) {
+        if(confirm('Do you want to delete it?') == true){
+            console.log(path);
+            if(path != '/images/extra/nopreview.jpeg') {
+                $.ajax({
+                    url : `/deleteEditPhoto`,
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        path:path
+                    },
+                    success: function(response){
+                        alert('Removed Successfully');
+                        document.getElementById(id).remove();
+                    },
+                    error: function(err){
+                        console.log(err);
+                        alert('Some error occured !!');
+                    }
+                });
+            }
+        } 
+    }
+
+
+    function uploadImages(value) {
+        $(parent.document).find('#image_loader').css('display','flex');
+      if(value != 'edit'){
+        var imageFiles = document.getElementById('blog_images').files;
+        //   console.log(imageFiles);
+        var form = new FormData();
+        //   document.getElementById('preview').innerHTML = '';
+
+        for(var i=0;i<imageFiles.length;i++){
+            if(imageFiles[i] != undefined){
+                form.append(`book_images`, imageFiles[i]);
+            }
+        }
+
+        $.ajax({
+            url : "/saveBookImages",
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : form,
+            success: function(response){
+                console.log(response.files);
+                for(var i=0;i<response.files.length;i++) {
+                    var path = response.files[i].slice(6,response.files[i].length);
+                    $('#preview').append('<div class="col-6" id="gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentGalleryImage(\''+ ( "gallery_image_"+ path )  +'\',\'gallery_image_path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="gallery_image_path" name="gallery_image_path" id="gallery_image_path_'+ path +'" value="'+ path +'"></div></div>');
+                }
+                document.getElementById('blog_images').value='';
+                $(parent.document).find('#image_loader').css('display','none');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+      } else {
+        var imageFiles = document.getElementById('edit_blog_images').files;
+        var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+        //   console.log(imageFiles);
+        var form = new FormData();
+        for(var i=0;i<imageFiles.length;i++){
+            if(imageFiles[i] != undefined){
+                form.append(`book_images`, imageFiles[i]);
+            }
+        }
+
+        $.ajax({
+            url : `/saveEditBookImages/${id}/blogs`,
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : form,
+            success: function(response){
+                console.log(response.files);
+                for(var i=0;i<response.files.length;i++) {
+                    var path = response.files[i].path.slice(6,response.files[i].path.length);
+                    $('#editpreview').append('<div class="col-6" id="edit_gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteEditCurrentGalleryImage(\''+ ( "edit_gallery_image_"+ path )  +'\',\''+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""></div></div>');
+                }
+                document.getElementById('edit_blog_images').value='';
+        $(parent.document).find('#image_loader').css('display','none');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+      }
+  }
+
+  function deleteBlog(id) {
+    if(confirm('Do you want to delete it?') == true){
+      $.ajax({
+            url : '/deleteBlog',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Deleted Successfullyt!!');
+                location.reload();
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+      });
+    } 
+  }
+
+  function getImages(id,value) {
+    $.ajax({
+            url : `/getBlogImages/${id}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                console.log(response);
+                if(value == 'edit') {
+                    for(var i=0;i<response.data.length;i++) {
+                        var path = response.data[i].path;
+                        $('#editpreview').append('<div class="col-6" id="edit_gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteEditCurrentGalleryImage(\''+ ( "edit_gallery_image_"+ path )  +'\',\''+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""></div></div>');
+                    }
+                } 
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+
+  function editBlog(id,title,description) {
+      getImages(id,'edit');
+      document.getElementById('editpreview').innerHTML = '';
+      document.getElementById('edittitle').value = title;
+      document.getElementById('editdescription').value = description;
+      document.getElementsByClassName('edit_form')[0].setAttribute('id',`form_${id}`);
+      editBlogModal.toggle();
+  }
+
+  function getBlogs() {
+    $.ajax({
+            url : '/getBlogs',
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].image_path +'" target="_blank"><img src="'+ response.data[i].image_path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].description+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr>');
+                  }
+                } else {
+                    $('#data').append('<tr><td>No Blogs present</td></tr>')
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+  
+  window.onload = getBlogs();
+
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 

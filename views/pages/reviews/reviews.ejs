@@ -1,0 +1,109 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+
+<div class="container-fluid user_data" onscroll="getMore()">
+    <br>
+    <div class="add_button">
+      <a>Reviews</a>
+      <div>
+        <a style="color: black;display: inline;font-size: 16px;">Select Category</a>
+        <div class="form-group" style="display: inline-block;">
+          <select class="form-control" id="editstock" onchange="getReviews(this.value)" name="editstock" aria-label="Images Categories" required>
+            <option value="course">Courses</option>
+            <option value="product">Products</option>
+            <option value="book">Books</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <table id="myTable">
+        <thead>
+            <th>USER</th>
+            <th>USER PHONE NUMBER</th>
+            <th>MESSAGE</th>
+            <th>ITEM NAME</th>
+            <th>DATE</th>
+            <th>OPTION</th>
+        </thead>
+        <tbody id="data">
+        </tbody>
+      </table>
+      <br>
+      <div id="tableLoader">
+        <p>Loading...</p>
+      </div>
+</div>
+
+<script>
+
+  //functionsearch
+  function search(value){
+    var filter, table, tr, td, i, txtValue;
+    // input = value;
+    filter = value.toUpperCase();
+    table = document.getElementById("myTable");
+    tr = table.getElementsByTagName("tr");
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[0];
+                // console.log(td);
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+    // console.log(value);
+  }
+
+  function deleteReview(id) {
+    if(confirm('Do you want to delete it?') == true){
+      $.ajax({
+            url : '/deleteReviews',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Deleted Successfullyt!!');
+                location.reload();
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+      });
+    } 
+  }
+
+  function getReviews(category) {
+    document.getElementById('data').innerHTML = '';
+    $.ajax({
+            url : `/getReviews/${category}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+              // console.log(response);
+                if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    var date = new Date(response.data[i].date);
+                    $('#data').append('<tr> <td>'+ response.data[i].username +'</td><td>'+ response.data[i].phoneNumber +'</td><td>'+ response.data[i].message +'</td><td>'+ response.data[i].item_name +'</td><td>'+ date.toString().slice(0,21) +'</td><td><a onclick="deleteReview('+response.data[i].id+')" class="profile">Delete</a></div> </td> </tr>');
+                  }
+                } else {
+                    $('#data').append('<tr><td>No Reviews</td></tr>');
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+  
+  window.onload = getReviews('course');
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 

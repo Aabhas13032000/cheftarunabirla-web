@@ -1,0 +1,391 @@
+.user_data {
+    width: 100%;
+    height: 100%;
+    background-color: var(--unselectedSidebarText-color);
+    overflow: scroll;
+    padding: 0px 25px;
+}
+
+.user_data .tabs {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.user_data .tabs button {
+    border: 1px solid var(--primary-color);
+    background-color: transparent;
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-family: Hellix-Medium;
+}
+
+.user_data .tabs .inner_tab {
+    margin-right: 20px;
+    font-size: 18px;
+    color: var(--primary-color);
+    font-family: Hellix-Medium;
+    cursor: pointer;
+}
+
+.user_data .tabs .selected_tab {
+    font-family: Hellix-Medium !important;
+    color: black !important;
+}
+
+.user_data .add_button {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user_data .add_button a {
+    font-size: 20px;
+    color: var(--primary-color);
+    font-family: Hellix-SemiBold;
+}
+
+.user_data .add_button button{
+    border: 1px solid var(--primary-color);
+    background-color: transparent;
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-family: Hellix-Medium;
+}
+
+.user_data .row {
+    width: 100%;
+    margin: 0;
+}
+
+.user_data .row .col-lg-4 {
+    padding: 10px;
+}
+
+.user_data .row .col-lg-4 .card {
+    width: 100%;
+    border: 0;
+    background-color: transparent;
+    overflow: hidden;
+    position: relative;
+    margin: 10px 0px;
+}
+
+.user_data .row .col-lg-4 .card .delete_gallery_images {
+    position: absolute;
+    z-index: 1;
+    background-color: tomato;
+    color: white;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+    overflow: hidden;
+    top: 10px;
+    right: 10px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+}
+
+.user_data .row .col-lg-4 .card .approved_gallery_images {
+    position: absolute;
+    z-index: 1;
+    background-color: rgb(226, 212, 17);
+    color: white;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+    overflow: hidden;
+    top: 10px;
+    right: 50px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+}
+
+.user_data .row .col-lg-4 .card .delete_gallery_images .iconify {
+    width: 20px;
+    height: 20px;
+}
+
+.user_data .row .col-lg-4 .card .approved_gallery_images .iconify {
+    width: 20px;
+    height: 20px;
+}
+
+.user_data .row .col-lg-4 .card img {
+    width: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+    position: relative;
+    z-index: 0;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: white;
+    border-radius: 10px;
+    border: 0;
+    overflow: hidden;
+    box-shadow: 0px 0px 15px rgba(0,0,0,0.05);
+    table-layout: fixed;
+    margin-top: 8px;
+}
+
+thead th{
+    text-align: center !important;
+    font-family: Hellix-SemiBold;
+    border-bottom: 1px solid #dddddd;
+    padding: 15px 8px;
+}
+
+tr {
+    text-align: center !important;
+    font-family: Hellix-Regular;
+    border-bottom: 1px solid #dddddd;
+}
+
+td {
+    padding: 15px 8px;
+    overflow: hidden;
+}
+
+tr:last-child {
+    border: 0;
+}
+
+tr .options {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+tr .options .edit {
+    margin: 2px auto;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+tr .options .delete {
+    margin: 2px auto;
+    cursor: pointer;
+    background-color: white;
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+tr .options .delete:hover {
+    background-color: var(--deleteButton-color);
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.delete {
+    margin: 2px auto;
+    cursor: pointer;
+    background-color: white;
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+}
+
+.delete:hover {
+    background-color: var(--deleteButton-color);
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete .iconify {
+    color: var(--deleteButton-color);
+    width:24px;
+    height: 24px;
+}
+
+.delete:hover .iconify{
+    color: white;
+}
+
+tr .options .edit:hover {
+    background-color: var(--primary-color);
+    padding: 10px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+tr .options .edit .iconify {
+    width:24px;
+    height: 24px;
+    color: var(--primary-color);
+}
+
+tr .options .delete .iconify {
+    color: var(--deleteButton-color);
+    width:24px;
+    height: 24px;
+}
+
+tr .options .delete:hover .iconify{
+    color: white;
+}
+
+tr .options .edit:hover .iconify{
+    color: white;
+}
+
+tr .options .profile {
+    background-color: var(--primary-color);
+    color: white;
+    font: Hellix-Regular;
+    padding: 5px 12px;
+    border-radius: 5px;
+    margin: 2px auto;
+}
+
+tr td img{
+    width: 50%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+tr td .form-check {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+tr td .form-check .form-check-input {
+    height: 24px;
+    width: 40px;
+}
+
+/* #tableLoader {
+    
+} */
+ 
+#tableLoader p {
+    margin: 0;
+    text-align: center;
+    font-family: Hellix-Regular;
+}
+
+
+.preview_images .col-6 .card {
+    width: 100%;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    position: relative;
+    border: 0;
+}
+
+.preview_images .col-6 .card .delete_gallery_image {
+    position: absolute;
+    z-index: 1;
+    background-color: tomato;
+    color: white;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+    overflow: hidden;
+    top: 10px;
+    right: 10px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+}
+
+.preview_images .col-6 .card .delete_gallery_image .iconify {
+    width: 20px;
+    height: 20px;
+}
+
+.preview_images .col-6 .card img {
+    width: 100%;
+    position: relative;
+    z-index: 0;
+    object-fit: cover;
+}
+
+.preview_images .col-12 .card {
+    width: 100%;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    position: relative;
+    border: 0;
+}
+
+.preview_images .col-12 .card .delete_gallery_image {
+    position: absolute;
+    z-index: 1;
+    background-color: tomato;
+    color: white;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+    overflow: hidden;
+    top: 10px;
+    right: 10px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+}
+
+.preview_images .col-12 .card .delete_gallery_image .iconify {
+    width: 20px;
+    height: 20px;
+}
+
+.preview_images .col-12 .card img {
+    width: 100%;
+    position: relative;
+    z-index: 0;
+    object-fit: cover;
+}
+
+
+@media screen and (max-width:576px) {
+    table {
+        table-layout: auto;
+    }   
+    
+    tr td img{
+        width: 100%;
+        object-fit: cover;
+        border-radius: 5px;
+    } 
+}

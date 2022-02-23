@@ -1,0 +1,98 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+
+<div class="container-fluid user_data" onscroll="getMore()">
+    <br>
+    <div class="add_button">
+      <a href="#">Users</a>
+    </div>
+    <table id="myTable">
+        <thead>
+            <th>PHONE NUMBER</th>
+            <th>DEVICE UPDATE REQUEST</th>
+        </thead>
+        <tbody id="data">
+        </tbody>
+      </table>
+      <br>
+      <div id="tableLoader">
+        <p>Loading...</p>
+      </div>
+</div>
+
+<script>
+
+  //functionsearch
+  function search(value){
+    var filter, table, tr, td, i, txtValue;
+    // input = value;
+    filter = value.toUpperCase();
+    table = document.getElementById("myTable");
+    tr = table.getElementsByTagName("tr");
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("td")[0];
+                // console.log(td);
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+    // console.log(value);
+  }
+
+  var offset = 0;
+
+  function updateDeviceRequest(phone_number) {
+    if(confirm('Do you want to Update it?') == true){
+      $.ajax({
+            url : `/updateDeviceRequest/${phone_number}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                alert('Updated Successfully !!');
+                location.reload();
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+    });  
+    } 
+  }
+
+  function getMore() {
+        document.getElementById('tableLoader').style.display = 'block';
+        offset = offset+20;
+        getUsers(offset);
+  }
+
+  function getUsers(offset) {
+    $.ajax({
+            url : `/getUsers/${offset}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+              // console.log(response);
+                if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    $('#data').append('<tr> <td>'+ response.data[i].phone_number +'</td><td><a onclick="updateDeviceRequest('+response.data[i].phone_number+')" class="profile">Update</a></div> </td> </tr>');
+                  }
+                } else {
+                    $('#data').append('<tr><td>No Users present</td></tr>');
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+  
+  window.onload = getUsers(offset);
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 

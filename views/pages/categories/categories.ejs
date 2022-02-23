@@ -1,0 +1,93 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+
+<div class="container-fluid user_data">
+    <br>
+    <div class="add_button">
+      <a href="#">Categories</a>
+      <button onclick="window.parent.openPopup()">Add Category</button>
+    </div>
+    <table>
+        <thead>
+            <th>COVER PHOTO</th>
+            <th>CATEGORY NAME</th>
+            <th>OPTIONS</th>
+            <th>SELECT CATEGORY</th>
+        </thead>
+        <tbody id="data">
+
+        </tbody>
+      </table>
+      <br>
+      <div id="tableLoader">
+        <p>Loading...</p>
+      </div>
+</div>
+
+<script>
+
+  function toggleImportant(id) {
+    $.ajax({
+            url : '/markedCategoryImportant',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Edited Successfullyt!!');
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+
+  function deleteCategory(id) {
+    if(confirm('Do you want to delete it?') == true){
+      $.ajax({
+            url : '/deleteCategory',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Deleted Successfullyt!!');
+                location.reload();
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+      });
+    } 
+  }
+
+  function getCategories() {
+    $.ajax({
+            url : '/getCategories',
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    $('#data').append('<tr> <td> <img src="'+ response.data[i].image +'" alt=""> </td> <td>'+ response.data[i].name +'</td> <td> <div class="options"> <a class="edit" onclick="window.parent.editCategory('+response.data[i].id+')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCategory('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a> </div> </td> <td> <div class="form-check form-switch">'+ (response.data[i].imp == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')" checked>') +' </div> </td> </tr>');
+                  }
+                } else {
+                    $('#data').append('<tr><td>No Categories present</td></tr>')
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+  
+  window.onload = getCategories();
+
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 

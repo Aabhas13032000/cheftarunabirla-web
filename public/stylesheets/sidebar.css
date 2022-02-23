@@ -1,0 +1,111 @@
+.sidebar {
+    background-color: var(--primary-color);
+    height: 100%;
+    padding: 0px 0px 0px 60px;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.sidebar .logo {
+    padding: 30px 0px 20px 0px;
+    color: white;
+    font-family: Hellix-Regular;
+}
+
+.sidebar .logo .iconify {
+    display: none;
+}
+
+.sidebar ul {
+    padding: 0;
+    margin: 0;
+    color: var(--unselectedSidebarText-color);
+    font-family: Hellix-Regular;
+    font-size: 20px;
+    list-style-type: none;
+    position: absolute;
+    z-index: 1;
+}
+
+.sidebar ul .list {
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+}
+
+.sidebar ul .list .iconify {
+    margin-right: 10px;
+    color: var(--unselectedSidebarText-color);
+    transition: 0.3s ease-in;
+}
+
+.sidebar ul .list .sidebar_text {
+    margin-left: 5px;
+    color: var(--unselectedSidebarText-color);
+    /* transition: 0.3s ease-in; */
+}
+
+.sidebar ul .selected {
+    background-color: var(--contrast-color);
+    padding: 5px 20px 5px 5px;
+    border-radius: 5px;
+}
+
+.sidebar ul .selected .iconify,.sidebar ul .selected .sidebar_text{
+    color: var(--primary-color) !important;
+    font-family: Hellix-Medium;
+}
+
+.selected_card {
+    background-color: var(--contrast-color);
+    height: 50px;
+    width:75%;
+    position: absolute;
+    z-index: 0;
+    top: -50px;
+    left: 60px;
+    border-radius: 12px;
+    transition: 0.3s ease-in;
+    transform: translate(-10%,-20%);
+}
+
+@media screen and (max-width: 1200px) {
+    .sidebar {
+        padding: 0px 0px 0px 15px;
+    }
+    
+    .selected_card {
+        left: 30px;
+        transform: translate(-5%,-20%);
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .sidebar {
+        padding: 0px 0px 0px 45px;
+    }
+
+    .sidebar .logo .iconify {
+        display: inline;
+    }
+    
+    .selected_card {
+        left: 60px;
+        transform: translate(-10%,-20%);
+    }
+}
+
+
+@media screen and (max-width: 768px) {
+    .sidebar {
+        padding: 0px 0px 0px 60px;
+    }
+    
+    .selected_card {
+        left: 60px;
+        transform: translate(-10%,-20%);
+    }
+}

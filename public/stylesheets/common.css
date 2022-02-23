@@ -1,0 +1,40 @@
+@font-face { font-family: Hellix-Regular; src: url('../fonts/Hellix/Hellix-Regular.ttf'); }
+@font-face { font-family: Hellix-Bold; src: url('../fonts/Hellix/Hellix-Bold.ttf'); }
+@font-face { font-family: Hellix-Black; src: url('../fonts/Hellix/Hellix-Black.ttf'); }
+@font-face { font-family: Hellix-Light; src: url('../fonts/Hellix/Hellix-Light.ttf'); }
+@font-face { font-family: Hellix-ExtraBold; src: url('../fonts/Hellix/Hellix-ExtraBold.ttf'); }
+@font-face { font-family: Hellix-Medium; src: url('../fonts/Hellix/Hellix-Medium.ttf'); }
+@font-face { font-family: Hellix-Thin; src: url('../fonts/Hellix/Hellix-Thin.ttf'); }
+@font-face { font-family: Hellix-SemiBold; src: url('../fonts/Hellix/Hellix-SemiBold.ttf'); }
+
+:root {
+    --primary-color: #1d2f3d;
+    --secondary-color: #ffffff;
+    --contrast-color: #FFE9B9;
+    --smallText-color: #DBDBDB;
+    --headings-color: #FFFFFF;
+    --adminSearchBox-color: #F8F8F8;
+    --deleteButton-color: #FF3D3D;
+    --unselectedSidebarText-color: #F4F4F4;
+}  
+
+html ,body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.row {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}

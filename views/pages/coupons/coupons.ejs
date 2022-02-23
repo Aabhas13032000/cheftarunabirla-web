@@ -1,0 +1,325 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+
+<div class="container-fluid user_data">
+    <br>
+    <!-- Modal -->
+    <div class="modal fade" id="addBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Coupons</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="addCoupons(event)" id="form" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <input type="text" id="ccode" name="ccode" class="form-control" placeholder="Enter Coupon Name"  style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="dis" name="dis" class="form-control" placeholder="Enter Coupon Percentage" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="linked_category" style="margin-bottom: 10px;" name="linked_category" aria-label="Images Categories" onchange="getItems('add')" required>
+                                      <option value="">Select Linked category</option>
+                                      <option value="course">Course</option>
+                                      <option value="product">Product</option>
+                                      <option value="book">Book</option>
+                                      <option value="cartvise">Cart Vise</option>
+                                    </select>
+                                </div>
+                                <div id="total">
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="minimum" name="minimum" class="form-control" placeholder="Enter minimum number" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="maximum" name="maximum" class="form-control" placeholder="Enter maximum number" style="margin-bottom: 10px;" required>
+                                </div>
+                                <!-- <div class="form-group">
+                                    <select class="form-control" id="discount_for" style="margin-bottom: 10px;" name="discount_for" aria-label="Images Categories" required>
+                                      <option value="">Select Discount For categories</option>
+                                      <option value="multiple">Multiple</option>
+                                      <option value="single">Single</option>
+                                    </select>
+                                </div> -->
+                                <div class="button">
+                                    <button type="submit" id="book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editCoupons" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Coupons</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="editCouponSave(event)" id="form_" class="edit_form" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <input type="text" id="editccode" name="editccode" class="form-control" placeholder="Enter Coupon Name"  style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="editdis" name="editdis" class="form-control" placeholder="Enter Coupon Percentage" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="editlinked_category" style="margin-bottom: 10px;" name="editlinked_category" aria-label="Images Categories" required>
+                                      <option value="" id="editlinked_category_option">Select Linked category</option>
+                                      <option value="course">Course</option>
+                                      <option value="product">Product</option>
+                                      <option value="book">Book</option>
+                                      <option value="cartvise">Cart Vise</option>
+                                    </select>
+                                </div>
+                                <div id="edittotal">
+                                </div>
+                                <!-- <div class="form-group">
+                                    <select class="form-control" id="editdiscount_for" style="margin-bottom: 10px;" name="editdiscount_for" aria-label="Images Categories" required>
+                                      <option value="" id="editdiscount_for_option">Select Discount For categories</option>
+                                      <option value="multiple">Multiple</option>
+                                      <option value="single">Single</option>
+                                    </select>
+                                </div> -->
+                                <div class="form-group">
+                                    <input type="number" id="editminimum" name="editminimum" class="form-control" placeholder="Enter minimum number" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="editmaximum" name="editmaximum" class="form-control" placeholder="Enter maximum number" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="button">
+                                    <button type="submit" id="edit_book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="add_button">
+      <a href="#">Coupons</a>
+      <button type="button" data-bs-toggle="modal" data-bs-target="#addBook">Add Coupons</button>
+    </div>
+    <table>
+        <thead>
+            <th>USER</th>
+            <th>CODE</th>
+            <th>DISCOUNT</th>
+            <th>OPTIONS</th>
+        </thead>
+        <tbody id="data">
+
+        </tbody>
+      </table>
+      <br>
+      <div id="tableLoader">
+        <p>Loading...</p>
+      </div>
+</div>
+
+<!--Bootstrap js-->
+<script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!---->
+
+<script>
+
+    var editCouponModal = new bootstrap.Modal(document.getElementById('editCoupons'));
+
+    function getItems(form_value) {
+        if(form_value == 'add') {
+            var value = document.getElementById('linked_category').value;
+        } else {
+            var value = document.getElementById('editlinked_category').value;
+        }
+        if(value == 'course'){
+            $.ajax({
+                url : '/getCourse',
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    if(form_value == 'add') {
+                        document.getElementById('total').innerHTML = '<p>Total number of courses '+ response.data.length +'</p>';
+                    } else {
+                        document.getElementById('edittotal').innerHTML = '<p>Total number of courses '+ response.data.length +'</p>';
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        } else if(value == 'product'){
+            $.ajax({
+                url : '/getProducts',
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    if(form_value == 'add') {
+                        document.getElementById('total').innerHTML = '<p>Total number of products '+ response.data.length +'</p>';
+                    } else {
+                        document.getElementById('edittotal').innerHTML = '<p>Total number of products '+ response.data.length +'</p>';
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        } else if(value == 'book'){
+            $.ajax({
+                url : '/getBooks',
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    if(form_value == 'add') {
+                        document.getElementById('total').innerHTML = '<p>Total number of books '+ response.data.length +'</p>';
+                    } else {
+                        document.getElementById('edittotal').innerHTML = '<p>Total number of books '+ response.data.length +'</p>';
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        } else {
+            document.getElementById('total').innerHTML = '';
+            document.getElementById('edittotal').innerHTML = '';
+        }
+    }
+
+    function addCoupons(event){
+      event.preventDefault();
+
+      var ccode = document.getElementById('ccode').value;
+      var linked_category = document.getElementById('linked_category').value;
+      var minimum = document.getElementById('minimum').value;
+      var maximum = document.getElementById('maximum').value;
+    //   var discount_for = document.getElementById('discount_for').value;
+      var dis = document.getElementById('dis').value;
+      $.ajax({
+                url : '/addCoupons',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    ccode:ccode,
+                    dis:dis,
+                    linked_category:linked_category,
+                    // discount_for:discount_for,
+                    minimum:minimum,
+                    maximum:maximum
+                },
+                success: function(response){
+                    alert('Coupons added successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+  }
+
+  function editCouponSave(event){
+      event.preventDefault();
+
+      var ccode = document.getElementById('editccode').value;
+      var dis = document.getElementById('editdis').value;
+      var linked_category = document.getElementById('editlinked_category').value;
+    //   var discount_for = document.getElementById('editdiscount_for').value;
+      var minimum = document.getElementById('editminimum').value;
+      var maximum = document.getElementById('editmaximum').value;
+      var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+      $.ajax({
+                url : `/editCoupons/${id}`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    ccode:ccode,
+                    dis:dis,
+                    linked_category:linked_category,
+                    // discount_for:discount_for,
+                    minimum:minimum,
+                    maximum:maximum
+                },
+                success: function(response){
+                    alert('Coupons edited successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+  }
+
+    function deleteCoupons(id) {
+    if(confirm('Do you want to delete it?') == true){
+      $.ajax({
+            url : '/deleteCoupons',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Deleted Successfullyt!!');
+                location.reload();
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+      });
+    } 
+  }
+
+  function editCoupons(id,ccode,dis,linked_category,minimum,maximum) {
+    document.getElementById('editccode').value = ccode;
+    document.getElementById('editdis').value = dis;
+    document.getElementById('editlinked_category_option').innerHTML = linked_category;
+    document.getElementById('editlinked_category_option').setAttribute('value',linked_category);
+    // document.getElementById('editdiscount_for_option').innerHTML = discount_for;
+    // document.getElementById('editdiscount_for_option').setAttribute('value',discount_for);
+    document.getElementById('editminimum').value = minimum;
+    document.getElementById('editmaximum').value = maximum;
+    document.getElementsByClassName('edit_form')[0].setAttribute('id',`form_${id}`);
+    editCouponModal.toggle();
+  }
+
+  function getCoupons() {
+    $.ajax({
+            url : '/getCoupons',
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    $('#data').append('<tr> <td>'+ response.data[i].user_id +'</td> <td>'+ response.data[i].ccode +'</td><td>'+ response.data[i].dis +'</td><td> <div class="options"> <a class="edit" onclick="editCoupons(\''+response.data[i].id+'\',\''+response.data[i].ccode+'\',\''+response.data[i].dis+'\',\''+response.data[i].linked_category+'\',\''+response.data[i].minimum+'\',\''+response.data[i].maximum+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCoupons('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr>');
+                  }
+                } else {
+                    $('#data').append('<tr><td>No Courses present</td></tr>')
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+  
+  window.onload = getCoupons();
+
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 

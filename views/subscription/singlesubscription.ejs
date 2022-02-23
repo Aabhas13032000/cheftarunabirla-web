@@ -1,0 +1,79 @@
+<%- include('../components/header/header.ejs',{cssFile : 'index'}) %> 
+
+<div class="container-fluid subscription-container" style="text-align: center;" >
+    <br>
+    <button onclick="callRazorPayFunction()" class="btn btn-primary">Pay <%=actual_total_price%></button>
+</div>
+
+<!-- <div class="container-fluid subscription-container" style="text-align: center;" >
+    <br>
+    <button onclick="callRazorPayFunction()" class="btn btn-primary">Pay <%=actual_total_price%></button>
+</div> -->
+
+
+
+<!-- Bootstrap Javascript Plugins -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
+<!---->
+
+<!-- Iconify script -->
+<script src="https://code.iconify.design/1/1.0.6/iconify.min.js"></script>
+<!---->
+
+<script>
+
+function callRazorPayFunction(){
+    // console.log(total);
+    // console.log(price);
+    // console.log(subs_type);
+    // console.log(subs_id);
+    // console.log(original_days);
+    var data = {
+        total: '<%= actual_total_price %>',
+    }
+    $.ajax({
+        url:"/subscription",
+        dataType: "jsonp",
+        type:"POST",
+        data: data,
+        success: function(info){
+           console.log(info);
+            var options = {
+                "key": "rzp_test_kiDLLebeHymqp3", // Enter the Key ID generated from the Dashboard
+                "amount": parseFloat('<%= actual_total_price %>')*100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                "currency": "INR",
+                "name": 'Taruna Birla',
+                "description": "Subscription Pack",
+                "image": '',
+                "order_id": info.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                "callback_url": `/single-subscription-complete/<%= total_price %>/<%= actual_total_price %>/<%= user_id %>/<%= category %>/<%= coupon_id %>` ,
+                "prefill": {
+                    "name": "",
+                    "email": "",
+                    "contact": `+91<%= phoneNumber %>`
+                },
+                "notes": {
+                    "address": "Razorpay Corporate Office"
+                },
+                "theme": {
+                    "color": "#1d2f3d"
+                }
+            };
+
+            var rzp1 = new Razorpay(options);
+            // document.getElementById('rzp-button1').onclick = function(e){
+            //     rzp1.open();
+            //     e.preventDefault();
+            // }
+            rzp1.open();
+        },
+        error: function(err){
+            console.log(err.status);
+            alert('Some Error occurred!');
+            location.reload();
+        }
+    });
+}
+</script>
+
+<%- include('../components/footer/footer.ejs') %> 

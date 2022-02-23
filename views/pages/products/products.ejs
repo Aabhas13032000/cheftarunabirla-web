@@ -1,0 +1,654 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+
+<div class="container-fluid user_data" onscroll="getMore()">
+    <br>
+    <div class="modal fade" id="allcategories" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Categories</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="addproductcategory(event)" method="post">
+                        <div class="form-group">
+                            <input type="text" id="product_category" name="product_category" class="form-control" placeholder="Enter Category Name" onkeyup="checkProductcategory(this.value)"  style="margin-bottom: 10px;" required>
+                            <div id="productCategoryValidationServernameFeedback" style="margin: 10px 0px;" class="invalid-feedback">
+                              Category name already exists.
+                            </div>
+                            <div class="button">
+                                <button type="submit" id="product_category_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
+                            </div>
+                        </div>
+                    </form>
+                    <table>
+                        <thead>
+                            <th>CATEGORY</th>
+                            <th>OPTIONS</th>
+                        </thead>
+                        <tbody id="category_data">
+                            
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="addProduct" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="addProduct(event)" id="form" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <input type="text" id="name" name="name" class="form-control" placeholder="Enter Product Name"  style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="category" style="margin-bottom: 10px;" name="category" aria-label="Images Categories" required>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="price" name="price" class="form-control" placeholder="Enter product Price" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="discount_price" name="discount_price" class="form-control" placeholder="Enter Discount Price" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Images</label>
+                                    <input class="form-control" onchange="uploadImages('add')" style="margin-bottom: 10px;" type="file" multiple id="product_images" name="images" accept="image/*">
+                                </div>
+                                <div id="preview" class="row preview_images">
+                                    
+                                </div>
+                                <div class="button">
+                                    <button type="submit" id="product_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editproduct" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="editProductSave(event)" id="form_" class="edit_form" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <input type="text" id="editname" name="editname" class="form-control" placeholder="Enter product Name"  style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="editcategory" style="margin-bottom: 10px;" name="editcategory" aria-label="Images Categories" required>
+                                      <option value="" id="editcategoryoption">Select product category</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="editstock" style="margin-bottom: 10px;" name="editstock" aria-label="Images Categories" required>
+                                      <option value="" id="editstockoption">Select product stock</option>
+                                      <option value="1">In stock</option>
+                                      <option value="0">Out of stock</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="editprice" name="editprice" class="form-control" placeholder="Enter product Price" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" id="editdiscount_price" name="editdiscount_price" class="form-control" placeholder="Enter Discount Price" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" id="editdescription" name="editdescription" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Images</label>
+                                    <input class="form-control" onchange="uploadImages('edit')" style="margin-bottom: 10px;" type="file" multiple id="edit_product_images" name="images" accept="image/*">
+                                </div>
+                                <div id="editpreview" class="row preview_images">
+                                    
+                                </div>
+                                <div class="button">
+                                    <button type="submit" id="edit_product_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="add_button">
+      <a href="#">Products</a>
+      <div>
+        <button type="button" onclick="toggleaddProduct()">Add Product</button>
+        <button type="button" onclick="toggleCategoriesModal()">All Categories</button>
+      </div>
+    </div>
+    <table>
+        <thead>
+            <th>PRODUCT NAME</th>
+            <th>CATEGORY</th>
+            <th>PRICE</th>
+            <th>DISCOUNT PRICE</th>
+            <th>DESCRIPTION</th>
+            <th>STOCK</th>
+            <th>OPTIONS</th>
+        </thead>
+        <tbody id="data">
+
+        </tbody>
+      </table>
+      <br>
+      <div id="tableLoader">
+        <p>Loading...</p>
+      </div>
+</div>
+
+<!--Bootstrap js-->
+<script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!---->
+
+<script>
+
+    var offset = 0;
+
+var editproductModal = new bootstrap.Modal(document.getElementById('editproduct'));
+var allcategoriesModal = new bootstrap.Modal(document.getElementById('allcategories'));
+var addProductModal = new bootstrap.Modal(document.getElementById('addProduct'));
+
+var cat_values = [];
+var cat_options = [];
+
+$(function(){
+    if($('textarea#description').length){
+        CKEDITOR.replace('description', {
+            // filebrowserUploadUrl: '/admin/upload',
+            // filebrowserUploadMethod: 'form'
+        });
+    }
+    if($('textarea#editdescription').length){
+        CKEDITOR.replace('editdescription', {
+            // filebrowserUploadUrl: '/admin/upload',
+            // filebrowserUploadMethod: 'form'
+        });
+    }
+});
+
+
+
+function addProduct(event){
+      event.preventDefault();
+
+      var name = document.getElementById('name').value;
+      var category = document.getElementById('category').value;
+      var price = document.getElementById('price').value;
+      var discount_price = document.getElementById('discount_price').value;
+    //   var description = document.getElementById('description').value;
+      var description = CKEDITOR.instances['description'].getData();
+      var gallery = document.getElementsByClassName("gallery_image_path");
+      var gallery_values = [];
+      console.log(description);
+      if(gallery.length != 0) {
+        for(var i =0;i<gallery.length;i++) {
+            gallery_values.push(gallery[i].value);
+        }
+        $.ajax({
+                url : '/addProduct',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    name:name,
+                    category:category,
+                    price:price,
+                    description:description,
+                    gallery:gallery_values,
+                    discount_price:discount_price,
+                },
+                success: function(response){
+                    alert('Product added successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+      }
+  }
+
+  function editProductSave(event){
+      event.preventDefault();
+
+      var name = document.getElementById('editname').value;
+      var category = document.getElementById('editcategory').value;
+      var stock = document.getElementById('editstock').value;
+      var price = document.getElementById('editprice').value;
+      var discount_price = document.getElementById('editdiscount_price').value;
+    //   var description = document.getElementById('editdescription').value;
+      var description = CKEDITOR.instances['editdescription'].getData();
+      var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+            $.ajax({
+                url : `/editProduct/${id}`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    name:name,
+                    category:category,
+                    price:price,
+                    description:description,
+                    discount_price:discount_price,
+                    stock:stock,
+                },
+                success: function(response){
+                    alert('Product edited successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+  }
+
+function deleteCurrentGalleryImage(id,input_id) {
+    var path = document.getElementById(input_id).value;
+    if(confirm('Do you want to delete it?') == true){
+        console.log(path);
+        if(path != '/images/extra/nopreview.jpeg') {
+            $.ajax({
+                url : '/deletePhoto',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    path:path
+                },
+                success: function(response){
+                    alert('Removed Successfully');
+                    document.getElementById(id).remove();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        }
+    } 
+}
+
+function uploadImages(value) {
+        $(parent.document).find('#image_loader').css('display','flex');
+      if(value != 'edit'){
+        var imageFiles = document.getElementById('product_images').files;
+        //   console.log(imageFiles);
+        var form = new FormData();
+        //   document.getElementById('preview').innerHTML = '';
+
+        for(var i=0;i<imageFiles.length;i++){
+            if(imageFiles[i] != undefined){
+                form.append(`book_images`, imageFiles[i]);
+            }
+        }
+
+        $.ajax({
+            url : "/saveBookImages",
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : form,
+            success: function(response){
+                console.log(response.files);
+                for(var i=0;i<response.files.length;i++) {
+                    var path = response.files[i].slice(6,response.files[i].length);
+                    $('#preview').append('<div class="col-6" id="gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentGalleryImage(\''+ ( "gallery_image_"+ path )  +'\',\'gallery_image_path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="gallery_image_path" name="gallery_image_path" id="gallery_image_path_'+ path +'" value="'+ path +'"></div></div>');
+                }
+                document.getElementById('product_images').value='';
+        $(parent.document).find('#image_loader').css('display','none');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+      } else {
+        var imageFiles = document.getElementById('edit_product_images').files;
+        var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+        //   console.log(imageFiles);
+        var form = new FormData();
+        for(var i=0;i<imageFiles.length;i++){
+            if(imageFiles[i] != undefined){
+                form.append(`book_images`, imageFiles[i]);
+            }
+        }
+
+        $.ajax({
+            url : `/saveEditBookImages/${id}/products`,
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : form,
+            success: function(response){
+                console.log(response.files);
+                for(var i=0;i<response.files.length;i++) {
+                    var path = response.files[i].path.slice(6,response.files[i].path.length);
+                    $('#editpreview').append('<div class="col-6" id="edit_gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteEditCurrentGalleryImage(\''+ ( "edit_gallery_image_"+ path )  +'\',\''+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""></div></div>');
+                }
+                document.getElementById('edit_product_images').value='';
+        $(parent.document).find('#image_loader').css('display','none');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+      }
+  }
+
+
+function toggleaddProduct() {
+    // getCategories();
+    addProductModal.toggle();
+}
+
+function checkProductcategory(name) {
+    if(document.getElementById('product_category').classList.contains('is-invalid')) {
+        document.getElementById('product_category').classList.remove('is-invalid')
+    }
+    if(document.getElementById('product_category').classList.contains('is-valid')) {
+        document.getElementById('product_category').classList.remove('is-valid')
+    }
+    if(name.length != 0){
+        $.ajax({
+            url : `/checkProductCategory/${name}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                if(response.data.length == 0){
+                    document.getElementById('product_category_verify').removeAttribute('disabled');
+                    document.getElementById('product_category').classList.add('is-valid');
+                } else {
+                    document.getElementById('product_category_verify').setAttribute('disabled','disabled');
+                    document.getElementById('product_category').classList.add('is-invalid');
+                }
+                console.log(response);
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+    } else {
+        document.getElementById('product_category_verify').removeAttribute('disabled');
+        if(document.getElementById('product_category').classList.contains('is-invalid')) {
+            document.getElementById('product_category').classList.remove('is-invalid')
+        }
+        if(document.getElementById('product_category').classList.contains('is-valid')) {
+            document.getElementById('product_category').classList.remove('is-valid')
+        }
+    }
+}
+
+function addproductcategory(event) {
+    event.preventDefault();
+
+    var category_name = document.getElementById('product_category').value;
+    $.ajax({
+                url : `/addProductCategory`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    name:category_name,
+                },
+                success: function(response){
+                    alert('Category added successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+}
+
+function deleteProductCategory(id) {
+    if(confirm('Do you want to delete it?') == true){
+      $.ajax({
+            url : '/deleteProductCategory',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Deleted Successfullyt!!');
+                location.reload();
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+      });
+    } 
+}
+
+function updateProductCategories(name,id) {
+    console.log(name);
+    if(name.length != 0) {
+        $.ajax({
+            url : '/updateProductCategory',
+            dataType: "json",
+            type: "POST",
+            data: {
+                name:name,
+                id:id
+            },
+            success: function(response){
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+    }
+}
+
+function toggleCategoriesModal(){
+    // getCategories();
+    allcategoriesModal.toggle();
+}
+
+function getCategories() {
+    $.ajax({
+            url : `/getProductCategories/`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                // console.log(response);
+                var select = document.getElementById("category");
+                var length = select.options.length;
+                for (var i = length-1; i >= 0; i--) {
+                    select.options[i] = null;
+                }
+                if(response.data.length!=0){
+                    for(var i=0;i<response.data.length;i++) {
+                        cat_options.push(response.data[i].name);
+                        cat_values.push(response.data[i].id);
+                        $('#category_data').append('<tr><td><div class="form-group"><input class="form-control" onkeyup="updateProductCategories(this.value,\''+ response.data[i].id +'\')" required value="'+ response.data[i].name +'"/></div></td><td><a class="delete" onclick="deleteProductCategory('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></td></tr>');
+                    }
+                    var option2 = document.createElement("option");
+                    option2.text = 'Select Category';
+                    option2.value= '';
+                    select.add(option2);
+                    for(var i=0;i<response.data.length;i++){
+                        var option = document.createElement("option");
+                        option.text = response.data[i].name;
+                        option.value= response.data[i].id;
+                        select.add(option);
+                    }
+                } else {
+                    $('#category_data').append('<tr><td>No Categories present</td></tr>');
+                    var option = document.createElement("option");
+                    option.text = "No Categiries present";
+                    option.value= '';
+                    select.add(option);
+                }
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+}
+
+function deleteproducts(id) {
+    if(confirm('Do you want to delete it?') == true){
+      $.ajax({
+            url : '/deleteProduct',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Deleted Successfullyt!!');
+                location.reload();
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+      });
+    } 
+  }
+
+  function deleteEditCurrentGalleryImage(id,path) {
+    if(confirm('Do you want to delete it?') == true){
+        console.log(path);
+        if(path != '/images/extra/nopreview.jpeg') {
+            $.ajax({
+                url : `/deleteEditPhoto`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    path:path
+                },
+                success: function(response){
+                    alert('Removed Successfully');
+                    document.getElementById(id).remove();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        }
+    } 
+}
+
+  function getImages(id,value) {
+    $.ajax({
+            url : `/getProductImages/${id}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                console.log(response);
+                if(value == 'edit') {
+                    for(var i=0;i<response.data.length;i++) {
+                        var path = response.data[i].path;
+                        $('#editpreview').append('<div class="col-6" id="edit_gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteEditCurrentGalleryImage(\''+ ( "edit_gallery_image_"+ path )  +'\',\''+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""></div></div>');
+                    }
+                } 
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+
+  function editproducts(id,name,price,c_name,category,discount_price,stock) {
+    //   console.log(cat_options);
+    //   console.log(cat_values);
+      var select = document.getElementById("editcategory");
+      var length = select.options.length;
+      for (var i = length-1; i >= 0; i--) {
+        select.options[i] = null;
+      }
+      var option2 = document.createElement("option");
+      option2.text = 'Select Category';
+      option2.value= '';
+      option2.setAttribute('id','editcategoryoption');
+      select.add(option2);
+      if(cat_options.length != 0){
+        for(var i=0;i<cat_options.length;i++){
+            var option = document.createElement("option");
+            option.text = cat_options[i];
+            option.value= cat_values[i];
+            select.add(option);
+        }
+      } else {
+        var option = document.createElement("option");
+        option.text = "No Categiries present";
+        option.value= '';
+        select.add(option);
+      }
+      getImages(id,'edit');
+      document.getElementById('editpreview').innerHTML = '';
+      document.getElementById('editname').value = name;
+      document.getElementById('editcategoryoption').innerHTML = c_name;
+      document.getElementById('editstockoption').innerHTML = (stock == 1 ? 'In Stock' : 'Out of Stock');
+      document.getElementById('editcategoryoption').setAttribute('value',category);
+      document.getElementById('editstockoption').setAttribute('value',stock);
+      document.getElementById('editprice').value = price;
+      document.getElementById('editdiscount_price').value = discount_price;
+      CKEDITOR.instances['editdescription'].setData(document.getElementById('ckeditorvalue' + id).value);
+      document.getElementsByClassName('edit_form')[0].setAttribute('id',`form_${id}`);
+      editproductModal.toggle();
+  }
+
+    function getMore() {
+        offset = offset+20;
+        getProducts(offset);
+    }
+
+  function getProducts(offset) {
+    $.ajax({
+            url : `/getProducts/${offset}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td> <td>'+ response.data[i].c_name +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].stock == 1 ? '<a style="color:green">In stock</a>' : '<a style="color:red">Out of stock</a>') +'</td> <td> <div class="options"> <a class="edit" onclick="editproducts(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].price+'\',\''+response.data[i].c_name+'\',\''+response.data[i].category_id+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].stock+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteproducts('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                  }
+                } else {
+                    $('#data').append('<tr><td>No Products present</td></tr>')
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+        getCategories();
+  }
+  
+  window.onload = getProducts(offset);
+
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 
