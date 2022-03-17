@@ -1,0 +1,93 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+
+<div class="container-fluid user_data">
+    <br>
+    <div class="add_button">
+      <a href="#">Admin Profile</a>
+    </div>
+    <hr>
+    <div>
+        <form action="/updatePassword" method="POST">
+            <div class="row">
+                <div class="col-lg-2 d-flex align-items-center">
+                    <p>Email</p>
+                </div>
+                <div class="col-lg-8">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="username" readonly name="username" required value="<%= results[0].email %>" placeholder="Enter a username">
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-lg-2 d-flex align-items-center">
+                    <p>Current Password</p>
+                </div>
+                <div class="col-lg-8">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="current_password" readonly placeholder="Enter a new password" value="<%= results[0].password %>">
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-lg-2 d-flex align-items-center">
+                    <p>Password</p>
+                </div>
+                <div class="col-lg-8">
+                    <div class="form-group">
+                        <input type="password" class="form-control" id="password" name="password" minlength="8" required placeholder="Enter a new password" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-lg-2 d-flex align-items-center">
+                    <p>Re-Enter password</p>
+                </div>
+                <div class="col-lg-8">
+                    <div class="form-group">
+                        <input type="password" class="form-control" id="c_password" onkeyup="checkPassword(this.value)" name="c_password" minlength="8" required placeholder="Re-Enter a new password" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-lg-2">
+                    <div class="button">
+                        <button type="submit" id="book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--Bootstrap js-->
+<script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!---->
+
+<script>
+
+    function checkPassword(c_password){
+        var password = document.getElementById('password').value;
+        if(document.getElementById('c_password').classList.contains('is-valid')){
+            document.getElementById('c_password').classList.remove('is-valid')
+        }
+        if(document.getElementById('c_password').classList.contains('is-invalid')){
+            document.getElementById('c_password').classList.remove('is-invalid')
+        }
+        if(password.length == c_password.length){
+            if(password === c_password){
+                document.getElementById('c_password').classList.add('is-valid');
+            } else {
+                document.getElementById('c_password').classList.add('is-invalid');
+            }
+        } else if(password.length < c_password.length){
+            document.getElementById('c_password').classList.add('is-invalid');
+        }
+    }
+
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 

@@ -4,11 +4,22 @@
     <br>
     <div class="add_button">
       <a href="#">Users</a>
+      <div class="search_bar">
+        <div class="search_input">
+            <div class="icon">
+              <a><span class="iconify" data-icon="akar-icons:search"></span></a>
+            </div>
+            <div class="input">
+              <input type="text" name="" id="" onkeyup="searchUser(this.value)" placeholder="Search by phone number">
+            </div>
+          </div>
+      </div>
     </div>
     <table id="myTable">
         <thead>
             <th>PHONE NUMBER</th>
             <th>DEVICE UPDATE REQUEST</th>
+            <th>LOGGED IN</th>
         </thead>
         <tbody id="data">
         </tbody>
@@ -22,25 +33,32 @@
 <script>
 
   //functionsearch
-  function search(value){
-    var filter, table, tr, td, i, txtValue;
-    // input = value;
-    filter = value.toUpperCase();
-    table = document.getElementById("myTable");
-    tr = table.getElementsByTagName("tr");
-    for (i = 0; i < tr.length; i++) {
-      td = tr[i].getElementsByTagName("td")[0];
-                // console.log(td);
-                if (td) {
-                    txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
-                }
+  function searchUser(value){
+    document.getElementById('data').innerHTML = '';
+    if(value.length != 0) {
+      $.ajax({
+        url : `/getSearchUser/${value}`,
+        dataType: "json",
+        type: "GET",
+        success: function(response){
+          // console.log(response);
+          if(response.data.length != 0){
+            for(var i=0;i<response.data.length;i++){
+              $('#data').append('<tr> <td>'+ response.data[i].phone_number +'</td><td><a onclick="updateDeviceRequest('+response.data[i].phone_number+')" class="profile">Update</a></div> </td> </tr>');
             }
-    // console.log(value);
+          } else {
+                    // $('#data').append('<tr><td>No Users present</td></tr>');
+          }
+          document.getElementById('tableLoader').style.display = 'none';
+        },
+        error: function(err){
+          console.log(err);
+          alert('Some error occured !!');
+        }
+      });
+    } else {
+      getUsers(0);
+    }
   }
 
   var offset = 0;
@@ -78,10 +96,10 @@
               // console.log(response);
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].phone_number +'</td><td><a onclick="updateDeviceRequest('+response.data[i].phone_number+')" class="profile">Update</a></div> </td> </tr>');
+                    $('#data').append('<tr> <td>'+ response.data[i].phone_number +'</td><td><a onclick="updateDeviceRequest('+response.data[i].phone_number+')" class="profile">Update</a></div> </td><td>'+ (response.data[i].logged_in == 1 ? 'Yes' : 'No') +'</td> </tr>');
                   }
                 } else {
-                    $('#data').append('<tr><td>No Users present</td></tr>');
+                    // $('#data').append('<tr><td>No Users present</td></tr>');
                 }
                   document.getElementById('tableLoader').style.display = 'none';
             },

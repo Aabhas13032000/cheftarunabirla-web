@@ -9,6 +9,7 @@ var cors = require('cors');
 var indexRouter = require('./routes/index');
 var userRouter = require('./routes/users');
 var streamRouter = require('./routes/stream');
+var apiRouter = require('./routes/api');
 
 var app = express();
 app.use(cors());
@@ -60,6 +61,7 @@ app.use('/', session({
 
  app.use('/users',userRouter);
  app.use('/stream',streamRouter);
+ app.use('/api',apiRouter);
 
 //  app.use('/',indexRouter);
 

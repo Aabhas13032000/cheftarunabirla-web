@@ -129,11 +129,31 @@ router.get('/subscription', function(req, res, next) {
   res.render('pages/subscription/subscription');
 });
 
+/* GET Live page. */
+router.get('/live', function(req, res, next) {
+  res.render('pages/live/live');
+});
+
 /* Logout application. */
 router.get('/logout', function(req, res, next) {
   req.session.destroy(function(err) {
     res.redirect('/');
   })
+});
+
+/* GET Profile page. */
+router.get('/profile', function(req, res, next) {
+  const query = "SELECT * FROM `admin`";
+    pool.query(query,function(err,results,fields){
+        if(err) {
+            console.log(err);
+            res.send('Database error');
+        } else {
+            res.render('pages/profile/profile',{
+              results:results
+            });
+        }
+    });
 });
 
 /* POST login page. */
@@ -155,11 +175,23 @@ router.post('/login', function(req, res, next) {
   });
 });
 
+/* Update Password. */
+router.post('/updatePassword', function(req, res, next) {
+  const query = "UPDATE `admin` SET `password` = '"+ req.body.c_password +"'";
+  pool.query(query,function(err,results,fields){
+    res.redirect('/profile');      
+  });
+});
+
+
 // Api's
 router.post('/addGalleryImages',controllers.addGalleryImages);
 
 //Orders
 router.get('/getOrders/:offset',controllers.getOrders);
+
+//Live
+router.get('/getLive',controllers.getLive);
 
 // Books
 router.post('/addBook',controllers.addBook);
@@ -211,6 +243,11 @@ router.post('/deleteCourseVideo',controllers.deleteCourseVideo);
 router.get('/getCoursePdf/:id',controllers.getCoursePdf);
 router.post('/editCourse/:id',controllers.editCourse);
 router.post('/deleteCourse',controllers.deleteCourse);
+router.post('/markedCourseCategoryImportant',controllers.markedCourseCategoryImportant);
+router.post('/addCourseCategory',controllers.addCourseCategory);
+router.get('/checkProductCategory/:name',controllers.checkProductCategory);
+router.post('/deleteCourseCategory',controllers.deleteCourseCategory);
+router.post('/updateCourseCategoryName',controllers.updateCourseCategoryName);
 
 //Coupons
 router.post('/deleteCoupons',controllers.deleteCoupons);
@@ -235,7 +272,7 @@ router.get('/getReviewsByItem/:category/:item_id',controllers.getReviewsByItem);
 
 //Reviews
 router.post('/deleteSubscription',controllers.deleteSubscription);
-router.get('/getSubscription/:category',controllers.getSubscription);
+router.get('/getSubscription/:category/:offset',controllers.getSubscription);
 router.post('/addSubscription',controllers.addSubscription);
 router.post('/editSubscription',controllers.editSubscription);
 router.get('/getSubscriptionUsers',controllers.getSubscriptionUsers);
@@ -274,6 +311,7 @@ router.post('/uploadSliderImage',upload.single('slider_image'),async function(re
 //Users
 router.get('/getUsers/:offset',controllers.getUsers);
 router.get('/updateDeviceRequest/:phone_number',controllers.updateDeviceRequest);
+router.get('/getSearchUser/:phone_number',controllers.getSearchUser);
 
 //Gallery
 router.get('/getGalleryImages/:offset',controllers.getGalleryImages);

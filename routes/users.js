@@ -173,6 +173,50 @@ router.post('/save_user_mobile', function(req, res, next) {
     });
 });
 
+router.post('/addtowhislist',function(req,res,next){
+    if(req.body.category == 'product'){
+        var query  = "INSERT INTO `cart` (`category`,`product_id`,`user_id`,`cart_category`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"','whislist')";
+    }
+    if(req.body.category == 'course'){
+        var query  = "INSERT INTO `cart` (`category`,`course_id`,`user_id`,`cart_category`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"',,'whislist')";
+    }
+    if(req.body.category == 'book'){
+        var query  = "INSERT INTO `cart` (`category`,`book_id`,`user_id`,`cart_category`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"',,'whislist')";
+    } 
+    pool.query(query,function(err,results,fields){
+        if(err) {
+            console.log(err);
+            res.json({message:'Some error occured'});
+        } else {
+            res.json({message: 'success'});
+        }
+    });
+});
+
+
+router.post('/removefromwhislist',function(req,res,next){
+    // console.log(req.body);
+    if(req.body.category == 'product'){
+        var query  = "DELETE FROM `cart` WHERE `category` = '"+ req.body.category +"' AND `product_id` = '"+ req.body.id +"' AND `user_id` = '"+ req.body.user_id +"' AND `cart_category` = 'whislist'";
+    }
+    if(req.body.category == 'course'){
+        var query  = "DELETE FROM `cart` WHERE `category` = '"+ req.body.category +"' AND `course_id` = '"+ req.body.id +"' AND `user_id` = '"+ req.body.user_id +"' AND `cart_category` = 'whislist'";
+    }
+    if(req.body.category == 'book'){
+        var query  = "DELETE FROM `cart` WHERE `category` = '"+ req.body.category +"' AND `book_id` = '"+ req.body.id +"' AND `user_id` = '"+ req.body.user_id +"' AND `cart_category` = 'whislist'";
+        console.log(query);
+    } 
+    pool.query(query,function(err,results,fields){
+        if(err) {
+            console.log(err);
+            res.json({message:'Some error occured'});
+        } else {
+            res.json({message: 'success'});
+        }
+    });
+});
+
+
 router.post('/addtocart',function(req,res,next){
     if(req.body.category == 'product'){
         var query  = "INSERT INTO `cart` (`category`,`product_id`,`user_id`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"')";

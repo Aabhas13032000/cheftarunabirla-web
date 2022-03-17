@@ -2,18 +2,30 @@ const { checkCategory,addcategory,getcategories,markedcategoryimportant,deleteca
 const { getgalleryimages,addgalleryImages,getgalleryimpimages } = require('../services/gallery');
 const {addbook,getbook,checkbook,getbookimages,deletebook,editbook,getuserbook,getimpbooks,getuserbookbyId,getbookvideos,deletebookvideo,addbookvideos,editbookvideos} = require('../services/books');
 const {getproduct,getproductcategories,getproductsubcategories,checkproductcategory,addproductcategory,deleteproductcategory,updateproductcategory,addproduct,deleteproduct,getproductimages,editproduct,getcategoryproduct,getsearchedproduct,geteachproduct,getuserproduct,getproductwithoutoffset,getuserproductbyid} = require('../services/products');
-const { getcourse,addcourse,deletecourse,getcourseimages,getcoursepdf,editcourse,getcoursevideos,addcoursevideos,deletecoursevideo,getsearchedcourse,getcategorycourse ,getusercourse,getcoursecategories,updatecoursecategory,getcoursebyId,editcoursevideos} = require('../services/course');
+const { getcourse,addcourse,deletecourse,getcourseimages,getcoursepdf,editcourse,getcoursevideos,addcoursevideos,deletecoursevideo,getsearchedcourse,getcategorycourse ,getusercourse,getcoursecategories,updatecoursecategory,getcoursebyId,editcoursevideos,markedcoursecategoryimportant,checkcoursecategory,addcoursecategory,deletecoursecategory,updatecoursecategoryname} = require('../services/course');
 const { getcoupons,deletecoupons,addcoupons,editcoupons,getcouponsbycategory } = require('../services/coupons');
 const { getslider,addslider,deleteslider,getsliderbycategory,editslider} = require('../services/slider');
 const { addblog, getblogs, editblog, deleteblog,getblogimages,getsearchedblogs} =  require('../services/blogs');
-const { getusers,updatedevicerequest } = require('../services/user');
+const { getusers,updatedevicerequest,getsearchuser } = require('../services/user');
 const { getorders } = require('../services/orders')
 const { getreviews,addreviews,deletereviews,getreviewsbyitem } = require('../services/reviews');
 const { getsubscription,deletesubscription,editsubscription,getsubscriptionusers,addsubscription } = require('../services/subscription');
+const { getlive } = require('../services/live');
 const { verify } = require('jsonwebtoken');
 const accessTokenSecret = 'youraccesstokensecret';
 
 module.exports = {
+    getLive: (req,res) => {
+        getlive((err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
     getOrders: (req,res) => {
         getorders(req.params,(err,results) => {
             if(err) {
@@ -583,6 +595,17 @@ module.exports = {
             }
         });
     },
+    markedCourseCategoryImportant: (req,res) => {
+        markedcoursecategoryimportant(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
     addCourse: (req,res) => {
         // console.log(req.body);
         addcourse(req.body,(err,results) => {
@@ -707,6 +730,50 @@ module.exports = {
     },
     updateCourseCategory: (req,res) => {
         updatecoursecategory(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
+    updateCourseCategoryName: (req,res) => {
+        updatecoursecategoryname(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
+    checkCourseCategory: (req,res) => {
+        checkcoursecategory(req.params.name,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
+    addCourseCategory: (req,res) => {
+        addcoursecategory(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({message:'Category added successfully'});
+            }
+        })
+    },
+    deleteCourseCategory: (req,res) => {
+        deletecoursecategory(req.body,(err,results) => {
             if(err) {
                 console.log(err);
                 res.json({message:'Database connection error !!'});
@@ -916,6 +983,17 @@ module.exports = {
     },
     updateDeviceRequest: (req,res) => {
         updatedevicerequest(req.params,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
+    getSearchUser: (req,res) => {
+        getsearchuser(req.params,(err,results) => {
             if(err) {
                 console.log(err);
                 res.json({message:'Database connection error !!'});

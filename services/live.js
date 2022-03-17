@@ -1,8 +1,8 @@
 const pool = require('../database/connection');
 
 module.exports = {
-    getcourse : (callback) => {
-        const query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `created_at` DESC";
+    getlive : (callback) => {
+        const query = "SELECT * FROM `live` ORDER BY `created_at` DESC";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -11,8 +11,8 @@ module.exports = {
             }
         });
     },
-    getcoursebyId : (data,callback) => {
-        const query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`course_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"' AND `status` = 1) AS subscribed FROM `courses` c WHERE `status` = 1 AND `id` = '"+ data.id +"' ORDER BY `title`";
+    getliveusers : (data,callback) => {
+        const query = "SELECT `live`.* FROM `live` INNER JOIN `live_subscription` ON `live_subscription`.`live_id` = `live`.`id` WHERE `live`.`id` = '"+ data.id +"' ORDER BY `created_at` DESC";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -23,26 +23,6 @@ module.exports = {
     },
     getusercourse : (data,callback) => {
         const query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`course_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"' AND `status` = 1) AS subscribed FROM `courses` c WHERE `status` = 1 ORDER BY `title`";
-        pool.query(query,function(err,results,fields){
-            if(err) {
-                callback(err);
-            } else {
-                callback(null,results);
-            }
-        });
-    },
-    getcategorycourse : (data,callback) => {
-        const query = "SELECT c.*,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`course_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"' AND `status` = 1) AS subscribed FROM `courses` c WHERE `status` = 1 AND `category` = '"+ data.category +"' ORDER BY `title`";
-        pool.query(query,function(err,results,fields){
-            if(err) {
-                callback(err);
-            } else {
-                callback(null,results);
-            }
-        });
-    },
-    getsearchedcourse : (data,callback) => {
-        const query = "SELECT c.*,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`course_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"') AS subscribed FROM `courses` c WHERE `status` = 1 AND `title` LIKE '%"+ data.name +"%' ORDER BY `title`";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -104,26 +84,6 @@ module.exports = {
                 callback(null,results);
             }
         });            
-    },
-    getcourseimages : (data,callback) => {
-        const query  = "SELECT * FROM `images` WHERE `course_id` = '"+ data +"' AND `iv_category` = 'image'";
-        pool.query(query,function(err,results,fields){
-            if(err) {
-                callback(err);
-            } else {
-                callback(null,results);
-            }
-        });
-    },
-    getcoursepdf : (data,callback) => {
-        const query  = "SELECT * FROM `recipies` WHERE `course_id` = '"+ data +"'";
-        pool.query(query,function(err,results,fields){
-            if(err) {
-                callback(err);
-            } else {
-                callback(null,results);
-            }
-        });
     },
     editcourse : (data,id,callback) => {
         const query2  = "UPDATE `courses` SET `title` = '"+ data.title +"',`category` = '"+ data.category +"' ,`price` = '"+ data.price +"',`discount_price` = '"+ data.discount_price +"',`description` = '"+ data.description +"' , `promo_video` = '"+ data.promo_video +"' ,`days` = '"+ data.days +"' WHERE `id` = '"+ id +"'";

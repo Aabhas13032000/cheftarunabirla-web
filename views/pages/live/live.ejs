@@ -6,16 +6,15 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Course Videos</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Live Users</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form onsubmit="addcoursevideo(event)" class="course_video" id="course_video_form_" method="post">
+                    <form onsubmit="addLiveUser(event)" class="course_video" id="course_video_form_" method="post">
                         <div class="form-group">
-                            <input type="url" id="course_video" name="course_video" class="form-control" placeholder="Enter Course Video URL" style="margin-bottom: 10px;" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="video_name" name="video_name" class="form-control" placeholder="Enter Video Display Name"  style="margin-bottom: 10px;" required>
+                            <select class="form-control" id="users" style="margin-bottom: 10px;" name="users" aria-label="Users Categories" required>
+                              <option value="">Select User</option>
+                            </select>
                         </div>
                         <div class="button">
                             <button type="submit" id="course_video_button" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
@@ -35,34 +34,12 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="allcategories" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Course Categories</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <table>
-                        <thead>
-                            <th>CATEGORY</th>
-                            <th>PHOTO</th>
-                            <th>IMPORTANT</th>
-                        </thead>
-                        <tbody id="all_category">
-                            
-                        </tbody>
-                      </table>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Modal -->
     <div class="modal fade" id="addBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add Courses</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add Live Class</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -70,18 +47,14 @@
                         <div class="row">
                             <div class="col-lg-12 col-md-12 col-sm-12 col-12">
                                 <div class="form-group">
-                                    <input type="text" id="title" name="title" class="form-control" placeholder="Enter Course Name"  style="margin-bottom: 10px;" required>
+                                    <input type="text" id="title" name="title" class="form-control" placeholder="Enter live title"  style="margin-bottom: 10px;" required>
                                 </div>
                                 <div class="form-group">
-                                    <select class="form-control" id="category" style="margin-bottom: 10px;" name="category" aria-label="Images Categories" required>
-                                      <option value="">Select course category</option>
-                                      <option value="online">Online</option>
-                                      <option value="offline">Offline</option>
-                                      <option value="free">Free</option>
-                                    </select>
+                                    <input type="url" id="url" name="url" class="form-control" placeholder="Enter Link Video URL" style="margin-bottom: 10px;">
                                 </div>
                                 <div class="form-group">
-                                    <input type="url" id="promo_video" name="promo_video" class="form-control" placeholder="Enter Promo Video URL" style="margin-bottom: 10px;">
+                                    <label for="">Date</label>
+                                    <input type="date" id="live_date" name="live_date" class="form-control" placeholder="Enter Course Price" style="margin-bottom: 10px;" required>
                                 </div>
                                 <div class="form-group">
                                     <input type="number" id="price" name="price" class="form-control" placeholder="Enter Course Price" style="margin-bottom: 10px;" required>
@@ -90,21 +63,8 @@
                                     <input type="number" id="discount_price" name="discount_price" class="form-control" placeholder="Enter Discount Price" style="margin-bottom: 10px;" required>
                                 </div>
                                 <div class="form-group">
-                                    <input type="number" id="days" name="days" class="form-control" placeholder="Enter Subscription Days" style="margin-bottom: 10px;" required>
-                                </div>
-                                <div class="form-group">
-                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="">PDF</label>
-                                    <input class="form-control" onchange="uploadPDF('add')" style="margin-bottom: 10px;" type="file" id="pdf" name="pdf" multiple accept="application/pdf">
-                                </div>
-                                <div id="preview_pdf">
-                                    
-                                </div>
-                                <div class="form-group">
                                     <label for="">Images</label>
-                                    <input class="form-control" onchange="uploadImages('add')" style="margin-bottom: 10px;" type="file" multiple id="course_images" name="images" accept="image/*">
+                                    <input class="form-control" onchange="uploadImages('add')" style="margin-bottom: 10px;" type="file" id="live_images" name="live_images" accept="image/*">
                                 </div>
                                 <div id="preview" class="row preview_images">
                                     
@@ -123,7 +83,7 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Edit Book</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Edit Live Class</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -157,13 +117,6 @@
                                     <textarea class="form-control" id="editdescription" name="editdescription" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">PDF</label>
-                                    <input class="form-control" onchange="uploadPDF('edit')" style="margin-bottom: 10px;" type="file" id="editpdf" name="editpdf" accept="application/pdf">
-                                </div>
-                                <div id="editpreview_pdf">
-                                    
-                                </div>
-                                <div class="form-group">
                                     <label for="">Images</label>
                                     <input class="form-control" onchange="uploadImages('edit')" style="margin-bottom: 10px;" type="file" multiple id="edit_course_images" name="images" accept="image/*">
                                 </div>
@@ -181,21 +134,20 @@
         </div>
     </div>
     <div class="add_button">
-      <a href="#">Courses</a>
+      <a href="#">Live Class</a>
       <div>
-        <button type="button" data-bs-toggle="modal" data-bs-target="#addBook">Add Course</button>
-        <button type="button" onclick="getCategoryCourse()">Categories</button>
+        <button type="button" data-bs-toggle="modal" data-bs-target="#addBook">Add Live Class</button>
       </div>
     </div>
     <table>
         <thead>
-            <th>COURSES NAME</th>
-            <th>CATEGORY</th>
+            <th>LIVE TITLE</th>
+            <th>LIVE URL</th>
+            <th>CREATED AT</th>
+            <th>LIVE DATE</th>
             <th>PRICE</th>
             <th>DISCOUNT PRICE</th>
-            <th>DESCRIPTION</th>
-            <th>PROMO VIDEO</th>
-            <th>DAYS</th>
+            <th>THUMBNAIL</th>
             <th>OPTIONS</th>
         </thead>
         <tbody id="data">
@@ -216,7 +168,44 @@
 
     var editCourseModal = new bootstrap.Modal(document.getElementById('editCourse'));
     var allVideosModal = new bootstrap.Modal(document.getElementById('allvideos'));
-    var allcategoriesModal = new bootstrap.Modal(document.getElementById('allcategories'));
+
+    function getUsers(offset) {
+    var select = document.getElementById("users");
+    var length = select.options.length;
+    for (var i = length-1; i >= 0; i--) {
+        select.options[i] = null;
+    }   
+                    var option = document.createElement("option");
+                        option.text = "Select Users";
+                        option.value= "";
+                        select.add(option);             
+    $.ajax({
+            url : `/getSubscriptionUsers`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+              // console.log(response);
+                if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    var option = document.createElement("option");
+                            option.text = response.data[i].phone_number;
+                            option.value= response.data[i].id;
+                            select.add(option);
+                  }
+                } else {
+                    var option = document.createElement("option");
+                        option.text = "No Users present";
+                        option.value= "";
+                        select.add(option);
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
 
     function uploadCategoryImages(id) {
         var imageFiles = document.getElementById('course_category_images').files;
@@ -411,32 +400,31 @@
     function uploadImages(value) {
         $(parent.document).find('#image_loader').css('display','flex');
       if(value != 'edit'){
-        var imageFiles = document.getElementById('course_images').files;
+        var fileForm = new FormData();
+        var image = document.getElementById('live_images').files[0];
         //   console.log(imageFiles);
-        var form = new FormData();
+        // var form = new FormData();
         //   document.getElementById('preview').innerHTML = '';
+            fileForm.append('slider_image',image);
 
-        for(var i=0;i<imageFiles.length;i++){
-            if(imageFiles[i] != undefined){
-                form.append(`book_images`, imageFiles[i]);
-            }
-        }
+        // for(var i=0;i<imageFiles.length;i++){
+        //     if(imageFiles[i] != undefined){
+        //         form.append(`book_images`, imageFiles[i]);
+        //     }
+        // }
 
         $.ajax({
-            url : "/saveBookImages",
+            url : "/uploadSliderImage",
             type: "POST",
             cache: false,
             contentType: false,
             processData: false,
-            data : form,
+            data : fileForm,
             success: function(response){
-                console.log(response.files);
-                for(var i=0;i<response.files.length;i++) {
-                    var path = response.files[i].slice(6,response.files[i].length);
-                    $('#preview').append('<div class="col-6" id="gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentGalleryImage(\''+ ( "gallery_image_"+ path )  +'\',\'gallery_image_path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="gallery_image_path" name="gallery_image_path" id="gallery_image_path_'+ path +'" value="'+ path +'"></div></div>');
-                }
-                document.getElementById('course_images').value='';
-        $(parent.document).find('#image_loader').css('display','none');
+                var path = response.path.slice(6,response.path.length);
+                $('#preview').append('<div class="col-6" id="gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentGalleryImage(\''+ ( "gallery_image_"+ path )  +'\',\'gallery_image_path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="gallery_image_path" name="gallery_image_path" id="gallery_image_path_'+ path +'" value="'+ path +'"></div></div>');
+                    document.getElementById('live_images').value = '';
+                    $(parent.document).find('#image_loader').css('display','none');
             },
             error: function(err){
                 console.log(err.status);
@@ -788,18 +776,18 @@ function editCourseVideo(id) {
     allVideosModal.toggle();
   }
 
-  function getCourse() {
+  function getLive() {
     $.ajax({
-            url : '/getCourse',
+            url : '/getLive',
             dataType: "json",
             type: "GET",
             success: function(response){
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].description+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td> </tr>');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td><a href="'+ (response.data[i].url != null ? response.data[i].url : "#" ) +'" target="_blank">URL</a></td><td>'+ Date(response.data[i].created_at).slice(0,16) +'</td><td>'+ Date(response.data[i].live_date).slice(0,16) +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td><img src="'+ response.data[i].image_path +'" alt="no_image"></td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Users</a></div> </td> </tr>');
                   }
                 } else {
-                    $('#data').append('<tr><td>No Courses present</td></tr>')
+                    // $('#data').append('<tr><td>No Courses present</td></tr>')
                 }
                   document.getElementById('tableLoader').style.display = 'none';
             },
@@ -810,7 +798,7 @@ function editCourseVideo(id) {
         });
   }
   
-  window.onload = getCourse();
+  window.onload = getLive();
 
 </script>
 

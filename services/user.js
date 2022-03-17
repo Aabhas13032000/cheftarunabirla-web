@@ -21,4 +21,14 @@ module.exports = {
             }
         });
     },
+    getsearchuser : (data,callback) => {
+        const query = "SELECT * FROM `users` WHERE `phone_number` LIKE '%"+ data.phone_number +"%'";
+        pool.query(query,function(err,results,fields){
+            if(err) {
+                callback(err);
+            } else {
+                callback(null,results);
+            }
+        });
+    },
 };
