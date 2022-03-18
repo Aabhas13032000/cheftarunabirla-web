@@ -134,6 +134,11 @@ router.get('/live', function(req, res, next) {
   res.render('pages/live/live');
 });
 
+/* GET Testimonial page. */
+router.get('/testimonials', function(req, res, next) {
+  res.render('pages/testimonials/testimonials');
+});
+
 /* Logout application. */
 router.get('/logout', function(req, res, next) {
   req.session.destroy(function(err) {
@@ -177,8 +182,11 @@ router.post('/login', function(req, res, next) {
 
 /* Update Password. */
 router.post('/updatePassword', function(req, res, next) {
-  const query = "UPDATE `admin` SET `password` = '"+ req.body.c_password +"'";
+  const query = "UPDATE `admin` SET `password` = '"+ (req.body.c_password.length != 0 ? req.body.c_password : req.body.current_password) +"',`amazon` = '"+ req.body.amazon +"',`online_shop` = '"+ req.body.online_shop +"',`website` = '"+ req.body.website +"',`clubhouse`='"+ req.body.clubhouse +"',`pinterest`='"+ req.body.pinterest +"',`telegram`='"+ req.body.telegram +"',`quora`='"+ req.body.quora +"',`linkedin`='"+ req.body.linkedin +"',`twitter`='"+ req.body.twitter +"',`youtube`='"+ req.body.youtube +"',`facebook`='"+ req.body.facebook +"',`instagram`='"+ req.body.instagram +"'";
   pool.query(query,function(err,results,fields){
+    if(err) {
+      console.log()
+    }
     res.redirect('/profile');      
   });
 });
@@ -192,6 +200,13 @@ router.get('/getOrders/:offset',controllers.getOrders);
 
 //Live
 router.get('/getLive',controllers.getLive);
+
+//Testimonal
+router.post('/deleteTestimonial',controllers.deleteTestimonial);
+router.get('/getTestimonials',controllers.getTestimonials);
+router.get('/getImpTestimonials',controllers.getImpTestimonials);
+router.post('/addTestimonial',controllers.addTestimonial);
+router.post('/markedTestimonialImportant',controllers.markedTestimonialImportant);
 
 // Books
 router.post('/addBook',controllers.addBook);

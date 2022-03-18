@@ -89,7 +89,7 @@
       <div class="options">
         <a style="color: black;display: inline;font-size: 16px;">Select Category</a>
         <div class="form-group" style="display: inline-block;">
-          <select class="form-control" id="editstock" onchange="getSubscription(this.value,0)" name="editstock" aria-label="Images Categories" required>
+          <select class="form-control" id="editstock" onchange="getSubscriptionOnchange(this.value)" name="editstock" aria-label="Images Categories" required>
             <option value="course">Courses</option>
             <option value="book">Books</option>
           </select>
@@ -128,9 +128,14 @@
 
     function getMore() {
         offset = offset+20;
-        var value = document.getElementById('show_category').value;
-        console.log(value);
+        var value = document.getElementById('editstock').value;
+        // console.log(value);
         // getSubscription(value,offset);
+    }
+
+    function getSubscriptionOnchange(value) {
+        offset = 0;
+        getSubscription(value,offset);
     }
 
 

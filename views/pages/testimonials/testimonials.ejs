@@ -1,0 +1,166 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+
+<div class="container-fluid user_data">
+    <br>
+    <!-- Modal -->
+    <div class="modal fade" id="addBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Testimonials</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="addTestimonial(event)" id="form" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <input type="text" id="name" name="name" class="form-control" placeholder="Enter name"  style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" id="message" name="message" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
+                                </div>
+                                <div class="button">
+                                    <button type="submit" id="book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="add_button">
+      <a href="#">Testimonials</a>
+      <button type="button" data-bs-toggle="modal" data-bs-target="#addBook">Add Testimonial</button>
+    </div>
+    <table>
+        <thead>
+            <th>NAME</th>
+            <th>MESSAGE</th>
+            <th>OPTIONS</th>
+            <th>SELECT IMP</th>
+        </thead>
+        <tbody id="data">
+
+        </tbody>
+      </table>
+      <br>
+      <div id="tableLoader">
+        <p>Loading...</p>
+      </div>
+</div>
+
+<!--Bootstrap js-->
+<script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!---->
+
+<script>
+
+    $(function(){
+        if($('textarea#message').length){
+            CKEDITOR.replace('message', {
+                // filebrowserUploadUrl: '/admin/upload',
+                // filebrowserUploadMethod: 'form'
+            });
+        }
+        if($('textarea#editmessage').length){
+            CKEDITOR.replace('editmessage', {
+                // filebrowserUploadUrl: '/admin/upload',
+                // filebrowserUploadMethod: 'form'
+            });
+        }
+    });
+
+    function addTestimonial(event){
+      event.preventDefault();
+
+      var name = document.getElementById('name').value;
+      var message = CKEDITOR.instances['message'].getData();
+      $.ajax({
+                url : '/addTestimonial',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    name:name,
+                    message:message,
+                },
+                success: function(response){
+                    alert('Testimonial added successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+    }
+
+  function deleteTestimonial(id) {
+    if(confirm('Do you want to delete it?') == true){
+      $.ajax({
+            url : '/deleteTestimonial',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Deleted Successfullyt!!');
+                location.reload();
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+      });
+    } 
+  }
+
+  function toggleImportant(id) {
+    $.ajax({
+            url : '/markedTestimonialImportant',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Edited Successfullyt!!');
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+
+
+  function getTestimonials() {
+    $.ajax({
+            url : '/getTestimonials',
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    //   console.log(response.data[i].description);
+                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td><td>'+ response.data[i].message +'...</td><td> <div class="options"> <a class="delete" onclick="deleteTestimonial('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].imp == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].message +'">');
+                  }
+                } else {
+                    // $('#data').append('<tr><td>No Testimonial present</td></tr>')
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+  }
+  
+  window.onload = getTestimonials();
+
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 

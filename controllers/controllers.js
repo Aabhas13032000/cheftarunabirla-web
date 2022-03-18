@@ -12,11 +12,67 @@ const { getreviews,addreviews,deletereviews,getreviewsbyitem } = require('../ser
 const { getsubscription,deletesubscription,editsubscription,getsubscriptionusers,addsubscription } = require('../services/subscription');
 const { getlive } = require('../services/live');
 const { verify } = require('jsonwebtoken');
+const { gettestimonials,addtestimonial,deletetestimonial,markedtestimonialimportant,getimptestimonials} =  require('../services/testimonial');
 const accessTokenSecret = 'youraccesstokensecret';
 
 module.exports = {
     getLive: (req,res) => {
         getlive((err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
+    getTestimonials: (req,res) => {
+        gettestimonials((err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
+    getImpTestimonials: (req,res) => {
+        getimptestimonials((err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
+    addTestimonial: (req,res) => {
+        addtestimonial(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({message:'Book added successfully'});
+            }
+        });
+    },
+    deleteTestimonial: (req,res) => {
+        deletetestimonial(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({message:'Book added successfully'});
+            }
+        });
+    },
+    markedTestimonialImportant: (req,res) => {
+        markedtestimonialimportant(req.body,(err,results) => {
             if(err) {
                 console.log(err);
                 res.json({message:'Database connection error !!'});
