@@ -213,7 +213,7 @@ function searchUser(value){
                     $('#data').append('<tr> <td>'+ response.data[i].name +'</td> <td>'+ response.data[i].c_name +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].stock == 1 ? '<a style="color:green">In stock</a>' : '<a style="color:red">Out of stock</a>') +'</td> <td> <div class="options"> <a class="edit" onclick="editproducts(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].price+'\',\''+response.data[i].c_name+'\',\''+response.data[i].category_id+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].stock+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteproducts('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
-                    $('#data').append('<tr><td>No Products present</td></tr>')
+                    // $('#data').append('<tr><td>No Products present</td></tr>')
                 }
                   document.getElementById('tableLoader').style.display = 'none';
         },
@@ -692,7 +692,7 @@ function deleteproducts(id) {
                     $('#data').append('<tr> <td>'+ response.data[i].name +'</td> <td>'+ response.data[i].c_name +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].stock == 1 ? '<a style="color:green">In stock</a>' : '<a style="color:red">Out of stock</a>') +'</td> <td> <div class="options"> <a class="edit" onclick="editproducts(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].price+'\',\''+response.data[i].c_name+'\',\''+response.data[i].category_id+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].stock+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteproducts('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
-                    $('#data').append('<tr><td>No Products present</td></tr>')
+                    // $('#data').append('<tr><td>No Products present</td></tr>')
                 }
                   document.getElementById('tableLoader').style.display = 'none';
             },

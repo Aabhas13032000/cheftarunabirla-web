@@ -229,6 +229,35 @@
     var allVideosModal = new bootstrap.Modal(document.getElementById('allvideos'));
     var allcategoriesModal = new bootstrap.Modal(document.getElementById('allcategories'));
 
+
+//function search
+function searchUser(value){
+    document.getElementById('data').innerHTML = '';
+    if(value.length != 0) {
+      $.ajax({
+        url : `/getSearchedCourse/${value}`,
+        dataType: "json",
+        type: "GET",
+        success: function(response){
+            if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].description+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr>');
+                  }
+                } else {
+                    // $('#data').append('<tr><td>No Courses present</td></tr>')
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+        },
+        error: function(err){
+          console.log(err);
+          alert('Some error occured !!');
+        }
+      });
+    } else {
+      getCourse();
+    }
+  }
+
     function toggleFeatured(id) {
         $.ajax({
             url : '/markedCourseFeatured',
@@ -410,32 +439,32 @@
                     alert('Some error occured !!');
                 }
             });
-  }
+    }
 
     function deleteCurrentGalleryImage(id,input_id) {
-    var path = document.getElementById(input_id).value;
-    if(confirm('Do you want to delete it?') == true){
-        console.log(path);
-        if(path != '/images/extra/nopreview.jpeg') {
-            $.ajax({
-                url : '/deletePhoto',
-                dataType: "json",
-                type: "POST",
-                data: {
-                    path:path
-                },
-                success: function(response){
-                    alert('Removed Successfully');
-                    document.getElementById(id).remove();
-                },
-                error: function(err){
-                    console.log(err);
-                    alert('Some error occured !!');
-                }
-            });
-        }
-    } 
-}
+        var path = document.getElementById(input_id).value;
+        if(confirm('Do you want to delete it?') == true){
+            console.log(path);
+            if(path != '/images/extra/nopreview.jpeg') {
+                $.ajax({
+                    url : '/deletePhoto',
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        path:path
+                    },
+                    success: function(response){
+                        alert('Removed Successfully');
+                        document.getElementById(id).remove();
+                    },
+                    error: function(err){
+                        console.log(err);
+                        alert('Some error occured !!');
+                    }
+                });
+            }
+        } 
+    }
 
     function uploadImages(value) {
         $(parent.document).find('#image_loader').css('display','flex');
@@ -828,7 +857,7 @@ function editCourseVideo(id) {
                     $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].description+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr>');
                   }
                 } else {
-                    $('#data').append('<tr><td>No Courses present</td></tr>')
+                    // $('#data').append('<tr><td>No Courses present</td></tr>')
                 }
                   document.getElementById('tableLoader').style.display = 'none';
             },

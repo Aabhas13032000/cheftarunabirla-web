@@ -252,6 +252,7 @@ router.get('/getUserCourseById/:id/:user_id',controllers.getCourseById);
 router.post('/addCourse',controllers.addCourse);
 router.get('/getCourseImages/:id',controllers.getCourseImages);
 router.get('/getSearchedCourse/:name/:user_id',controllers.getSearchedCourse);
+router.get('/getSearchedCourse/:name',controllers.getSearchedCourse);
 router.get('/getCategoryCourse/:category/:user_id',controllers.getCategoryCourse);
 router.get('/getCourseVideos/:id',controllers.getCourseVideos);
 router.post('/addCourseVideos',controllers.addCourseVideos);
