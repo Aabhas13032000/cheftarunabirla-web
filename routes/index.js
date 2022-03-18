@@ -231,6 +231,7 @@ router.get('/getUserProductById/:id/:user_id',controllers.getUserProductById);
 router.get('/getUserProduct/:user_id',controllers.getUserProduct);
 router.get('/getCategoryProduct/:category/:user_id',controllers.getCategoryProduct);
 router.get('/getSearchedProduct/:name/:user_id',controllers.getSearchedProduct);
+router.get('/getSearchedProduct/:name',controllers.getSearchedProduct);
 router.get('/getEachProduct/:id',controllers.getEachProduct);
 router.get('/getProductImages/:id',controllers.getProductImages);
 router.post('/deleteProduct',controllers.deleteProduct);

@@ -79,7 +79,11 @@ module.exports = {
         });
     },
     getsearchedproduct : (data,callback) => {
-        const query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path , (SELECT COUNT(*) FROM `cart` WHERE `cart`.`product_id` = p.`id` AND `cart`.`user_id` = '"+ data.user_id +"')  FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND p.`name` LIKE '%"+ data.name +"%' ORDER BY p.`created_at` DESC";
+        if(data.user_id) {
+            var query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path , (SELECT COUNT(*) FROM `cart` WHERE `cart`.`product_id` = p.`id` AND `cart`.`user_id` = '"+ data.user_id +"')  FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND p.`name` LIKE '%"+ data.name +"%' ORDER BY p.`created_at` DESC";
+        } else {
+            var query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND p.`name` LIKE '%"+ data.name +"%' ORDER BY p.`created_at` DESC";
+        }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
