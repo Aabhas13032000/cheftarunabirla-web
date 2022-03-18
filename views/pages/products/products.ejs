@@ -201,6 +201,7 @@ $(function(){
 
 //function search
 function searchUser(value){
+    offset = 0;
     document.getElementById('data').innerHTML = '';
     if(value.length != 0) {
       $.ajax({

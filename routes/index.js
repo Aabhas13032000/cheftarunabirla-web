@@ -245,7 +245,7 @@ router.get('/getProductSubCategories/:category_id',controllers.getProductSubCate
 router.post('/markedProductFeatured',controllers.markedProductFeatured);
 
 //Courses
-router.get('/getCourse',controllers.getCourse);
+router.get('/getCourse/:offset',controllers.getCourse);
 router.get('/getCourseCategories',controllers.getCourseCategories);
 router.get('/getUserCourse/:user_id',controllers.getUserCourse);
 router.get('/getUserCourseById/:id/:user_id',controllers.getCourseById);

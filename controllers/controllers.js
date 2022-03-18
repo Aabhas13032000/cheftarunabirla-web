@@ -630,7 +630,7 @@ module.exports = {
         });
     },
     getCourse: (req,res) => {
-        getcourse((err,results) => {
+        getcourse(req.params,(err,results) => {
             if(err) {
                 console.log(err);
                 res.json({message:'Database connection error !!'});

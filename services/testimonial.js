@@ -2,7 +2,7 @@ const pool = require('../database/connection');
 
 module.exports ={
     gettestimonials : (callback) => {
-        const query = "SELECT * FROM `testimonials` WHERE `status` = 1";
+        const query = "SELECT * FROM `testimonials` WHERE `status` = 1 ORDER BY `id` DESC";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);

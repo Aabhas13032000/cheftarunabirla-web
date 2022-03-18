@@ -1,6 +1,6 @@
 <%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
 
-<div class="container-fluid user_data">
+<div class="container-fluid user_data" onscroll="getMore()">
     <br>
     <div class="modal fade" id="allvideos" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
@@ -228,10 +228,12 @@
     var editCourseModal = new bootstrap.Modal(document.getElementById('editCourse'));
     var allVideosModal = new bootstrap.Modal(document.getElementById('allvideos'));
     var allcategoriesModal = new bootstrap.Modal(document.getElementById('allcategories'));
+    var offset = 0;
 
 
 //function search
 function searchUser(value){
+    offset = 0;
     document.getElementById('data').innerHTML = '';
     if(value.length != 0) {
       $.ajax({
@@ -254,7 +256,7 @@ function searchUser(value){
         }
       });
     } else {
-      getCourse();
+      getCourse(0);
     }
   }
 
@@ -846,9 +848,14 @@ function editCourseVideo(id) {
     allVideosModal.toggle();
   }
 
-  function getCourse() {
+  function getMore() {
+        offset = offset+20;
+        getCourse(offset);
+    }
+
+  function getCourse(offset) {
     $.ajax({
-            url : '/getCourse',
+            url : `/getCourse/${offset}`,
             dataType: "json",
             type: "GET",
             success: function(response){
@@ -868,7 +875,7 @@ function editCourseVideo(id) {
         });
   }
   
-  window.onload = getCourse();
+  window.onload = getCourse(0);
 
 </script>
 

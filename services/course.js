@@ -1,8 +1,8 @@
 const pool = require('../database/connection');
 
 module.exports = {
-    getcourse : (callback) => {
-        const query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `created_at` DESC";
+    getcourse : (data,callback) => {
+        const query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `created_at` DESC LIMIT 20 OFFSET "+ data.offset +"";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
