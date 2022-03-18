@@ -105,6 +105,27 @@ module.exports = {
             }
         });            
     },
+    markedcoursefeatured : (data,callback) => {
+        const query  = "SELECT * FROM `courses` WHERE `id` = '"+ data.id +"' AND `status` = 1";
+        pool.query(query,function(err,results,fields){
+            if(err) {
+                callback(err);
+            } else {
+                if(results[0].featured == 0){
+                    var query2  = "UPDATE `courses` SET `featured` = 1  WHERE `id` = '"+ data.id +"'";
+                } else {
+                    var query2  = "UPDATE `courses` SET `featured` = 0  WHERE `id` = '"+ data.id +"'";
+                }
+                pool.query(query2,function(err,results,fields){
+                    if(err) {
+                        callback(err);
+                    } else {
+                        callback(null,results);
+                    }
+                });
+            }
+        });
+    },
     getcourseimages : (data,callback) => {
         const query  = "SELECT * FROM `images` WHERE `course_id` = '"+ data +"' AND `iv_category` = 'image'";
         pool.query(query,function(err,results,fields){

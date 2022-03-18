@@ -118,6 +118,27 @@ module.exports = {
             }
         });            
     },
+    markedproductfeatured : (data,callback) => {
+        const query  = "SELECT * FROM `products` WHERE `id` = '"+ data.id +"' AND `status` = 1";
+        pool.query(query,function(err,results,fields){
+            if(err) {
+                callback(err);
+            } else {
+                if(results[0].featured == 0){
+                    var query2  = "UPDATE `products` SET `featured` = 1  WHERE `id` = '"+ data.id +"'";
+                } else {
+                    var query2  = "UPDATE `products` SET `featured` = 0  WHERE `id` = '"+ data.id +"'";
+                }
+                pool.query(query2,function(err,results,fields){
+                    if(err) {
+                        callback(err);
+                    } else {
+                        callback(null,results);
+                    }
+                });
+            }
+        });
+    },
     editproduct : (data,id,callback) => {
         const query2  = "UPDATE `products` SET `name` = '"+ data.name +"',`category_id` = '"+ data.category +"' ,`price` = '"+ data.price +"',`discount_price` = '"+ data.discount_price +"',`description` = '"+ data.description +"' , `stock` = '"+ data.stock +"' WHERE `id` = '"+ id +"'";
         pool.query(query2,function(err,results,fields){

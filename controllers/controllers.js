@@ -1,8 +1,8 @@
 const { checkCategory,addcategory,getcategories,markedcategoryimportant,deletecategory } = require('../services/category');
 const { getgalleryimages,addgalleryImages,getgalleryimpimages } = require('../services/gallery');
 const {addbook,getbook,checkbook,getbookimages,deletebook,editbook,getuserbook,getimpbooks,getuserbookbyId,getbookvideos,deletebookvideo,addbookvideos,editbookvideos} = require('../services/books');
-const {getproduct,getproductcategories,getproductsubcategories,checkproductcategory,addproductcategory,deleteproductcategory,updateproductcategory,addproduct,deleteproduct,getproductimages,editproduct,getcategoryproduct,getsearchedproduct,geteachproduct,getuserproduct,getproductwithoutoffset,getuserproductbyid} = require('../services/products');
-const { getcourse,addcourse,deletecourse,getcourseimages,getcoursepdf,editcourse,getcoursevideos,addcoursevideos,deletecoursevideo,getsearchedcourse,getcategorycourse ,getusercourse,getcoursecategories,updatecoursecategory,getcoursebyId,editcoursevideos,markedcoursecategoryimportant,checkcoursecategory,addcoursecategory,deletecoursecategory,updatecoursecategoryname} = require('../services/course');
+const {getproduct,getproductcategories,getproductsubcategories,checkproductcategory,addproductcategory,deleteproductcategory,updateproductcategory,addproduct,deleteproduct,getproductimages,editproduct,getcategoryproduct,getsearchedproduct,geteachproduct,getuserproduct,getproductwithoutoffset,getuserproductbyid,markedproductfeatured} = require('../services/products');
+const { getcourse,addcourse,deletecourse,getcourseimages,getcoursepdf,editcourse,getcoursevideos,addcoursevideos,deletecoursevideo,getsearchedcourse,getcategorycourse ,getusercourse,getcoursecategories,updatecoursecategory,getcoursebyId,editcoursevideos,markedcoursecategoryimportant,checkcoursecategory,addcoursecategory,deletecoursecategory,updatecoursecategoryname,markedcoursefeatured} = require('../services/course');
 const { getcoupons,deletecoupons,addcoupons,editcoupons,getcouponsbycategory } = require('../services/coupons');
 const { getslider,addslider,deleteslider,getsliderbycategory,editslider} = require('../services/slider');
 const { addblog, getblogs, editblog, deleteblog,getblogimages,getsearchedblogs} =  require('../services/blogs');
@@ -596,6 +596,17 @@ module.exports = {
             }
         });
     },
+    markedProductFeatured: (req,res) => {
+        markedproductfeatured(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
     getProductImages: (req,res) => {
         getproductimages(req.params.id,(err,results) => {
             if(err) {
@@ -797,6 +808,17 @@ module.exports = {
     },
     updateCourseCategoryName: (req,res) => {
         updatecoursecategoryname(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
+    markedCourseFeatured: (req,res) => {
+        markedcoursefeatured(req.body,(err,results) => {
             if(err) {
                 console.log(err);
                 res.json({message:'Database connection error !!'});

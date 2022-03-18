@@ -199,6 +199,24 @@ $(function(){
     }
 });
 
+    function toggleFeatured(id) {
+        $.ajax({
+            url : '/markedProductFeatured',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Edited Successfullyt!!');
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+    }
+
 
 
 function addProduct(event){

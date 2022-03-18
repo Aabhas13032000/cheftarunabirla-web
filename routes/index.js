@@ -241,6 +241,7 @@ router.get('/checkProductCategory/:name',controllers.checkProductCategory);
 router.post('/deleteProductCategory',controllers.deleteProductCategory);
 router.post('/updateProductCategory',controllers.updateProductCategory);
 router.get('/getProductSubCategories/:category_id',controllers.getProductSubCategories);
+router.post('/markedProductFeatured',controllers.markedProductFeatured);
 
 //Courses
 router.get('/getCourse',controllers.getCourse);
@@ -263,6 +264,7 @@ router.post('/addCourseCategory',controllers.addCourseCategory);
 router.get('/checkProductCategory/:name',controllers.checkProductCategory);
 router.post('/deleteCourseCategory',controllers.deleteCourseCategory);
 router.post('/updateCourseCategoryName',controllers.updateCourseCategoryName);
+router.post('/markedCourseFeatured',controllers.markedCourseFeatured);
 
 //Coupons
 router.post('/deleteCoupons',controllers.deleteCoupons);

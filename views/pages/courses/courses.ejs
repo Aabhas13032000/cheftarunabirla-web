@@ -229,6 +229,24 @@
     var allVideosModal = new bootstrap.Modal(document.getElementById('allvideos'));
     var allcategoriesModal = new bootstrap.Modal(document.getElementById('allcategories'));
 
+    function toggleFeatured(id) {
+        $.ajax({
+            url : '/markedCourseFeatured',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Edited Successfullyt!!');
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+    }
+
     function uploadCategoryImages(id) {
         var imageFiles = document.getElementById('course_category_images').files;
         //   console.log(imageFiles);
