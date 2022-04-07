@@ -20,6 +20,7 @@
             <th>PHONE NUMBER</th>
             <th>DEVICE UPDATE REQUEST</th>
             <th>LOGGED IN</th>
+            <th>ACCOUNT</th>
         </thead>
         <tbody id="data">
         </tbody>
@@ -45,7 +46,7 @@
           // console.log(response);
           if(response.data.length != 0){
             for(var i=0;i<response.data.length;i++){
-              $('#data').append('<tr> <td>'+ response.data[i].phone_number +'</td><td><a onclick="updateDeviceRequest('+response.data[i].phone_number+')" class="profile">Update</a></div> </td> </tr>');
+              $('#data').append('<tr> <td>'+ response.data[i].phone_number +'</td><td><a onclick="updateDeviceRequest('+response.data[i].phone_number+')" class="profile">Update</a></div> </td><td>'+ (response.data[i].logged_in == 1 ? 'Yes' : 'No') +'</td><td><a href="/users/eachUser/'+ response.data[i].id +'" class="profile">Open</a></td> </tr>');
             }
           } else {
                     // $('#data').append('<tr><td>No Users present</td></tr>');
@@ -88,6 +89,10 @@
         getUsers(offset);
   }
 
+  function openUserAccount(id) {
+
+  }
+
   function getUsers(offset) {
     $.ajax({
             url : `/getUsers/${offset}`,
@@ -97,7 +102,7 @@
               // console.log(response);
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].phone_number +'</td><td><a onclick="updateDeviceRequest('+response.data[i].phone_number+')" class="profile">Update</a></div> </td><td>'+ (response.data[i].logged_in == 1 ? 'Yes' : 'No') +'</td> </tr>');
+                    $('#data').append('<tr> <td>'+ response.data[i].phone_number +'</td><td><a onclick="updateDeviceRequest('+response.data[i].phone_number+')" class="profile">Update</a></div> </td><td>'+ (response.data[i].logged_in == 1 ? 'Yes' : 'No') +'</td><td><a href="/users/eachUser/'+ response.data[i].id +'" class="profile">Open</a></td> </tr>');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Users present</td></tr>');

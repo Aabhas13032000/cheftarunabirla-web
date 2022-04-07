@@ -1,6 +1,6 @@
 <%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
 
-<div class="container-fluid user_data">
+<div class="container-fluid user_data" onscroll="getMore()">
     <br>
     <!-- Modal -->
     <div class="modal fade" id="addBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -25,6 +25,14 @@
                                     <input class="form-control" onchange="uploadImages('add')" style="margin-bottom: 10px;" type="file" multiple id="blog_images" name="images" accept="image/*">
                                 </div>
                                 <div id="preview" class="row preview_images">
+                                    
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="">PDF</label>
+                                    <input class="form-control" onchange="uploadPDF('add')" style="margin-bottom: 10px;" type="file" id="pdf" name="pdf" multiple accept="application/pdf">
+                                </div>
+                                <div id="preview_pdf">
                                     
                                 </div>
                                 <div class="button">
@@ -59,6 +67,13 @@
                                     <input class="form-control" onchange="uploadImages('edit')" style="margin-bottom: 10px;" type="file" multiple id="edit_blog_images" name="images" accept="image/*">
                                 </div>
                                 <div id="editpreview" class="row preview_images">
+                                    
+                                </div>
+                                <div class="form-group">
+                                    <label for="">PDF</label>
+                                    <input class="form-control" onchange="uploadPDF('edit')" style="margin-bottom: 10px;" type="file" id="editpdf" name="editpdf" accept="application/pdf">
+                                </div>
+                                <div id="editpreview_pdf">
                                     
                                 </div>
                                 <div class="button">
@@ -110,12 +125,177 @@
 
     var editBlogModal = new bootstrap.Modal(document.getElementById('editBlog'));
 
+    $(function(){
+        if($('textarea#description').length){
+            CKEDITOR.replace('description', {
+                // filebrowserUploadUrl: '/admin/upload',
+                // filebrowserUploadMethod: 'form'
+            });
+        }
+        if($('textarea#editdescription').length){
+            CKEDITOR.replace('editdescription', {
+                // filebrowserUploadUrl: '/admin/upload',
+                // filebrowserUploadMethod: 'form'
+            });
+        }
+    });
+
+    var offset = 0;
+
+//function search
+function searchUser(value){
+    offset = 0;
+    document.getElementById('data').innerHTML = '';
+    if(value.length != 0) {
+      $.ajax({
+        url : `/getSearchedBlogs/${value}`,
+        dataType: "json",
+        type: "GET",
+        success: function(response){
+            if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                  }
+                } else {
+                    // $('#data').append('<tr><td>No Blogs present</td></tr>')
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+        },
+        error: function(err){
+          console.log(err);
+          alert('Some error occured !!');
+        }
+      });
+    } else {
+      getBlogs(0);
+    }
+  }
+
+  function deleteEditCurrentPdf(path) {
+    if(confirm('Do you want to delete it?') == true){
+        // console.log(path);
+        if(path != '/images/extra/nopreview.jpeg') {
+            $.ajax({
+                url : `/deleteEditPdf`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    path:path
+                },
+                success: function(response){
+                    alert('Removed Successfully');
+                    document.getElementById('pdf_' + path).remove();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        }
+    } 
+}
+
+  function deleteCurrentPdf(path) {
+    // var path = document.getElementById(input_id).value;
+    if(confirm('Do you want to delete it?') == true){
+        console.log(path);
+        if(path != '/images/extra/nopreview.jpeg') {
+            $.ajax({
+                url : '/deletePDF',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    path:path
+                },
+                success: function(response){
+                    alert('Removed Successfully');
+                    document.getElementById('pdf_'+path).remove();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        }
+    } 
+}
+
+  function uploadPDF(value) {
+      if(value != 'edit') {
+        var imageFiles = document.getElementById('pdf').files;
+        //   console.log(imageFiles);
+        var form = new FormData();
+        //   document.getElementById('preview').innerHTML = '';
+
+        for(var i=0;i<imageFiles.length;i++){
+            if(imageFiles[i] != undefined){
+                form.append(`pdf`, imageFiles[i]);
+            }
+        }
+
+        $.ajax({
+            url : "/savePdf",
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : form,
+            success: function(response){
+                console.log(response);
+                for(var i=0;i<response.files.length;i++) {
+                    var path = response.files[i].path.slice(6,response.files[i].path.length);
+                    $('#preview_pdf').append('<div class="col-12" id="pdf_'+ path +'"><a href="'+ path +'">'+ path +'</a> <a onclick="deleteCurrentPdf(\''+ path +'\')" style="color:red;margin-left:20px"><span class="iconify" data-icon="akar-icons:cross" style="color:red;width:30px;height:30px"></span></a><input type="hidden" class="pdf_path" name="pdf_path" id="pdf_path_'+ path +'" value="'+ path +'"></div>');
+                }
+                document.getElementById('pdf').value='';
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+      } else {
+        var imageFiles = document.getElementById('editpdf').files;
+        //   console.log(imageFiles);
+        var form = new FormData();
+        var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+        //   document.getElementById('preview').innerHTML = '';
+
+        for(var i=0;i<imageFiles.length;i++){
+            if(imageFiles[i] != undefined){
+                form.append(`pdf`, imageFiles[i]);
+            }
+        }
+
+        $.ajax({
+            url : `/saveEditPdf/${id}/blogs`,
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : form,
+            success: function(response){
+                console.log(response);
+                for(var i=0;i<response.files.length;i++) {
+                    var path = response.files[i].path.slice(6,response.files[i].path.length);
+                    $('#editpreview_pdf').append('<div class="col-12" id="pdf_'+ path +'"><a href="'+ path +'">'+ path +'</a> <a onclick="deleteEditCurrentPdf(\''+ path +'\')" style="color:red;margin-left:20px"><span class="iconify" data-icon="akar-icons:cross" style="color:red;width:30px;height:30px"></span></a></div>');
+                }
+                document.getElementById('editpdf').value='';
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+      }
+  }
+
+
     function addBlog(event){
       event.preventDefault();
 
       var title = document.getElementById('title').value;
-      var description = document.getElementById('description').value;
+    //   var description = document.getElementById('description').value;
+      var description = CKEDITOR.instances['description'].getData();
       var gallery = document.getElementsByClassName("gallery_image_path");
+      var pdf = document.getElementsByClassName("pdf_path")[0] != undefined ? document.getElementsByClassName("pdf_path")[0].value : '';
       var gallery_values = [];
       if(gallery.length != 0) {
         for(var i =0;i<gallery.length;i++) {
@@ -129,6 +309,7 @@
                     title:title,
                     description:description,
                     gallery:gallery_values,
+                    pdf:pdf
                 },
                 success: function(response){
                     alert('Blog added successfully');
@@ -146,7 +327,8 @@
       event.preventDefault();
 
       var title = document.getElementById('edittitle').value;
-      var description = document.getElementById('editdescription').value;
+    //   var description = document.getElementById('editdescription').value;
+      var description = CKEDITOR.instances['editdescription'].getData();
       var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
             $.ajax({
                 url : `/editBlog/${id}`,
@@ -312,7 +494,7 @@
             dataType: "json",
             type: "GET",
             success: function(response){
-                console.log(response);
+                // console.log(response);
                 if(value == 'edit') {
                     for(var i=0;i<response.data.length;i++) {
                         var path = response.data[i].path;
@@ -327,27 +509,38 @@
         });
   }
 
-  function editBlog(id,title,description) {
+  function editBlog(id,title,path) {
       getImages(id,'edit');
+        document.getElementById('editpreview_pdf').innerHTML = '';
+      if(path != 'null' && path.length != 0){
+        $('#editpreview_pdf').append('<div class="col-12" id="pdf_'+ path +'"><a href="'+ path +'">'+ path +'</a> <a onclick="deleteEditCurrentPdf(\''+ path +'\')" style="color:red;margin-left:20px"><span class="iconify" data-icon="akar-icons:cross" style="color:red;width:30px;height:30px"></span></a></div>');
+      }
       document.getElementById('editpreview').innerHTML = '';
       document.getElementById('edittitle').value = title;
-      document.getElementById('editdescription').value = description;
+    //   document.getElementById('editdescription').value = description;
+      CKEDITOR.instances['editdescription'].setData(document.getElementById('ckeditorvalue' + id).value);
       document.getElementsByClassName('edit_form')[0].setAttribute('id',`form_${id}`);
       editBlogModal.toggle();
   }
 
-  function getBlogs() {
+  function getMore() {
+        offset = offset+20;
+        getBlogs(offset);
+    }
+
+  function getBlogs(offset) {
     $.ajax({
-            url : '/getBlogs',
+            url : `/getBlogs/${offset}`,
             dataType: "json",
             type: "GET",
             success: function(response){
+                // console.log(response);
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].image_path +'" target="_blank"><img src="'+ response.data[i].image_path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].description+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr>');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].pdf+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
-                    $('#data').append('<tr><td>No Blogs present</td></tr>')
+                    // $('#data').append('<tr><td>No Blogs present</td></tr>')
                 }
                   document.getElementById('tableLoader').style.display = 'none';
             },
@@ -358,7 +551,7 @@
         });
   }
   
-  window.onload = getBlogs();
+  window.onload = getBlogs(0);
 
 </script>
 

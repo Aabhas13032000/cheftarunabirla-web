@@ -9,21 +9,109 @@ const { addblog, getblogs, editblog, deleteblog,getblogimages,getsearchedblogs} 
 const { getusers,updatedevicerequest,getsearchuser } = require('../services/user');
 const { getorders } = require('../services/orders')
 const { getreviews,addreviews,deletereviews,getreviewsbyitem } = require('../services/reviews');
-const { getsubscription,deletesubscription,editsubscription,getsubscriptionusers,addsubscription } = require('../services/subscription');
-const { getlive } = require('../services/live');
+const { getsubscription,deletesubscription,editsubscription,getsubscriptionusers,addsubscription,getsearchsubscription } = require('../services/subscription');
+const { getlive,addliveclass,deleteliveclass,editliveclass,getliveusers,deleteliveclassuser,addliveclassuser,getuserlive } = require('../services/live');
 const { verify } = require('jsonwebtoken');
-const { gettestimonials,addtestimonial,deletetestimonial,markedtestimonialimportant,getimptestimonials} =  require('../services/testimonial');
+const { gettestimonials,addtestimonial,deletetestimonial,markedtestimonialimportant,getimptestimonials,edittestimonial} =  require('../services/testimonial');
 const accessTokenSecret = 'youraccesstokensecret';
 
 module.exports = {
     getLive: (req,res) => {
-        getlive((err,results) => {
+        getlive(req.params,(err,results) => {
             if(err) {
                 console.log(err);
                 res.json({message:'Database connection error !!'});
             } else {
                 // console.log(results);
                 res.json({data:results});
+            }
+        });
+    },
+    getLiveUsers: (req,res) => {
+        getliveusers(req.params,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
+    getUserLive: (req,res) => {
+        getuserlive(req.params,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
+    editTestimonial: (req,res) => {
+        edittestimonial(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({message:'Testimonial edited successfully'});
+            }
+        });
+    },
+    addLiveClass: (req,res) => {
+        addliveclass(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({message:'Live Class added successfully'});
+            }
+        });
+    },
+    addLiveClassUser: (req,res) => {
+        addliveclassuser(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({message:'Live Class added successfully'});
+            }
+        });
+    },
+    editLiveClass: (req,res) => {
+        editliveclass(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({message:'Live class edited successfully'});
+            }
+        });
+    },
+    deleteLiveClass: (req,res) => {
+        deleteliveclass(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({message:'Delete Live Class Successfully'});
+            }
+        });
+    },
+    deleteLiveClassUser: (req,res) => {
+        deleteliveclassuser(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({message:'Delete Live Class User Successfully'});
             }
         });
     },
@@ -95,6 +183,17 @@ module.exports = {
     },
     getSubscription: (req,res) => {
         getsubscription(req.params,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
+    getSearchSubscription: (req,res) => {
+        getsearchsubscription(req.params,(err,results) => {
             if(err) {
                 console.log(err);
                 res.json({message:'Database connection error !!'});
@@ -983,7 +1082,7 @@ module.exports = {
         });
     },
     getBlogs: (req,res) => {
-        getblogs((err,results) => {
+        getblogs(req.params,(err,results) => {
             if(err) {
                 console.log(err);
                 res.json({message:'Database connection error !!'});

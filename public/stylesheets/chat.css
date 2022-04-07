@@ -1,0 +1,149 @@
+@font-face { font-family: Hellix-Regular; src: url('../fonts/Hellix/Hellix-Regular.ttf'); }
+@font-face { font-family: Hellix-Bold; src: url('../fonts/Hellix/Hellix-Bold.ttf'); }
+@font-face { font-family: Hellix-Black; src: url('../fonts/Hellix/Hellix-Black.ttf'); }
+@font-face { font-family: Hellix-Light; src: url('../fonts/Hellix/Hellix-Light.ttf'); }
+@font-face { font-family: Hellix-ExtraBold; src: url('../fonts/Hellix/Hellix-ExtraBold.ttf'); }
+@font-face { font-family: Hellix-Medium; src: url('../fonts/Hellix/Hellix-Medium.ttf'); }
+@font-face { font-family: Hellix-Thin; src: url('../fonts/Hellix/Hellix-Thin.ttf'); }
+@font-face { font-family: Hellix-SemiBold; src: url('../fonts/Hellix/Hellix-SemiBold.ttf'); }
+
+:root {
+    --primary-color: #1d2f3d;
+    --secondary-color: #ffffff;
+    --contrast-color: #FFE9B9;
+    --smallText-color: #DBDBDB;
+    --headings-color: #FFFFFF;
+    --adminSearchBox-color: #F8F8F8;
+    --deleteButton-color: #FF3D3D;
+    --unselectedSidebarText-color: #F4F4F4;
+}  
+
+html ,body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background-color: transparent;
+}
+
+.row {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+a:hover {
+    text-decoration: none;
+}
+.live_chat {
+    height: 100vh;
+    overflow: hidden;
+    padding: 0;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.live_chat .chat_section {
+    background-color: transparent;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding: 10px 10px 350px 10px;
+    scroll-behavior: smooth;
+    /* height: 90vh; */
+    /* transition: 0.5s ease-in; */
+}
+
+.live_chat .chat_section .meesage_outer_box {
+    width: 100%;
+    background-color: transparent;
+}
+
+.live_chat .chat_section .meesage_outer_box .message {
+    background-color: rgba(255,255,255,0.2);
+    display: inline-block;
+    padding: 10px;
+    flex-wrap: wrap;
+    /* white-space: pre-wrap; */
+    max-width: 230px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.5);
+    margin: 5px 0px;
+}
+
+.live_chat .chat_section .meesage_outer_box .message .name {
+    margin-bottom: 5px;
+    color: white;
+}
+
+.live_chat .chat_section .meesage_outer_box .message .text {
+    color: rgba(255,255,255,0.7);
+    font-family: Hellix-Regular;
+}
+
+.live_chat .chat_section .meesage_outer_box .message h6 {
+    margin: 0;
+}
+
+.live_chat .input_box {
+    height: 50px;
+    width: 100%;
+    background-color: black;
+    padding: 0px;
+    position: fixed;
+    bottom: 0;
+}
+
+.live_chat .input_box .row {
+    width: 100%;
+    background-color: transparent;
+}
+
+.live_chat .input_box .row .col-10{
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    padding: 10px 0px 0px 10px;
+}
+
+.live_chat .input_box .row .col-2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 0px 0px 0px;
+}
+
+.live_chat .input_box .row .col-2 .send_button {
+    margin: 0;
+    height: 40px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: white;
+}
+
+.live_chat .input_box .row .col-2 .send_button .iconify {
+    height: 40px;
+    width: 40px;
+}
+
+.live_chat .input_box .row .col-10 .form-group {
+    margin: 0;
+    width: 100% !important;
+}
+
+.live_chat .input_box .row .col-10 .form-group .form-control {
+    margin: 0;
+    width: 100% !important;
+    background-color: rgba(255,255,255,0.3);
+    color: white;
+}
+
+.live_chat .input_box .row .col-10 .form-group .form-control::placeholder {
+    color: rgba(255,255,255,0.5);
+}

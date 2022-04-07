@@ -20,8 +20,63 @@
                                 <div class="form-group">
                                     <textarea class="form-control" id="message" name="message" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
                                 </div>
+                                <div class="form-group">
+                                    <label for="">Images</label>
+                                    <input class="form-control" onchange="uploadImages('add')" style="margin-bottom: 10px;" type="file" id="live_images" name="live_images" accept="image/*">
+                                </div>
+                                <div id="preview" class="row preview_images">
+                                    
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Profile Image</label>
+                                    <input class="form-control" onchange="uploadProfileImages('add')" style="margin-bottom: 10px;" type="file" id="profile_images" name="profile_images" accept="image/*">
+                                </div>
+                                <div id="profile_preview" class="row preview_images">
+                                    
+                                </div>
                                 <div class="button">
                                     <button type="submit" id="book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editCourse" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Testimonial</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="editTestimonial(event)" id="form_" class="edit_form" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <input type="text" id="editname" name="editname" class="form-control" placeholder="Enter name"  style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" id="editmessage" name="editmessage" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Images</label>
+                                    <input class="form-control" onchange="uploadImages('edit')" style="margin-bottom: 10px;" type="file" id="edit_live_images" name="images" accept="image/*">
+                                </div>
+                                <div id="editpreview" class="row preview_images">
+                                    
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Profile Image</label>
+                                    <input class="form-control" onchange="uploadProfileImages('edit')" style="margin-bottom: 10px;" type="file" id="edit_profile_images" name="images" accept="image/*">
+                                </div>
+                                <div id="editprofilepreview" class="row preview_images">
+                                    
+                                </div>
+                                <div class="button">
+                                    <button type="submit" id="edit_book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;">Save</button>
                                 </div>
                             </div>
                         </div>
@@ -57,6 +112,8 @@
 
 <script>
 
+    var editCourseModal = new bootstrap.Modal(document.getElementById('editCourse'));
+
     $(function(){
         if($('textarea#message').length){
             CKEDITOR.replace('message', {
@@ -77,6 +134,8 @@
 
       var name = document.getElementById('name').value;
       var message = CKEDITOR.instances['message'].getData();
+      var gallery = document.getElementsByClassName("gallery_image_path")[0].value;
+      var profile_image = document.getElementsByClassName("gallery_image_profile_path")[0].value;
       $.ajax({
                 url : '/addTestimonial',
                 dataType: "json",
@@ -84,6 +143,8 @@
                 data: {
                     name:name,
                     message:message,
+                    image:gallery,
+                    profile_image:profile_image
                 },
                 success: function(response){
                     alert('Testimonial added successfully');
@@ -95,6 +156,199 @@
                 }
             });
     }
+
+    function editTestimonial(event){
+      event.preventDefault();
+
+      var name = document.getElementById('editname').value;
+      var message = CKEDITOR.instances['editmessage'].getData();
+      var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+      $.ajax({
+                url : '/editTestimonial',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    name:name,
+                    message:message,
+                    id:id
+                },
+                success: function(response){
+                    alert('Testimonial added successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+    }
+
+
+function deleteCurrentGalleryImage(id,input_id) {
+    var path = document.getElementById(input_id).value;
+    if(confirm('Do you want to delete it?') == true){
+        console.log(path);
+        if(path != '/images/extra/nopreview.jpeg') {
+            $.ajax({
+                url : '/deletePhoto',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    path:path
+                },
+                success: function(response){
+                    alert('Removed Successfully');
+                    document.getElementById(id).remove();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        }
+    } 
+}
+
+
+    function uploadProfileImages(value) {
+        $(parent.document).find('#image_loader').css('display','flex');
+      if(value != 'edit'){
+        var fileForm = new FormData();
+        var image = document.getElementById('profile_images').files[0];
+        //   console.log(imageFiles);
+        // var form = new FormData();
+        //   document.getElementById('preview').innerHTML = '';
+            fileForm.append('slider_image',image);
+
+        // for(var i=0;i<imageFiles.length;i++){
+        //     if(imageFiles[i] != undefined){
+        //         form.append(`book_images`, imageFiles[i]);
+        //     }
+        // }
+
+        $.ajax({
+            url : "/uploadSliderImage",
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : fileForm,
+            success: function(response){
+                var path = response.path.slice(6,response.path.length);
+                $('#profile_preview').append('<div class="col-6" id="gallery_image_profile_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentGalleryImage(\''+ ( "gallery_image_profile_"+ path )  +'\',\'gallery_image_profile_path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="gallery_image_profile_path" name="gallery_image_profile_path" id="gallery_image_profile_path_'+ path +'" value="'+ path +'"></div></div>');
+                    document.getElementById('live_images').value = '';
+                    $(parent.document).find('#image_loader').css('display','none');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+      } else {
+        var fileForm = new FormData();
+        var image = document.getElementById('edit_profile_images').files[0];
+        //   console.log(imageFiles);
+        // var form = new FormData();
+        //   document.getElementById('preview').innerHTML = '';
+        var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+            fileForm.append('slider_image',image);
+
+        // for(var i=0;i<imageFiles.length;i++){
+        //     if(imageFiles[i] != undefined){
+        //         form.append(`book_images`, imageFiles[i]);
+        //     }
+        // }
+
+        $.ajax({
+            url : `/uploadSliderImage/profile/testimonial/${id}`,
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : fileForm,
+            success: function(response){
+                document.getElementById('editprofilepreview').innerHTML = '';
+                var path = response.path.slice(6,response.path.length);
+                $('#editprofilepreview').append('<div class="col-6" id="gallery_image_profile_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentGalleryImage(\''+ ( "gallery_image_profile_"+ path )  +'\',\'gallery_image_profile__path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="edit_gallery_image_path" name="gallery_image_profile_path" id="gallery_image_profile_path_'+ path +'" value="'+ path +'"></div></div>');
+                    document.getElementById('live_images').value = '';
+                    $(parent.document).find('#image_loader').css('display','none');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+      }
+  }
+
+
+  function uploadImages(value) {
+        $(parent.document).find('#image_loader').css('display','flex');
+      if(value != 'edit'){
+        var fileForm = new FormData();
+        var image = document.getElementById('live_images').files[0];
+        //   console.log(imageFiles);
+        // var form = new FormData();
+        //   document.getElementById('preview').innerHTML = '';
+            fileForm.append('slider_image',image);
+
+        // for(var i=0;i<imageFiles.length;i++){
+        //     if(imageFiles[i] != undefined){
+        //         form.append(`book_images`, imageFiles[i]);
+        //     }
+        // }
+
+        $.ajax({
+            url : "/uploadSliderImage",
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : fileForm,
+            success: function(response){
+                var path = response.path.slice(6,response.path.length);
+                $('#preview').append('<div class="col-6" id="gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentGalleryImage(\''+ ( "gallery_image_"+ path )  +'\',\'gallery_image_path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="gallery_image_path" name="gallery_image_path" id="gallery_image_path_'+ path +'" value="'+ path +'"></div></div>');
+                    document.getElementById('live_images').value = '';
+                    $(parent.document).find('#image_loader').css('display','none');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+      } else {
+        var fileForm = new FormData();
+        var image = document.getElementById('edit_live_images').files[0];
+        //   console.log(imageFiles);
+        // var form = new FormData();
+        //   document.getElementById('preview').innerHTML = '';
+        var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+            fileForm.append('slider_image',image);
+
+        // for(var i=0;i<imageFiles.length;i++){
+        //     if(imageFiles[i] != undefined){
+        //         form.append(`book_images`, imageFiles[i]);
+        //     }
+        // }
+
+        $.ajax({
+            url : `/uploadSliderImage/testimonial/${id}`,
+            type: "POST",
+            cache: false,
+            contentType: false,
+            processData: false,
+            data : fileForm,
+            success: function(response){
+                document.getElementById('editpreview').innerHTML = '';
+                var path = response.path.slice(6,response.path.length);
+                $('#editpreview').append('<div class="col-6" id="gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentGalleryImage(\''+ ( "gallery_image_"+ path )  +'\',\'gallery_image_path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="edit_gallery_image_path" name="gallery_image_path" id="gallery_image_path_'+ path +'" value="'+ path +'"></div></div>');
+                    document.getElementById('live_images').value = '';
+                    $(parent.document).find('#image_loader').css('display','none');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+      }
+  }
+
 
   function deleteTestimonial(id) {
     if(confirm('Do you want to delete it?') == true){
@@ -135,6 +389,46 @@
         });
   }
 
+  
+  function deleteEditCurrentGalleryImage(id,path) {
+    if(confirm('Do you want to delete it?') == true){
+        console.log(path);
+        if(path != '/images/extra/nopreview.jpeg') {
+            $.ajax({
+                url : `/deleteEditPhoto`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    path:path
+                },
+                success: function(response){
+                    alert('Removed Successfully');
+                    document.getElementById(id).remove();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        }
+    } 
+}
+
+  function editTestimonials(id,name,image,profile_image) {
+      document.getElementById('editpreview').innerHTML = '';
+      document.getElementById('editprofilepreview').innerHTML = '';
+      if(image != null && image.length !=0){
+        $('#editpreview').append('<div class="col-6" id="edit_gallery_image_'+ image +'"><div class="card" id="append_image_'+ image +'"><a class="delete_gallery_image" onclick="deleteEditCurrentGalleryImage(\''+ ( "edit_gallery_image_"+ image )  +'\',\''+ image +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ image +'" id="preview_galler_image_'+ image +'" alt=""></div></div>');
+      }
+      if(profile_image != null && profile_image.length !=0){
+        $('#editprofilepreview').append('<div class="col-6" id="edit_gallery_image_profile_'+ profile_image +'"><div class="card" id="append_image_'+ profile_image +'"><a class="delete_gallery_image" onclick="deleteEditCurrentGalleryImage(\''+ ( "edit_gallery_image_profile_"+ profile_image )  +'\',\''+ profile_image +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ profile_image +'" id="preview_galler_image_'+ profile_image +'" alt=""></div></div>');
+      }
+      document.getElementById('editname').value = name;
+      CKEDITOR.instances['editmessage'].setData(document.getElementById('ckeditorvalue' + id).value);
+      document.getElementsByClassName('edit_form')[0].setAttribute('id',`form_${id}`);
+      editCourseModal.toggle();
+  }
+
 
   function getTestimonials() {
     $.ajax({
@@ -145,7 +439,7 @@
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
                     //   console.log(response.data[i].description);
-                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td><td>'+ response.data[i].message +'...</td><td> <div class="options"> <a class="delete" onclick="deleteTestimonial('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].imp == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].message +'">');
+                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td><td>'+ response.data[i].message +'...</td><td> <div class="options"> <a class="edit" onclick="editTestimonials(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].image+'\',\''+response.data[i].profile_image+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a><a class="delete" onclick="deleteTestimonial('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].imp == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].message +'"><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].message +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Testimonial present</td></tr>')

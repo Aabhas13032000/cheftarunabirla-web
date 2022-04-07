@@ -1,0 +1,40 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+
+<div class="container-fluid user_data" onscroll="getMore()">
+    <br>
+    <div class="add_button">
+      <a href="#">Phone Number: <%= user[0].phone_number %></a>
+      <a href="#">Name: <%= user[0].name != null ? user[0].name : 'No name' %></a>
+      <a href="/users" class="button">Go Back</a>  
+    </div>
+    <h5>Subscriptions</h5>
+    <hr>
+    <table>
+        <thead>
+            <th>START DATE</th>
+            <th>END DATE</th>
+            <th>CATEGORY</th>
+            <th>ITEM NAME</th>
+            <th>STATUS</th>
+        </thead>
+        <tbody id="data">
+            <% subscriptions.forEach(element => { %>
+                <tr>
+                    <td><%= new Date(element.date_purchased).toString().slice(4,15) %></td>
+                    <td><%= new Date(element.end_date).toString().slice(4,15) %></td>
+                    <td><%= element.category %></td>
+                    <td><%= element.item_name %></td>
+                    <% if(element.status == 0){ %>
+                        <td style="color: red;">Expired</td>
+                    <% } else { %>
+                        <td style="color: green;">Active</td>
+                    <% } %>
+                </tr>
+            <% }); %> 
+        </tbody>
+    </table>
+    <br>
+</div>
+
+
+<%- include('../../components/footer/footer.ejs') %> 

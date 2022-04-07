@@ -2,10 +2,25 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../database/connection');
 
+/* GET User page. */
 router.get('/', function(req, res, next) {
-    // res.send('user');
     res.render('pages/user/user');
 });
+
+/* GET Each User page. */
+router.get('/eachUser/:id', function(req, res, next) {
+    const query = "SELECT * FROM `users` WHERE `id` = '"+ req.params.id +"'";
+    const subscriptions = "SELECT s.* , CASE WHEN s.`course_id` IS NOT NULL THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = s.`course_id`) WHEN s.`book_id` IS NOT NULL THEN (SELECT `title` FROM `books` WHERE `books`.`id` = s.`book_id`) ELSE 'no_item' END AS item_name FROM `subscription` s WHERE s.`user_id` = '"+ req.params.id +"'";
+    pool.query(query,function(err,user,fields){
+        pool.query(subscriptions,function(err,subscriptions,fields){
+            res.render('pages/user/each_user',{
+                user:user,
+                subscriptions:subscriptions
+            });
+        });
+    });
+});
+  
 
 router.post('/create_user', function(req, res, next) {
     const query = "SELECT * FROM `users` WHERE `device_id` = '"+ req.body.token +"'";
@@ -149,7 +164,7 @@ router.post('/save_user_mobile', function(req, res, next) {
                                                 console.log(err);
                                                 res.json({message:'Some error occured'});
                                             } else {
-                                                console.log(results5);
+                                                // console.log(results5);
                                                 const query1 = "UPDATE `cart` SET `user_id` = '"+ results5[0].id +"' WHERE `user_id` = '"+ results2[0].id +"'"
                                                 pool.query(query1,function(err,results6,fields){
                                                     if(err) {
@@ -178,10 +193,10 @@ router.post('/addtowhislist',function(req,res,next){
         var query  = "INSERT INTO `cart` (`category`,`product_id`,`user_id`,`cart_category`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"','whislist')";
     }
     if(req.body.category == 'course'){
-        var query  = "INSERT INTO `cart` (`category`,`course_id`,`user_id`,`cart_category`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"',,'whislist')";
+        var query  = "INSERT INTO `cart` (`category`,`course_id`,`user_id`,`cart_category`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"','whislist')";
     }
-    if(req.body.category == 'book'){
-        var query  = "INSERT INTO `cart` (`category`,`book_id`,`user_id`,`cart_category`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"',,'whislist')";
+    if(req.body.category == 'book' || req.body.category == 'book-videos'){
+        var query  = "INSERT INTO `cart` (`category`,`book_id`,`user_id`,`cart_category`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"','whislist')";
     } 
     pool.query(query,function(err,results,fields){
         if(err) {
@@ -202,7 +217,7 @@ router.post('/removefromwhislist',function(req,res,next){
     if(req.body.category == 'course'){
         var query  = "DELETE FROM `cart` WHERE `category` = '"+ req.body.category +"' AND `course_id` = '"+ req.body.id +"' AND `user_id` = '"+ req.body.user_id +"' AND `cart_category` = 'whislist'";
     }
-    if(req.body.category == 'book'){
+    if(req.body.category == 'book' || req.body.category == 'book-videos'){
         var query  = "DELETE FROM `cart` WHERE `category` = '"+ req.body.category +"' AND `book_id` = '"+ req.body.id +"' AND `user_id` = '"+ req.body.user_id +"' AND `cart_category` = 'whislist'";
         console.log(query);
     } 
@@ -224,7 +239,7 @@ router.post('/addtocart',function(req,res,next){
     if(req.body.category == 'course'){
         var query  = "INSERT INTO `cart` (`category`,`course_id`,`user_id`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"')";
     }
-    if(req.body.category == 'book'){
+    if(req.body.category == 'book' || req.body.category == 'book-videos'){
         var query  = "INSERT INTO `cart` (`category`,`book_id`,`user_id`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"')";
     } 
     pool.query(query,function(err,results,fields){
@@ -239,7 +254,7 @@ router.post('/addtocart',function(req,res,next){
 
 router.post('/addproducttocart',function(req,res,next){
     // console.log(req.body);
-    var query  = "INSERT INTO `cart` (`category`,`product_id`,`user_id`,`description`,`image_path`,`quantity`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"','"+ req.body.description +"','"+ req.body.image_path +"','"+ req.body.quantity +"')";
+    var query  = "INSERT INTO `cart` (`category`,`product_id`,`user_id`,`description`,`address`,`image_path`,`quantity`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"','"+ req.body.description +"','"+ req.body.address +"','"+ req.body.image_path +"','"+ req.body.quantity +"')";
     pool.query(query,function(err,results,fields){
         if(err) {
             console.log(err);
@@ -253,14 +268,13 @@ router.post('/addproducttocart',function(req,res,next){
 router.post('/removefromcart',function(req,res,next){
     // console.log(req.body);
     if(req.body.category == 'product'){
-        var query  = "DELETE FROM `cart` WHERE `category` = '"+ req.body.category +"' AND `product_id` = '"+ req.body.id +"' AND `user_id` = '"+ req.body.user_id +"'";
+        var query  = "DELETE FROM `cart` WHERE `category` = '"+ req.body.category +"' AND `product_id` = '"+ req.body.id +"' AND `user_id` = '"+ req.body.user_id +"' AND `cart_category` IS NULL";
     }
     if(req.body.category == 'course'){
-        var query  = "DELETE FROM `cart` WHERE `category` = '"+ req.body.category +"' AND `course_id` = '"+ req.body.id +"' AND `user_id` = '"+ req.body.user_id +"'";
+        var query  = "DELETE FROM `cart` WHERE `category` = '"+ req.body.category +"' AND `course_id` = '"+ req.body.id +"' AND `user_id` = '"+ req.body.user_id +"' AND `cart_category` IS NULL";
     }
-    if(req.body.category == 'book'){
-        var query  = "DELETE FROM `cart` WHERE `category` = '"+ req.body.category +"' AND `book_id` = '"+ req.body.id +"' AND `user_id` = '"+ req.body.user_id +"'";
-        console.log(query);
+    if(req.body.category == 'book' || req.body.category == 'book-videos'){
+        var query  = "DELETE FROM `cart` WHERE `category` = '"+ req.body.category +"' AND `book_id` = '"+ req.body.id +"' AND `user_id` = '"+ req.body.user_id +"' AND `cart_category` IS NULL";
     } 
     pool.query(query,function(err,results,fields){
         if(err) {
@@ -288,7 +302,7 @@ router.post('/applepaymentsucessfull',function(req,res,next){
 
 router.post('/updatecartquantity',function(req,res,next){
     // console.log(req.body);
-    var query  = "UPDATE `cart` SET `quantity` = `quantity` + 1 WHERE `id` = '"+ req.body.id +"'";
+    var query  = "UPDATE `cart` SET `quantity` = `quantity` + 1 WHERE `id` = '"+ req.body.id +"' AND `cart_category` IS NULL";
     // console.log(query);
     pool.query(query,function(err,results,fields){
         if(err) {
@@ -302,7 +316,7 @@ router.post('/updatecartquantity',function(req,res,next){
 
 router.post('/subtractcartquantity',function(req,res,next){
     // console.log(req.body);
-    var query  = "UPDATE `cart` SET `quantity` = `quantity` - 1 WHERE `id` = '"+ req.body.id +"'";
+    var query  = "UPDATE `cart` SET `quantity` = `quantity` - 1 WHERE `id` = '"+ req.body.id +"' AND `cart_category` IS NULL";
     // console.log(query);
     pool.query(query,function(err,results,fields){
         if(err) {
@@ -340,7 +354,7 @@ router.post('/saveUserDetails/:phoneNumber', function(req, res, next) {
 });
 
 router.get('/getUserCart/:user_id', function(req, res, next) {
-    var query = "SELECT c.*,CASE WHEN `category` = 'course' THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `name` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `title` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS name,CASE WHEN `category` = 'course' THEN (SELECT `category` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `category_id` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `category` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS item_category,CASE WHEN `category` = 'course' THEN (SELECT `discount_price` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `discount_price` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS price,CASE WHEN `category` = 'course' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`product_id` = `products`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` WHERE `books`.`id` = c.`book_id`) END AS image_path FROM `cart` c WHERE `user_id` = '"+ req.params.user_id +"'";
+    var query = "SELECT c.*,CASE WHEN `category` = 'course' THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `name` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `title` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS name,CASE WHEN `category` = 'course' THEN (SELECT `category` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `category_id` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `category` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS item_category,CASE WHEN `category` = 'course' THEN (SELECT `discount_price` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `discount_price` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `only_video_discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS price,CASE WHEN `category` = 'course' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`product_id` = `products`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` WHERE `books`.`id` = c.`book_id`) END AS image_path FROM `cart` c WHERE `user_id` = '"+ req.params.user_id +"' AND `cart_category` IS NULL";
     pool.query(query,function(err,results,fields){
         if(err) {
             console.log(err);
@@ -351,6 +365,35 @@ router.get('/getUserCart/:user_id', function(req, res, next) {
         }
     });
 });
+
+
+router.get('/getUserWhislist/:user_id', function(req, res, next) {
+    var query = "SELECT c.*,CASE WHEN `category` = 'course' THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `name` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `title` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS name,CASE WHEN `category` = 'course' THEN (SELECT `category` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `category_id` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `category` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS item_category,CASE WHEN `category` = 'course' THEN (SELECT `discount_price` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `discount_price` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS price,CASE WHEN `category` = 'course' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`product_id` = `products`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` WHERE `books`.`id` = c.`book_id`) END AS image_path FROM `cart` c WHERE `user_id` = '"+ req.params.user_id +"' AND c.`cart_category` = 'whislist'";
+    pool.query(query,function(err,results,fields){
+        if(err) {
+            console.log(err);
+            res.json({message:'Some error occured'});
+        } else {
+            // console.log(results);
+            res.json({data:results});
+        }
+    });
+});
+
+
+router.get('/getUserWhislist/:user_id/:offset', function(req, res, next) {
+    var query = "SELECT c.*,CASE WHEN `category` = 'course' THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `name` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `title` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS name,CASE WHEN `category` = 'course' THEN (SELECT `category` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `category_id` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `category` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS item_category,CASE WHEN `category` = 'course' THEN (SELECT `discount_price` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `discount_price` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS price,CASE WHEN `category` = 'course' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`product_id` = `products`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` WHERE `books`.`id` = c.`book_id`) END AS image_path FROM `cart` c WHERE `user_id` = '"+ req.params.user_id +"' AND c.`cart_category` = 'whislist' LIMIT 20 OFFSET "+ req.params.offset +"";
+    pool.query(query,function(err,results,fields){
+        if(err) {
+            console.log(err);
+            res.json({message:'Some error occured'});
+        } else {
+            // console.log(results);
+            res.json({data:results});
+        }
+    });
+});
+
 
 router.get('/getUserOrders/:user_id', function(req, res, next) {
     var query = "SELECT c.*,c.`image_path` AS order_image,CASE WHEN `category` = 'course' THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `name` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `title` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS name,CASE WHEN `category` = 'course' THEN (SELECT `discount_price` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `discount_price` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS price,CASE WHEN `category` = 'course' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`product_id` = `products`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` WHERE `books`.`id` = c.`book_id`) END AS image_path FROM `orders` c WHERE `user_id` = '"+ req.params.user_id +"'";
@@ -392,7 +435,7 @@ router.get('/getUserCourses/:user_id', function(req, res, next) {
 });
 
 router.get('/getUserBooks/:user_id', function(req, res, next) {
-    var query = "SELECT c.*,`books`.*,`books`.`category` AS sub_category ,(SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`book_id` = `books`.`id` AND `cart`.`user_id` = '"+ req.params.user_id +"') AS count FROM `subscription` c INNER JOIN `books` ON `books`.`id` = c.`book_id` WHERE c.`user_id` = '"+ req.params.user_id +"' AND c.`status` =  1";
+    var query = "SELECT c.*,`books`.*,`books`.`category` AS sub_category ,(SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`book_id` = `books`.`id` AND `cart`.`user_id` = '"+ req.params.user_id +"') AS count FROM `subscription` c INNER JOIN `books` ON `books`.`id` = c.`book_id` WHERE c.`user_id` = '"+ req.params.user_id +"' AND c.`status` =  1 AND c.`category` = 'book-videos'";
     pool.query(query,function(err,results,fields){
         if(err) {
             console.log(err);
@@ -417,6 +460,58 @@ router.get('/getCourseSubscription/:course_id/:user_id', function(req, res, next
     });
 });
 
+router.get('/getBookVideosSubscription/:book_id/:user_id', function(req, res, next) {
+    var query = "SELECT * FROM `subscription` WHERE `user_id` = '"+ req.params.user_id +"' AND `book_id` = '"+ req.params.book_id +"' AND `category` = 'book-videos' AND `status` = 1 ORDER BY `id` DESC LIMIT 1 OFFSET 0";
+    pool.query(query,function(err,results,fields){
+        if(err) {
+            console.log(err);
+            res.json({message:'Some error occured'});
+        } else {
+            // console.log(results);
+            res.json({data:results});
+        }
+    });
+});
+
+router.get('/getBookSubscription/:book_id/:user_id', function(req, res, next) {
+    var query = "SELECT * FROM `subscription` WHERE `user_id` = '"+ req.params.user_id +"' AND `book_id` = '"+ req.params.book_id +"' AND `category` = 'book'";
+    pool.query(query,function(err,results,fields){
+        if(err) {
+            console.log(err);
+            res.json({message:'Some error occured'});
+        } else {
+            // console.log(results);
+            res.json({data:results});
+        }
+    });
+});
+
+router.get('/updateBookSubscription/:book_id/:user_id', function(req, res, next) {
+    var query = "UPDATE `subscription` SET `status` = 0 WHERE `user_id` = '"+ req.params.user_id +"' AND `book_id` = '"+ req.params.book_id +"' AND `category` = 'book'";
+    pool.query(query,function(err,results,fields){
+        if(err) {
+            console.log(err);
+            res.json({message:'Some error occured'});
+        } else {
+            // console.log(results);
+            res.json({message:'success'});
+        }
+    });
+});
+
+router.get('/updateBookVideosSubscription/:book_id/:user_id', function(req, res, next) {
+    var query = "UPDATE `subscription` SET `status` = 0 WHERE `user_id` = '"+ req.params.user_id +"' AND `book_id` = '"+ req.params.book_id +"' AND `category` = 'book-videos'";
+    pool.query(query,function(err,results,fields){
+        if(err) {
+            console.log(err);
+            res.json({message:'Some error occured'});
+        } else {
+            // console.log(results);
+            res.json({message:'success'});
+        }
+    });
+});
+
 router.get('/updateCourseSubscription/:course_id/:user_id', function(req, res, next) {
     var query = "UPDATE `subscription` SET `status` = 0 WHERE `user_id` = '"+ req.params.user_id +"' AND `course_id` = '"+ req.params.course_id +"'";
     pool.query(query,function(err,results,fields){
@@ -430,30 +525,5 @@ router.get('/updateCourseSubscription/:course_id/:user_id', function(req, res, n
     });
 });
 
-router.get('/getBookSubscription/:book_id/:user_id', function(req, res, next) {
-    var query = "SELECT * FROM `subscription` WHERE `user_id` = '"+ req.params.user_id +"' AND `book_id` = '"+ req.params.book_id +"'";
-    pool.query(query,function(err,results,fields){
-        if(err) {
-            console.log(err);
-            res.json({message:'Some error occured'});
-        } else {
-            // console.log(results);
-            res.json({data:results});
-        }
-    });
-});
-
-router.get('/updateBookSubscription/:book_id/:user_id', function(req, res, next) {
-    var query = "UPDATE `subscription` SET `status` = 0 WHERE `user_id` = '"+ req.params.user_id +"' AND `book_id` = '"+ req.params.book_id +"'";
-    pool.query(query,function(err,results,fields){
-        if(err) {
-            console.log(err);
-            res.json({message:'Some error occured'});
-        } else {
-            // console.log(results);
-            res.json({message:'success'});
-        }
-    });
-});
 
 module.exports = router;

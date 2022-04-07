@@ -1,8 +1,8 @@
 const pool = require('../database/connection');
 
 module.exports ={
-    getblogs : (callback) => {
-        const query = "SELECT `blog`.* ,(SELECT `path` FROM `images` WHERE `images`.`blog_id` = `blog`.`id` LIMIT 1 OFFSET 0) AS image_path FROM `blog` WHERE `status` = 1";
+    getblogs : (data,callback) => {
+        const query = "SELECT * FROM `blog` WHERE `status` = 1 LIMIT 20 OFFSET "+ data.offset +"";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -12,7 +12,7 @@ module.exports ={
         });
     },
     getsearchedblogs : (data,callback) => {
-        const query = "SELECT `blog`.* ,(SELECT `path` FROM `images` WHERE `images`.`blog_id` = `blog`.`id` LIMIT 1 OFFSET 0) AS image_path FROM `blog` WHERE `status` = 1 AND `title` LIKE '%"+ data.value +"%'";
+        const query = "SELECT * FROM `blog` WHERE `status` = 1 AND `title` LIKE '%"+ data.value +"%'";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -28,7 +28,7 @@ module.exports ={
         } else {
             images_array.push((Object.entries(data)[2])[1]);
         }
-        const query  = "INSERT INTO `blog` (`title`,`description`,`path`) VALUES ('"+ data.title +"','"+ data.description +"','"+ images_array[0] +"')";
+        const query  = "INSERT INTO `blog` (`title`,`description`,`path`,`pdf`) VALUES ('"+ data.title +"','"+ data.description +"','"+ images_array[0] +"','"+ data.pdf +"')";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);

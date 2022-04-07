@@ -3,9 +3,9 @@ const pool = require('../database/connection');
 module.exports = {
     getsubscription : (data,callback) => {
         if(data.category == 'course'){
-            var query = "SELECT o.* , (SELECT `phone_number` FROM `users` WHERE `users`.`id` = o.`user_id`) AS phoneNumber,(SELECT `title` FROM `courses` WHERE `courses`.`id` = o.`course_id`) AS item_name,(SELECT `category` FROM `courses` WHERE `courses`.`id` = o.`course_id`) AS item_category FROM `subscription` o WHERE `status` = 1 AND o.`category`='"+ data.category +"' ORDER BY `id` DESC LIMIT 20 OFFSET "+ data.offset +"";
+            var query = "SELECT o.* , (SELECT `phone_number` FROM `users` WHERE `users`.`id` = o.`user_id`) AS phoneNumber,(SELECT `title` FROM `courses` WHERE `courses`.`id` = o.`course_id`) AS item_name,(SELECT `category` FROM `courses` WHERE `courses`.`id` = o.`course_id`) AS item_category FROM `subscription` o WHERE o.`category`='"+ data.category +"' ORDER BY `id` DESC LIMIT 20 OFFSET "+ data.offset +"";
         } else if(data.category == 'book'){
-            var query = "SELECT o.* , (SELECT `phone_number` FROM `users` WHERE `users`.`id` = o.`user_id`) AS phoneNumber,(SELECT `title` FROM `books` WHERE `books`.`id` = o.`book_id`) AS item_name,(SELECT `category` FROM `books` WHERE `books`.`id` = o.`book_id`) AS item_category FROM `subscription` o WHERE `status` = 1 AND o.`category`='"+ data.category +"' ORDER BY `id` DESC LIMIT 20 OFFSET "+ data.offset +"";
+            var query = "SELECT o.* , (SELECT `phone_number` FROM `users` WHERE `users`.`id` = o.`user_id`) AS phoneNumber,(SELECT `title` FROM `books` WHERE `books`.`id` = o.`book_id`) AS item_name,(SELECT `category` FROM `books` WHERE `books`.`id` = o.`book_id`) AS item_category FROM `subscription` o WHERE o.`category`='"+ data.category +"' ORDER BY `id` DESC LIMIT 20 OFFSET "+ data.offset +"";
         }
         // console.log(query);
         pool.query(query,function(err,results,fields){
@@ -60,5 +60,19 @@ module.exports = {
             }
         });        
         
+    },
+    getsearchsubscription : (data,callback) => {
+        if(data.category == 'course'){
+            var query =  "SELECT o.* ,`users`.`phone_number` AS phoneNumber,(SELECT `title` FROM `courses` WHERE `courses`.`id` = o.`course_id`) AS item_name,(SELECT `category` FROM `courses` WHERE `courses`.`id` = o.`course_id`) AS item_category FROM `subscription` o INNER JOIN `users` ON `users`.`id` = o.`user_id` WHERE o.`status` = 1 AND o.`category`='"+ data.category +"' AND `users`.`phone_number` LIKE '%"+ data.phone_number +"%' ORDER BY `id` DESC";
+        } else if(data.category == 'book'){
+            var query = "SELECT o.* ,`users`.`phone_number` AS phoneNumber,(SELECT `title` FROM `books` WHERE `books`.`id` = o.`book_id`) AS item_name,(SELECT `category` FROM `books` WHERE `books`.`id` = o.`book_id`) AS item_category FROM `subscription` o INNER JOIN `users` ON `users`.`id` = o.`user_id` WHERE o.`status` = 1 AND o.`category`='"+ data.category +"' AND `users`.`phone_number` LIKE '%"+ data.phone_number +"%' ORDER BY `id` DESC";
+        }
+        pool.query(query,function(err,results,fields){
+            if(err) {
+                callback(err);
+            } else {
+                callback(null,results);
+            }
+        });
     },
 }

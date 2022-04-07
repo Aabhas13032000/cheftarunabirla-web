@@ -25,13 +25,17 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="">End Date</label>
-                                    <input type="date" id="end_date" name="end_date" class="form-control" placeholder="Enter Course Price" style="margin-bottom: 10px;" required>
+                                    <input type="date" id="end_date" onchange="calculateDays()" name="end_date" class="form-control" placeholder="Enter Course Price" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div id="number_of_days">
+
                                 </div>
                                 <div class="form-group">
                                     <select class="form-control" id="show_category" style="margin-bottom: 10px;" name="show_category" aria-label="Images Categories" onchange="getItems('add')" required>
                                         <option value="">Select Category</option>
                                       <option value="course">Course</option>
                                       <option value="book">Book</option>
+                                      <option value="book-videos">Book Videos</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -92,6 +96,7 @@
           <select class="form-control" id="editstock" onchange="getSubscriptionOnchange(this.value)" name="editstock" aria-label="Images Categories" required>
             <option value="course">Courses</option>
             <option value="book">Books</option>
+            <option value="book-videos">Book Videos</option>
           </select>
         </div>
         <button type="button" data-bs-toggle="modal" data-bs-target="#addBook">Create Subscription</button>
@@ -126,6 +131,52 @@
     var offset =0;
     var editCourseModal = new bootstrap.Modal(document.getElementById('editCourse'));
 
+    function calculateDays() {
+        var start_date = document.getElementById('date_purchased').value;
+        var end_date = document.getElementById('end_date').value;
+        var date1, date2;  
+        date1 = new Date(start_date);  
+        date2 = new Date(end_date);  
+        //calculate time difference  
+        var time_difference = date2.getTime() - date1.getTime();  
+        //calculate days difference by dividing total milliseconds in a day  
+        var days_difference = time_difference / (1000 * 60 * 60 * 24);  
+
+        document.getElementById('number_of_days').innerHTML = `<p>Subscription = ${days_difference} days</p>`;
+    }
+
+    //function search
+  function searchUser(value){
+    offset = 0;
+    document.getElementById('data').innerHTML = '';
+    var category = document.getElementById('editstock').value;
+    if(value.length != 0) {
+      $.ajax({
+        url : `/getSearchSubscription/${category}/${value}`,
+        dataType: "json",
+        type: "GET",
+        success: function(response){
+          // console.log(response);
+          if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                      var end_date  = new Date(response.data[i].end_date);
+                      var date_purchased  = new Date(response.data[i].date_purchased);
+                    //   console.log(end_date);
+                    $('#data').append('<tr><td>'+ response.data[i].phoneNumber +'</td><td>'+ date_purchased.toString().slice(4,15) +'</td><td>'+ end_date.toString().slice(4,15) +'</td><td>'+ response.data[i].category +'</td><td>'+ response.data[i].item_name +'</td><td>'+ response.data[i].item_category +'</td><td><div class="options"> <a class="edit" onclick="editsubscription(\''+response.data[i].id+'\',\''+response.data[i].end_date+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deletesubscription('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div></td></tr>');
+                  }
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+        },
+        error: function(err){
+          console.log(err);
+          alert('Some error occured !!');
+        }
+      });
+    } else {
+      getSubscription(category,0);
+    }
+  }
+
     function getMore() {
         offset = offset+20;
         var value = document.getElementById('editstock').value;
@@ -145,7 +196,7 @@ function getItems(form_value) {
         // console.log(value);
         if(value == 'course'){
             $.ajax({
-                url : '/getCourse',
+                url : '/getCourse/',
                 dataType: "json",
                 type: "GET",
                 success: function(response){
@@ -175,7 +226,7 @@ function getItems(form_value) {
             });
         } else if(value == 'book'){
             $.ajax({
-                url : '/getBooks',
+                url : '/getBooks/',
                 dataType: "json",
                 type: "GET",
                 success: function(response){

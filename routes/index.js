@@ -26,6 +26,24 @@ const upload = multer({
 
 const controllers = require('../controllers/controllers');
 
+//Firebase dynamic links
+const { FirebaseDynamicLinks } = require('firebase-dynamic-links');
+const firebaseDynamicLinks = new FirebaseDynamicLinks('AIzaSyDBV0qQlbjCyFbLEsc2BicaHHXqoN6tCqE');
+
+var admin = require("firebase-admin");
+var serviceAccount = require("../credentials/serviceAccountKey.json");
+
+/* Firebase option intialise */
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+/* Notification Options */
+const notification_options = {
+  priority: "high",
+  timeToLive: 60 * 60 * 24
+};
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   // console.log(req.session);
@@ -51,19 +69,224 @@ router.get('/', function(req, res, next) {
   }
 });
 
+
+//Create Dynamic Link
+async function createDynamicLink(linkToCreate) {
+  const { shortLink, previewLink } = await firebaseDynamicLinks.createLink({
+      dynamicLinkInfo: {
+        domainUriPrefix: 'https://cheftarunabirla.page.link',
+        link: linkToCreate,
+        androidInfo: {
+          androidPackageName: 'com.cheftarunbirla',
+        },
+        iosInfo: {
+          iosBundleId: 'com.technotwist.tarunaBirla',
+        },
+      },
+    });
+  return {
+      shortLink:shortLink,
+      previewLink:previewLink
+  };
+}
+
+//send notification
+router.post('/sendNotification', function(req, res, next) {
+  var title = req.body.title;
+  var description = req.body.description;
+  var url = req.body.share_url;
+  var sql = "SELECT * FROM `users` WHERE LENGTH(`device_id`) > 30";
+  var registration_ids = [];
+  if(url.length == 0){
+      createDynamicLink(req.body.link).then((result) => {
+          if(req.body.type == 'product'){
+              var sql1 = "UPDATE `products` SET `share_url` = '"+ result.shortLink +"' WHERE `id` = '"+ req.body.item_id +"'";
+          } else if(req.body.type == 'course'){
+              var sql1 = "UPDATE `courses` SET `share_url` = '"+ result.shortLink +"' WHERE `id` = '"+ req.body.item_id +"'";
+          } else if(req.body.type == 'live'){
+            var sql1 = "UPDATE `live` SET `share_url` = '"+ result.shortLink +"' WHERE `id` = '"+ req.body.item_id +"'";
+          } else if(req.body.type == 'book'){
+            var sql1 = "UPDATE `books` SET `share_url` = '"+ result.shortLink +"' WHERE `id` = '"+ req.body.item_id +"'";
+          }
+          mysqlconnection.query(sql1,function(err,data1){
+              if(err) {
+                  console.log(err);
+                  res.jsonp({message:'failed'});
+              } else {
+                  mysqlconnection.query(sql,function(err,data){
+                      if(data.length !=0) {
+                          if(Math.ceil(data.length/500) > 1){
+                              var number_of_times = 0;
+                              check_counter(number_of_times);
+                                 function check_counter(counter1){
+                                     console.log(counter1);
+                                   if(counter1 == Math.ceil(data.length/500)){
+                                      res.jsonp({message:'success'});
+                                   } else {
+                                      setTimeout(function() {
+                                          console.log(number_of_times);
+                                          if(number_of_times<=Math.ceil(data.length/500)){
+                                              registration_ids = [];
+                                              for(var j=(number_of_times*500);j<((number_of_times+1)*500);j++){
+                                                  if(data[j]!=undefined){
+                                                      registration_ids.push(data[j].device_id);
+                                                  }
+                                              }
+                                              var message = {
+                                                  tokens: registration_ids,
+                                                  notification: {
+                                                      title: title,
+                                                      body: description
+                                                  },
+                                                  android: {
+                                                      notification: {
+                                                        imageUrl: req.body.image
+                                                      }
+                                                  },
+                                                  options: notification_options,
+                                                  data : {
+                                                      openURL : req.body.link
+                                                  }
+                                              };
+                                  
+                                              admin.messaging().sendMulticast(message).then((response) => {
+                                                  console.log( response.successCount +' successfull');
+                                                  console.log( response.failureCount +' not successfull');
+                                                  number_of_times++;
+                                                  check_counter(number_of_times);
+                                              }).catch((err) => {
+                                                  console.log(err);
+                                                  res.jsonp({message:'failed'});
+                                              })
+                                          }
+                                      }, 1000 * (number_of_times+1));
+                                   }
+                                 }
+                          } else {
+                              for (var i = 0; i < data.length; i++) {
+                                  registration_ids.push(data[i].device_id);
+                              }
+                              var message = {
+                                  tokens: registration_ids,
+                                  notification: {
+                                      title: title,
+                                      body: description
+                                  },
+                                  android: {
+                                      notification: {
+                                        imageUrl: req.body.image
+                                      }
+                                  },
+                                  data : {
+                                      openURL : req.body.link
+                                  },
+                                  options: notification_options
+                              };
+                  
+                              admin.messaging().sendMulticast(message).then((response) => {
+                                  console.log( response.successCount +' successfull');
+                                  console.log( response.failureCount +' not successfull');
+                                  res.jsonp({message:'success'});
+                              }).catch((err) => {
+                                  console.log(err);
+                                  res.jsonp({message:'failed'});
+                              })
+                          }
+                      }
+                  });
+              }
+          });
+      }).catch((err) => {
+          console.log(err);
+      })
+  } else {
+      mysqlconnection.query(sql,function(err,data){
+          if(data.length !=0) {
+              if(Math.ceil(data.length/500) > 1){
+                  var number_of_times = 0;
+                  check_counter(number_of_times);
+                     function check_counter(counter1){
+                         console.log(counter1);
+                       if(counter1 == Math.ceil(data.length/500)){
+                          res.jsonp({message:'success'});
+                       } else {
+                          setTimeout(function() {
+                              console.log(number_of_times);
+                              if(number_of_times<=Math.ceil(data.length/500)){
+                                  registration_ids = [];
+                                  for(var j=(number_of_times*500);j<((number_of_times+1)*500);j++){
+                                      if(data[j]!=undefined){
+                                          registration_ids.push(data[j].device_id);
+                                      }
+                                  }
+                                  var message = {
+                                      tokens: registration_ids,
+                                      notification: {
+                                          title: title,
+                                          body: description
+                                      },
+                                      android: {
+                                          notification: {
+                                            imageUrl: req.body.image
+                                          }
+                                      },
+                                      options: notification_options,
+                                      data : {
+                                          openURL : req.body.link
+                                      }
+                                  };
+                      
+                                  admin.messaging().sendMulticast(message).then((response) => {
+                                      console.log( response.successCount +' successfull');
+                                      console.log( response.failureCount +' not successfull');
+                                      number_of_times++;
+                                      check_counter(number_of_times);
+                                  }).catch((err) => {
+                                      console.log(err);
+                                      res.jsonp({message:'failed'});
+                                  })
+                              }
+                          }, 1000 * (number_of_times+1));
+                       }
+                     }
+              } else {
+                  for (var i = 0; i < data.length; i++) {
+                      registration_ids.push(data[i].device_id);
+                  }
+                  var message = {
+                      tokens: registration_ids,
+                      notification: {
+                          title: title,
+                          body: description
+                      },
+                      android: {
+                          notification: {
+                            imageUrl: req.body.image
+                          }
+                      },
+                      data : {
+                          openURL : req.body.link
+                      },
+                      options: notification_options
+                  };
+      
+                  admin.messaging().sendMulticast(message).then((response) => {
+                      console.log( response.successCount +' successfull');
+                      console.log( response.failureCount +' not successfull');
+                      res.jsonp({message:'success'});
+                  }).catch((err) => {
+                      console.log(err);
+                      res.jsonp({message:'failed'});
+                  })
+              }
+          }
+      });
+  }
+});
+
+
 /* Check Version. */
 router.get('/check_version',function(req,res){
-  // console.log(gplay.app({appId: 'com.cheftarunbirla'}));
-  // gplay.app({appId: 'com.cheftarunbirla'})
-  // .then((value) => {
-  //   console.log(value);
-  // }).catch((err) => {
-  //   console.log(err);
-  // });
-  // gplay.app({appId: 'com.cheftarunbirla'})
-  // .then((value) => {
-  //     res.json({version:value.version});
-  // });
   const check_user = "SELECT * FROM `admin` LIMIT 1 OFFSET 0";
   pool.query(check_user,function(err,result){
     if(err) {
@@ -91,7 +314,42 @@ router.get('/books', function(req, res, next) {
 
 /* GET Products page. */
 router.get('/products', function(req, res, next) {
-  res.render('pages/products/products');
+  const products = "SELECT * FROM `products` WHERE `status` = 1";
+    pool.query(products,function(err,products,fields){
+      res.render('pages/products/products', {
+        products:products
+      });
+    });
+});
+
+/* Get user related prodycts */
+router.get('/relatedProducts/:array', function(req, res, next) {
+  var array = req.params.array.split(',');
+  var response = [];
+  var counter = 1;
+  for (let i=0; i<array.length; i++) {
+    task(i,array[i]);
+ }
+   
+ function task(i,id) {
+   setTimeout(function() {
+    var query2  = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND p.`id` = '"+ id +"' ORDER BY p.`created_at` DESC";
+    pool.query(query2,function(err,results,fields){
+              if(err) {
+                  console.log(err);
+              } else {
+                response.push(results[0]);
+                check_counter(counter,response);
+                counter++;
+              }
+    });
+   }, 500 * i);
+ }
+  function check_counter(counter1,response_array){
+    if(counter1 == array.length){
+      res.json({data: response_array});
+    }
+  }
 });
 
 /* GET Courses page. */
@@ -149,15 +407,19 @@ router.get('/logout', function(req, res, next) {
 /* GET Profile page. */
 router.get('/profile', function(req, res, next) {
   const query = "SELECT * FROM `admin`";
+  const social_links = "SELECT * FROM `social_links`";
     pool.query(query,function(err,results,fields){
+      pool.query(social_links,function(err,social_links,fields){
         if(err) {
             console.log(err);
             res.send('Database error');
         } else {
             res.render('pages/profile/profile',{
-              results:results
+              results:results,
+              social_links:social_links
             });
         }
+      });
     });
 });
 
@@ -182,12 +444,34 @@ router.post('/login', function(req, res, next) {
 
 /* Update Password. */
 router.post('/updatePassword', function(req, res, next) {
-  const query = "UPDATE `admin` SET `password` = '"+ (req.body.c_password.length != 0 ? req.body.c_password : req.body.current_password) +"',`amazon` = '"+ req.body.amazon +"',`online_shop` = '"+ req.body.online_shop +"',`website` = '"+ req.body.website +"',`clubhouse`='"+ req.body.clubhouse +"',`pinterest`='"+ req.body.pinterest +"',`telegram`='"+ req.body.telegram +"',`quora`='"+ req.body.quora +"',`linkedin`='"+ req.body.linkedin +"',`twitter`='"+ req.body.twitter +"',`youtube`='"+ req.body.youtube +"',`facebook`='"+ req.body.facebook +"',`instagram`='"+ req.body.instagram +"'";
+  const query = "UPDATE `admin` SET `password` = '"+ (req.body.c_password.length != 0 ? req.body.c_password : req.body.current_password) +"'";
   pool.query(query,function(err,results,fields){
     if(err) {
       console.log()
     }
     res.redirect('/profile');      
+  });
+});
+
+/* Update Social Links. */
+router.post('/updateSocialLinks', function(req, res, next) {
+  const query = "UPDATE `social_links` SET `name` = '"+ req.body.name +"',`url` = '"+ req.body.url +"',`image` = '"+ req.body.image +"',`show_category` = '"+ req.body.show_category +"',`linked_category`='"+ req.body.linked_category +"',`linked_array`='"+ req.body.linked_array +"' WHERE `id`='"+ req.body.id +"'";
+  pool.query(query,function(err,results,fields){
+    if(err) {
+      console.log()
+    }
+    res.redirect('/profile');      
+  });
+});
+
+/* Update Social Links. */
+router.post('/deleteSocialLink', function(req, res, next) {
+  const query = "UPDATE `social_links` SET `status` = 0  WHERE `id` = '"+ req.body.id +"'";
+  pool.query(query,function(err,results,fields){
+    if(err) {
+      console.log()
+    }
+    res.json({message:'success'});      
   });
 });
 
@@ -199,13 +483,23 @@ router.post('/addGalleryImages',controllers.addGalleryImages);
 router.get('/getOrders/:offset',controllers.getOrders);
 
 //Live
+router.get('/getLive/:offset',controllers.getLive);
 router.get('/getLive',controllers.getLive);
+router.get('/getLiveUsers/:id',controllers.getLiveUsers);
+router.get('/getUserLive/:user_id',controllers.getUserLive);
+router.get('/getUserLive/:user_id/:live_id',controllers.getUserLive);
+router.post('/addLiveClass',controllers.addLiveClass);
+router.post('/addLiveClassUser',controllers.addLiveClassUser);
+router.post('/deleteLiveClass',controllers.deleteLiveClass);
+router.post('/deleteLiveClassUser',controllers.deleteLiveClassUser);
+router.post('/editLiveClass',controllers.editLiveClass);
 
 //Testimonal
 router.post('/deleteTestimonial',controllers.deleteTestimonial);
 router.get('/getTestimonials',controllers.getTestimonials);
 router.get('/getImpTestimonials',controllers.getImpTestimonials);
 router.post('/addTestimonial',controllers.addTestimonial);
+router.post('/editTestimonial',controllers.editTestimonial);
 router.post('/markedTestimonialImportant',controllers.markedTestimonialImportant);
 
 // Books
@@ -213,6 +507,7 @@ router.post('/addBook',controllers.addBook);
 router.get('/getBooks',controllers.getBook);
 router.get('/checkBook/:name',controllers.checkBook);
 router.get('/getImages/:id',controllers.getBookImages);
+router.get('/getImages/:id/:offset',controllers.getBookImages);
 router.post('/deleteBook',controllers.deleteBook);
 router.get('/getUserBook/:user_id',controllers.getUserBook);
 router.get('/getUserBookbyId/:id/:user_id',controllers.getUserBookbyId);
@@ -228,12 +523,16 @@ router.post('/addProduct',controllers.addProduct);
 router.get('/getProducts/:offset',controllers.getProducts);
 router.get('/getProducts',controllers.getProductWithoutOffset);
 router.get('/getUserProductById/:id/:user_id',controllers.getUserProductById);
+router.get('/getUserProductById/:id',controllers.getUserProductById);
 router.get('/getUserProduct/:user_id',controllers.getUserProduct);
+router.get('/getUserProduct/:user_id/:offset',controllers.getUserProduct);
 router.get('/getCategoryProduct/:category/:user_id',controllers.getCategoryProduct);
+router.get('/getCategoryProduct/:category/:user_id/:offset',controllers.getCategoryProduct);
 router.get('/getSearchedProduct/:name/:user_id',controllers.getSearchedProduct);
 router.get('/getSearchedProduct/:name',controllers.getSearchedProduct);
 router.get('/getEachProduct/:id',controllers.getEachProduct);
 router.get('/getProductImages/:id',controllers.getProductImages);
+router.get('/getProductImages/:id/:offset',controllers.getProductImages);
 router.post('/deleteProduct',controllers.deleteProduct);
 router.post('/editProduct/:id',controllers.editProduct);
 router.get('/getProductCategories',controllers.getProductCategories);
@@ -246,14 +545,19 @@ router.post('/markedProductFeatured',controllers.markedProductFeatured);
 
 //Courses
 router.get('/getCourse/:offset',controllers.getCourse);
+router.get('/getCourse/',controllers.getCourse);
 router.get('/getCourseCategories',controllers.getCourseCategories);
 router.get('/getUserCourse/:user_id',controllers.getUserCourse);
+router.get('/getUserCourse/:user_id/:offset',controllers.getUserCourse);
 router.get('/getUserCourseById/:id/:user_id',controllers.getCourseById);
+router.get('/getUserCourseById/:id',controllers.getCourseById);
 router.post('/addCourse',controllers.addCourse);
 router.get('/getCourseImages/:id',controllers.getCourseImages);
+router.get('/getCourseImages/:id/:offset',controllers.getCourseImages);
 router.get('/getSearchedCourse/:name/:user_id',controllers.getSearchedCourse);
 router.get('/getSearchedCourse/:name',controllers.getSearchedCourse);
 router.get('/getCategoryCourse/:category/:user_id',controllers.getCategoryCourse);
+router.get('/getCategoryCourse/:category/:user_id/:offset',controllers.getCategoryCourse);
 router.get('/getCourseVideos/:id',controllers.getCourseVideos);
 router.post('/addCourseVideos',controllers.addCourseVideos);
 router.post('/editCourseVideos',controllers.editCourseVideos);
@@ -277,7 +581,7 @@ router.post('/editCoupons/:id',controllers.editCoupons);
 
 //Blogs
 router.post('/deleteBlog',controllers.deleteBlog);
-router.get('/getBlogs',controllers.getBlogs);
+router.get('/getBlogs/:offset',controllers.getBlogs);
 router.get('/getSearchedBlogs/:value',controllers.getSearchedBlogs);
 router.post('/addBlog',controllers.addBlog);
 router.get('/getBlogImages/:id',controllers.getBlogImages);
@@ -292,6 +596,7 @@ router.get('/getReviewsByItem/:category/:item_id',controllers.getReviewsByItem);
 //Reviews
 router.post('/deleteSubscription',controllers.deleteSubscription);
 router.get('/getSubscription/:category/:offset',controllers.getSubscription);
+router.get('/getSearchSubscription/:category/:phone_number',controllers.getSearchSubscription);
 router.post('/addSubscription',controllers.addSubscription);
 router.post('/editSubscription',controllers.editSubscription);
 router.get('/getSubscriptionUsers',controllers.getSubscriptionUsers);
@@ -323,6 +628,107 @@ router.post('/uploadSliderImage',upload.single('slider_image'),async function(re
           res.json({path: name});
         }
       });
+    });
+  // res.json({path: req.file.path}); 
+});
+
+router.post('/uploadSliderImage/:id',upload.single('slider_image'),async function(req,res,next){
+  var compressedimage = path.join(__dirname,'../','public/images/uploads',new Date().getTime() + ".webp");
+  var name = 'public/images/uploads/'+ compressedimage.split('/')[compressedimage.split('/').length - 1];
+  await sharp(req.file.path).webp({
+    quality: 50
+    // lossless: true
+  }).resize({
+      width: 600
+    }).toFile(compressedimage,(err,info) => {
+      if(err){
+        console.log(err);
+      }
+      // console.log(info);
+      var query2  = "UPDATE `live` SET `image_path` = '"+ name.slice(6,name.length) +"' WHERE `id` = '"+ req.params.id +"'";
+          pool.query(query2,function(err,results,fields){
+                    if(err) {
+                        console.log(err);
+                    } else {
+                      fs.unlink(req.file.path,(err) => {
+                        if(err) {
+                          console.log(err);
+                        } else {
+                          // res.json({message: 'success'});
+                          res.json({path: name});
+                        }
+                      });
+                    }
+          });
+      
+    });
+  // res.json({path: req.file.path}); 
+});
+
+
+router.post('/uploadSliderImage/profile/testimonial/:id',upload.single('slider_image'),async function(req,res,next){
+  var compressedimage = path.join(__dirname,'../','public/images/uploads',new Date().getTime() + ".webp");
+  var name = 'public/images/uploads/'+ compressedimage.split('/')[compressedimage.split('/').length - 1];
+  await sharp(req.file.path).webp({
+    quality: 50
+    // lossless: true
+  }).resize({
+      width: 600
+    }).toFile(compressedimage,(err,info) => {
+      if(err){
+        console.log(err);
+      }
+      // console.log(info);
+      var query2  = "UPDATE `testimonials` SET `profile_image` = '"+ name.slice(6,name.length) +"' WHERE `id` = '"+ req.params.id +"'";
+          pool.query(query2,function(err,results,fields){
+                    if(err) {
+                        console.log(err);
+                    } else {
+                      fs.unlink(req.file.path,(err) => {
+                        if(err) {
+                          console.log(err);
+                        } else {
+                          // res.json({message: 'success'});
+                          res.json({path: name});
+                        }
+                      });
+                    }
+          });
+      
+    });
+  // res.json({path: req.file.path}); 
+});
+
+
+router.post('/uploadSliderImage/testimonial/:id',upload.single('slider_image'),async function(req,res,next){
+  var compressedimage = path.join(__dirname,'../','public/images/uploads',new Date().getTime() + ".webp");
+  var name = 'public/images/uploads/'+ compressedimage.split('/')[compressedimage.split('/').length - 1];
+  await sharp(req.file.path).webp({
+    quality: 50
+    // lossless: true
+  }).resize({
+      width: 600
+    }).toFile(compressedimage,(err,info) => {
+      if(err){
+        console.log(err);
+      }
+      // console.log(info);
+      var query2  = "UPDATE `testimonials` SET `image` = '"+ name.slice(6,name.length) +"' WHERE `id` = '"+ req.params.id +"'";
+          pool.query(query2,function(err,results,fields){
+                    if(err) {
+                        console.log(err);
+                    } else {
+                      fs.unlink(req.file.path,(err) => {
+                        if(err) {
+                          console.log(err);
+                        } else {
+                          // res.json({message: 'success'});
+                          res.json({path: name});
+                        }
+                      });
+                    }
+          });
+      
     });
   // res.json({path: req.file.path}); 
 });
@@ -574,6 +980,8 @@ router.post('/saveEditPdf/:id/:value',upload.array('pdf'),function(req,res,next)
       var query  = "INSERT INTO `images` (`path`,`iv_category`,`category`,`product_id`) VALUES ('"+ path +"','image','product','"+ req.params.id +"')";
     } else if(req.params.value == 'courses') {
       var query  = "INSERT INTO `recipies` (`course_id`,`pdflink`) VALUES ('"+ req.params.id +"','"+ path +"')";
+    } else if(req.params.value == 'blogs') {
+      var query = "UPDATE `blog` SET `pdf` = '"+ path +"' WHERE `id` = '"+ req.params.id +"'"
     }
     pool.query(query,function(err,results,fields){
         if(err) {
@@ -729,11 +1137,61 @@ router.get('/cartsubscription/:total_price/:actual_total_price/:address/:phoneNu
       });
 });
 
-router.post('/complete_payment/:user_id/:total_price/:actual_total_price/:address/:pincode/:number_of_courses',function (req,res,next){
+
+router.get('/livesubscription/:actual_total_price/:user_id/:live_id',function (req,res,next){
+  // console.log('hello');
+      res.render('subscription/live_subscription_payment',{
+        actual_total_price:req.params.actual_total_price,
+        user_id:req.params.user_id,
+        live_id:req.params.live_id,
+      });
+});
+
+
+router.post('/complete_payment_live/:user_id/:live_id',function (req,res,next){
   instance.payments.fetch(req.body.razorpay_payment_id).then((paymentDocument) => {
     // console.log(paymentDocument);
     if (paymentDocument.status == "captured") {
-      var query = "SELECT c.*,c.image_path AS order_image,CASE WHEN `category` = 'course' THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `name` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `title` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS name,CASE WHEN `category` = 'course' THEN (SELECT `category` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `category_id` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `category` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS item_category,CASE WHEN `category` = 'course' THEN (SELECT `discount_price` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `discount_price` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS price,CASE WHEN `category` = 'course' THEN (SELECT `days` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN 0 WHEN `category` = 'book' THEN (SELECT `days` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS days,CASE WHEN `category` = 'course' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`product_id` = `products`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` WHERE `books`.`id` = c.`book_id`) END AS image_path FROM `cart` c WHERE `user_id` = '"+ req.params.user_id +"'";
+      var query = "INSERT INTO `live_subscription` (`user_id`,`live_id`) VALUES ('"+ req.params.user_id +"','"+ req.params.live_id +"')";
+      pool.query(query,function(err,results,fields){
+        if(err) {
+          console.log(err);
+        } else {
+          res.render('subscription/live_payment_status',{
+            message:'success',
+            messageClass:'alert-success'
+          });
+        }
+      }); 
+    } else {
+      res.render('subscription/live_payment_status',{
+        message:'failed',
+        messageClass:'alert-danger'
+      });
+    }
+  });
+});
+
+router.get('/complete_apple_payment_live/:user_id/:live_id/:actual_total_price',function (req,res,next){
+  var query = "INSERT INTO `live_subscription` (`user_id`,`live_id`) VALUES ('"+ req.params.user_id +"','"+ req.params.live_id +"')";
+  var userupdate  = "UPDATE `users` SET `wallet` = `wallet` - '"+ req.params.actual_total_price +"' WHERE `id` = '"+ req.params.user_id +"'";
+    // console.log(query);
+    pool.query(query,function(err,query,fields){
+      pool.query(userupdate,function(err,userupdate,fields){
+        if(err) {
+          console.log(err);
+        } else {
+          // console.log(results5); 
+          res.json({
+            message:'success',
+          });
+        }
+      });
+    });
+});
+
+router.get('/applePayment/:user_id/:total_price/:actual_total_price/:address/:pincode/:number_of_courses',function (req,res,next){
+    var query = "SELECT c.*,c.image_path AS order_image,CASE WHEN `category` = 'course' THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `name` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `title` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS name,CASE WHEN `category` = 'course' THEN (SELECT `category` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `category_id` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `category` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS item_category,CASE WHEN `category` = 'course' THEN (SELECT `discount_price` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `discount_price` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `only_video_discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS price,CASE WHEN `category` = 'course' THEN (SELECT `days` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN 0 WHEN `category` = 'book' THEN (SELECT `days` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `video_days` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS days,CASE WHEN `category` = 'course' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`product_id` = `products`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` WHERE `books`.`id` = c.`book_id`) END AS image_path FROM `cart` c WHERE `user_id` = '"+ req.params.user_id +"' AND `cart_category` IS NULL";
       pool.query(query,function(err,results,fields){
         if(err) {
           console.log(err);
@@ -745,10 +1203,13 @@ router.post('/complete_payment/:user_id/:total_price/:actual_total_price/:addres
             }
             function task(i,result) {
               setTimeout(function() {
-                if(result.category == 'course' || result.item_category == 'e_book') {
+                if(result.category == 'course' || result.category == 'book-videos' || result.item_category == 'e_book') {
                   if(result.category == 'course') {
                     var end_date = new Date(new Date().getTime() + parseInt(result.days) * 24 * 60 * 60 * 1000);
                     var query2 = "INSERT INTO `subscription` (`category`,`user_id`,`course_id`,`end_date`) VALUES ('course','"+ req.params.user_id +"','"+ result.course_id +"','"+ end_date.toISOString().slice(0, 19).replace('T', ' ') +"')";
+                  } else if(result.category == 'book-videos') {
+                    var end_date = new Date(new Date().getTime() + parseInt(result.days) * 24 * 60 * 60 * 1000);
+                    var query2 = "INSERT INTO `subscription` (`category`,`user_id`,`book_id`,`end_date`) VALUES ('book-videos','"+ req.params.user_id +"','"+ result.book_id +"','"+ end_date.toISOString().slice(0, 19).replace('T', ' ') +"')";
                   } else {
                     var end_date = new Date(new Date().getTime() + parseInt(result.days) * 24 * 60 * 60 * 1000);
                     var query2 = "INSERT INTO `subscription` (`category`,`user_id`,`book_id`,`end_date`) VALUES ('book','"+ req.params.user_id +"','"+ result.book_id +"','"+ end_date.toISOString().slice(0, 19).replace('T', ' ') +"')";
@@ -764,15 +1225,15 @@ router.post('/complete_payment/:user_id/:total_price/:actual_total_price/:addres
                 if(result.category == 'course'){
                   var query4 = "INSERT INTO `orders` (`order_id`,`payment_status`,`payment_method`,`price`,`paid_price`,`address`,`approved`,`description`,`quantity`,`category`,`course_id`,`user_id`,`coupon_id`,`image_path`,`pincode`) VALUES ('"+ req.body.razorpay_payment_id +"','done','online','"+ result.price +"','"+ req.params.actual_total_price +"','"+ req.params.address +"',1,'"+ result.description +"','"+ result.quantity +"','"+ result.category +"','"+ result.course_id +"','"+ req.params.user_id +"','0','"+ result.order_image +"','"+ req.params.pincode +"')";
                 } else if(result.category == 'product') {
-                  var query4 = "INSERT INTO `orders` (`order_id`,`payment_status`,`payment_method`,`price`,`paid_price`,`address`,`approved`,`description`,`quantity`,`category`,`product_id`,`user_id`,`coupon_id`,`image_path`,`pincode`) VALUES ('"+ req.body.razorpay_payment_id +"','done','online','"+ result.price +"','"+ req.params.actual_total_price +"','"+ req.params.address +"',1,'"+ result.description +"','"+ result.quantity +"','"+ result.category +"','"+ result.product_id +"','"+ req.params.user_id +"','0','"+ result.order_image +"','"+ req.params.pincode +"')";
-                } else if(result.category == 'book') {
+                  var query4 = "INSERT INTO `orders` (`order_id`,`payment_status`,`payment_method`,`price`,`paid_price`,`address`,`approved`,`description`,`quantity`,`category`,`product_id`,`user_id`,`coupon_id`,`image_path`,`pincode`) VALUES ('"+ req.body.razorpay_payment_id +"','done','online','"+ result.price +"','"+ req.params.actual_total_price +"','"+ result.address +"',1,'"+ result.description +"','"+ result.quantity +"','"+ result.category +"','"+ result.product_id +"','"+ req.params.user_id +"','0','"+ result.order_image +"','"+ req.params.pincode +"')";
+                } else if(result.category == 'book' || result.category == 'book-videos') {
                   var query4 = "INSERT INTO `orders` (`order_id`,`payment_status`,`payment_method`,`price`,`paid_price`,`address`,`approved`,`description`,`quantity`,`category`,`book_id`,`user_id`,`coupon_id`,`image_path`,`pincode`) VALUES ('"+ req.body.razorpay_payment_id +"','done','online','"+ result.price +"','"+ req.params.actual_total_price +"','"+ req.params.address +"',1,'"+ result.description +"','"+ result.quantity +"','"+ result.category +"','"+ result.book_id +"','"+ req.params.user_id +"','0','"+ result.order_image +"','"+ req.params.pincode +"')";
-                }
+                } 
                 pool.query(query4,function(err,results4,fields){
                   if(err) {
                     console.log(err);
                   } else {
-                    console.log(results4);
+                    // console.log(results4);
                   }
                 }); 
                 counter++;
@@ -781,12 +1242,89 @@ router.post('/complete_payment/:user_id/:total_price/:actual_total_price/:addres
             }
             function check_counter(counter1){
               if(counter1 == results.length){
-                const query3 = "DELETE FROM `cart` WHERE `user_id` = '"+ req.params.user_id +"'";
+                const query3 = "DELETE FROM `cart` WHERE `user_id` = '"+ req.params.user_id +"' AND `cart_category` IS NULL";
+                var userupdate  = "UPDATE `users` SET `wallet` = `wallet` - '"+ req.params.actual_total_price +"' WHERE `id` = '"+ req.params.user_id +"'";
+    // console.log(query);
+                pool.query(query3,function(err,results5,fields){
+                  pool.query(userupdate,function(err,userupdate,fields){
+                    if(err) {
+                      console.log(err);
+                    } else {
+                      // console.log(results5); 
+                      res.json({
+                        message:'success',
+                      });
+                    }
+                  });
+                });
+              }
+            }
+          }
+        }
+      }); 
+});
+
+router.post('/complete_payment/:user_id/:total_price/:actual_total_price/:address/:pincode/:number_of_courses',function (req,res,next){
+  instance.payments.fetch(req.body.razorpay_payment_id).then((paymentDocument) => {
+    // console.log(paymentDocument);
+    if (paymentDocument.status == "captured") {
+      var query = "SELECT c.*,c.image_path AS order_image,CASE WHEN `category` = 'course' THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `name` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `title` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS name,CASE WHEN `category` = 'course' THEN (SELECT `category` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `category_id` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `category` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS item_category,CASE WHEN `category` = 'course' THEN (SELECT `discount_price` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `discount_price` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `only_video_discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS price,CASE WHEN `category` = 'course' THEN (SELECT `days` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN 0 WHEN `category` = 'book' THEN (SELECT `days` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `video_days` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS days,CASE WHEN `category` = 'course' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`product_id` = `products`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` WHERE `books`.`id` = c.`book_id`) END AS image_path FROM `cart` c WHERE `user_id` = '"+ req.params.user_id +"' AND `cart_category` IS NULL";
+      pool.query(query,function(err,results,fields){
+        if(err) {
+          console.log(err);
+        } else {
+          var counter = 0;
+          if(results.length != 0){
+            for (let i=0; i<results.length; i++) {
+              task(i,results[i]);
+            }
+            function task(i,result) {
+              setTimeout(function() {
+                if(result.category == 'course' || result.category == 'book-videos' || result.item_category == 'e_book') {
+                  if(result.category == 'course') {
+                    var end_date = new Date(new Date().getTime() + parseInt(result.days) * 24 * 60 * 60 * 1000);
+                    var query2 = "INSERT INTO `subscription` (`category`,`user_id`,`course_id`,`end_date`) VALUES ('course','"+ req.params.user_id +"','"+ result.course_id +"','"+ end_date.toISOString().slice(0, 19).replace('T', ' ') +"')";
+                  } else if(result.category == 'book-videos') {
+                    var end_date = new Date(new Date().getTime() + parseInt(result.days) * 24 * 60 * 60 * 1000);
+                    var query2 = "INSERT INTO `subscription` (`category`,`user_id`,`book_id`,`end_date`) VALUES ('book-videos','"+ req.params.user_id +"','"+ result.book_id +"','"+ end_date.toISOString().slice(0, 19).replace('T', ' ') +"')";
+                  } else {
+                    var end_date = new Date(new Date().getTime() + parseInt(result.days) * 24 * 60 * 60 * 1000);
+                    var query2 = "INSERT INTO `subscription` (`category`,`user_id`,`book_id`,`end_date`) VALUES ('book','"+ req.params.user_id +"','"+ result.book_id +"','"+ end_date.toISOString().slice(0, 19).replace('T', ' ') +"')";
+                  }
+                  pool.query(query2,function(err,results2,fields){
+                    if(err) {
+                      console.log(err);
+                    } else {
+                      console.log(results2);
+                    }
+                  });
+                }
+                if(result.category == 'course'){
+                  var query4 = "INSERT INTO `orders` (`order_id`,`payment_status`,`payment_method`,`price`,`paid_price`,`address`,`approved`,`description`,`quantity`,`category`,`course_id`,`user_id`,`coupon_id`,`image_path`,`pincode`) VALUES ('"+ req.body.razorpay_payment_id +"','done','online','"+ result.price +"','"+ req.params.actual_total_price +"','"+ req.params.address +"',1,'"+ result.description +"','"+ result.quantity +"','"+ result.category +"','"+ result.course_id +"','"+ req.params.user_id +"','0','"+ result.order_image +"','"+ req.params.pincode +"')";
+                } else if(result.category == 'product') {
+                  var query4 = "INSERT INTO `orders` (`order_id`,`payment_status`,`payment_method`,`price`,`paid_price`,`address`,`approved`,`description`,`quantity`,`category`,`product_id`,`user_id`,`coupon_id`,`image_path`,`pincode`) VALUES ('"+ req.body.razorpay_payment_id +"','done','online','"+ result.price +"','"+ req.params.actual_total_price +"','"+ result.address +"',1,'"+ result.description +"','"+ result.quantity +"','"+ result.category +"','"+ result.product_id +"','"+ req.params.user_id +"','0','"+ result.order_image +"','"+ req.params.pincode +"')";
+                } else if(result.category == 'book' || result.category == 'book-videos') {
+                  var query4 = "INSERT INTO `orders` (`order_id`,`payment_status`,`payment_method`,`price`,`paid_price`,`address`,`approved`,`description`,`quantity`,`category`,`book_id`,`user_id`,`coupon_id`,`image_path`,`pincode`) VALUES ('"+ req.body.razorpay_payment_id +"','done','online','"+ result.price +"','"+ req.params.actual_total_price +"','"+ req.params.address +"',1,'"+ result.description +"','"+ result.quantity +"','"+ result.category +"','"+ result.book_id +"','"+ req.params.user_id +"','0','"+ result.order_image +"','"+ req.params.pincode +"')";
+                } 
+                pool.query(query4,function(err,results4,fields){
+                  if(err) {
+                    console.log(err);
+                  } else {
+                    // console.log(results4);
+                  }
+                }); 
+                counter++;
+                check_counter(counter);
+             }, 1000 * i);
+            }
+            function check_counter(counter1){
+              if(counter1 == results.length){
+                const query3 = "DELETE FROM `cart` WHERE `user_id` = '"+ req.params.user_id +"' AND `cart_category` IS NULL";
                 pool.query(query3,function(err,results5,fields){
                   if(err) {
                     console.log(err);
                   } else {
-                    console.log(results5); 
+                    // console.log(results5); 
                     res.render('subscription/payment-status',{
                       message:'success',
                       messageClass:'alert-success'
@@ -894,7 +1432,23 @@ router.post('/subscription',function (req,res,next){
   // res.redirect('/test');
 });
 
+router.post('/subscription_value',function (req,res,next){
+  var options = {
+      amount: parseFloat(req.body.total)*100,  // amount in the smallest currency unit
+      currency: "INR",
+  };
+  instance.orders.create(options, function(err, order) {
+      // console.log(order);
+      res.jsonp(order);
+  });
+  // res.redirect('/test');
+});
+
 router.get('/subscription_successfull',function (req,res,next){
+  res.send('succcessfull');
+});
+
+router.get('/live_subscription_successfull',function (req,res,next){
   res.send('succcessfull');
 });
 

@@ -230,6 +230,20 @@
     var allcategoriesModal = new bootstrap.Modal(document.getElementById('allcategories'));
     var offset = 0;
 
+    $(function(){
+        if($('textarea#description').length){
+            CKEDITOR.replace('description', {
+                // filebrowserUploadUrl: '/admin/upload',
+                // filebrowserUploadMethod: 'form'
+            });
+        }
+        if($('textarea#editdescription').length){
+            CKEDITOR.replace('editdescription', {
+                // filebrowserUploadUrl: '/admin/upload',
+                // filebrowserUploadMethod: 'form'
+            });
+        }
+    });
 
 //function search
 function searchUser(value){
@@ -243,7 +257,7 @@ function searchUser(value){
         success: function(response){
             if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].description+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr>');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Courses present</td></tr>')
@@ -342,6 +356,7 @@ function searchUser(value){
   }
 
     function getCategoryCourse() {
+        document.getElementById('all_category').innerHTML = '';
         $.ajax({
             url : `/getCourseCategories`,
             dataType: "json",
@@ -369,7 +384,7 @@ function searchUser(value){
       var price = document.getElementById('price').value;
       var days = document.getElementById('days').value;
       var discount_price = document.getElementById('discount_price').value;
-      var description = document.getElementById('description').value;
+      var description = CKEDITOR.instances['description'].getData();
       var gallery = document.getElementsByClassName("gallery_image_path");
       var pdf_path = document.getElementsByClassName("pdf_path");
       var gallery_values = [];
@@ -416,7 +431,7 @@ function searchUser(value){
       var days = document.getElementById('editdays').value;
       var price = document.getElementById('editprice').value;
       var discount_price = document.getElementById('editdiscount_price').value;
-      var description = document.getElementById('editdescription').value;
+      var description = CKEDITOR.instances['editdescription'].getData();
       var promo_video = document.getElementById('editpromo_video').value;
       var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
             $.ajax({
@@ -719,6 +734,7 @@ function searchUser(value){
 }
 
   function getPdf(id,value) {
+      document.getElementById('editpreview_pdf').innerHTML = '';
     $.ajax({
             url : `/getCoursePdf/${id}`,
             dataType: "json",
@@ -739,7 +755,7 @@ function searchUser(value){
         });
   }
 
-  function editCourse(id,title,price,category,days,description,discount_price,promo_video) {
+  function editCourse(id,title,price,category,days,discount_price,promo_video) {
       getImages(id,'edit');
       getPdf(id,'edit');
       document.getElementById('editpreview').innerHTML = '';
@@ -751,7 +767,7 @@ function searchUser(value){
       document.getElementById('editdiscount_price').value = discount_price;
       document.getElementById('editpromo_video').value = promo_video;
       document.getElementById('editdays').value = days;
-      document.getElementById('editdescription').value = description;
+      CKEDITOR.instances['editdescription'].setData(document.getElementById('ckeditorvalue' + id).value);
       document.getElementsByClassName('edit_form')[0].setAttribute('id',`form_${id}`);
       editCourseModal.toggle();
   }
@@ -861,7 +877,7 @@ function editCourseVideo(id) {
             success: function(response){
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].description+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr>');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Courses present</td></tr>')

@@ -39,6 +39,7 @@
                                       <option value="course">Course</option>
                                       <option value="product">Product</option>
                                       <option value="book">Book</option>
+                                      <option value="live">Live</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -74,6 +75,7 @@
                                       <option value="course">Course</option>
                                       <option value="product">Product</option>
                                       <option value="book">Book</option>
+                                      <option value="live">Live</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -256,6 +258,48 @@
                     alert('Some error occured !!');
                 }
             });
+        } else if(value == 'live'){
+            $.ajax({
+                url : '/getLive',
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    if(form_value == 'add') {
+                        select = document.getElementById("linked_item");
+                    } else {
+                        select = document.getElementById("editlinked_array");
+                    }
+                    var length = select.options.length;
+                    for (var i = length-1; i >= 0; i--) {
+                        select.options[i] = null;
+                    }
+                    if(response.data.length != 0){
+                        var option2 = document.createElement("option");
+                        option2.text = 'No linking';
+                        option2.value= 'no_linked_item';
+                        select.add(option2);
+                        var option3 = document.createElement("option");
+                        option3.text = 'Multiple';
+                        option3.value= 'multiple';
+                        select.add(option3);
+                        for(var i=0;i<response.data.length;i++){
+                            var option = document.createElement("option");
+                            option.text = response.data[i].title;
+                            option.value= response.data[i].id;
+                            select.add(option);
+                        }
+                    } else {
+                        var option = document.createElement("option");
+                        option.text = "No Courses present";
+                        option.value= 'no_linked_item';
+                        select.add(option);
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
         } else {
             if(form_value == 'add') {
                 select = document.getElementById("linked_array");
@@ -308,8 +352,8 @@
       var show_category = document.getElementById('show_category').value;
       var linked_item = document.getElementById('linked_item').value;
 
-      console.log(image);
-      console.log(video);
+    //   console.log(image);
+    //   console.log(video);
       if(image == undefined && video.length ==0){
         alert('Add something first!!');
       }

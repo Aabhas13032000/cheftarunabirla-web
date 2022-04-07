@@ -19,11 +19,11 @@ module.exports ={
     },
     getreviewsbyitem : (data,callback) => {
         if(data.category == 'course'){
-            var query = "SELECT r.*,u.`name` AS username,u.`phone_number` AS phoneNumber FROM `reviews` r INNER JOIN `users` u  ON u.`id` = r.`user_id` WHERE r.`category`='"+ data.category +"' AND r.`course_id`='"+ data.item_id +"' ORDER BY r.`date` DESC";
+            var query = "SELECT r.*,u.`name` AS username,u.`phone_number` AS phoneNumber FROM `reviews` r INNER JOIN `users` u  ON u.`id` = r.`user_id` WHERE r.`category`='"+ data.category +"' AND r.`course_id`='"+ data.item_id +"' ORDER BY r.`date` DESC LIMIT 10 OFFSET 0";
         } else if(data.category == 'product'){
-            var query = "SELECT r.*,u.`name` AS username,u.`phone_number` AS phoneNumber FROM `reviews` r INNER JOIN `users` u  ON u.`id` = r.`user_id` WHERE r.`category`='"+ data.category +"' AND r.`product_id`='"+ data.item_id +"' ORDER BY r.`date` DESC";
+            var query = "SELECT r.*,u.`name` AS username,u.`phone_number` AS phoneNumber FROM `reviews` r INNER JOIN `users` u  ON u.`id` = r.`user_id` WHERE r.`category`='"+ data.category +"' AND r.`product_id`='"+ data.item_id +"' ORDER BY r.`date` DESC LIMIT 10 OFFSET 0";
         } else if(data.category == 'book'){
-            var query = "SELECT r.*,u.`name` AS username,u.`phone_number` AS phoneNumber FROM `reviews` r INNER JOIN `users` u  ON u.`id` = r.`user_id` WHERE r.`category`='"+ data.category +"' AND r.`book_id`='"+ data.item_id +"' ORDER BY r.`date` DESC";
+            var query = "SELECT r.*,u.`name` AS username,u.`phone_number` AS phoneNumber FROM `reviews` r INNER JOIN `users` u  ON u.`id` = r.`user_id` WHERE r.`category`='"+ data.category +"' AND r.`book_id`='"+ data.item_id +"' ORDER BY r.`date` DESC LIMIT 10 OFFSET 0";
         }
         pool.query(query,function(err,results,fields){
             if(err) {

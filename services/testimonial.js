@@ -22,7 +22,7 @@ module.exports ={
         });
     },
     addtestimonial : (data,callback) => {
-        const query  = "INSERT INTO `testimonials` (`name`,`message`) VALUES ('"+ data.name +"','"+ data.message +"')";
+        const query  = "INSERT INTO `testimonials` (`name`,`message`,`image`,`profile_image`) VALUES ('"+ data.name +"','"+ data.message +"','"+ data.image +"','"+ data.profile_image +"')";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -30,6 +30,16 @@ module.exports ={
                 callback(null,results);
             }
         });
+    },
+    edittestimonial : (data,callback) => {
+        const query2  = "UPDATE `testimonials` SET `name` = '"+ data.name +"',`message` = '"+ data.message +"' WHERE `id` = '"+ data.id +"'";
+        pool.query(query2,function(err,results,fields){
+            if(err) {
+                callback(err);
+            } else {
+                callback(null,results);
+            }
+        });            
     },
     deletetestimonial : (data,callback) => {
         const query2  = "UPDATE `testimonials` SET `status` = 0  WHERE `id` = '"+ data.id +"'";

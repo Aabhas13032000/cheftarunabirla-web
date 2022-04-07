@@ -52,141 +52,6 @@
                 </div>
             </div>
             <br>
-            <br>
-            <h6>Social Media Links</h6>
-            <hr>
-            <div class="row">
-                <div class="col-lg-2 d-flex align-items-center">
-                    <p>Instagram URL</p>
-                </div>
-                <div class="col-lg-8">
-                    <div class="form-group">
-                        <input type="text" name="instagram" class="form-control" id="instagram" placeholder="Enter url here" value="<%= results[0].instagram %>">
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-lg-2 d-flex align-items-center">
-                    <p>Facebook URL</p>
-                </div>
-                <div class="col-lg-8">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="facebook" id="facebook" placeholder="Enter url here" value="<%= results[0].facebook %>">
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-lg-2 d-flex align-items-center">
-                    <p>Youtube URL</p>
-                </div>
-                <div class="col-lg-8">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="youtube" id="youtube" placeholder="Enter url here" value="<%= results[0].youtube %>">
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-lg-2 d-flex align-items-center">
-                    <p>Twitter URL</p>
-                </div>
-                <div class="col-lg-8">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="twitter" id="twitter" placeholder="Enter url here" value="<%= results[0].twitter %>">
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-lg-2 d-flex align-items-center">
-                    <p>LinkedIn URL</p>
-                </div>
-                <div class="col-lg-8">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="linkedin" id="linkedin" placeholder="Enter url here" value="<%= results[0].linkedin %>">
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-lg-2 d-flex align-items-center">
-                    <p>Quora URL</p>
-                </div>
-                <div class="col-lg-8">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="quora" id="quora" placeholder="Enter url here" value="<%= results[0].quora %>">
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-lg-2 d-flex align-items-center">
-                    <p>Telegram URL</p>
-                </div>
-                <div class="col-lg-8">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="telegram" id="telegram" placeholder="Enter url here" value="<%= results[0].telegram %>">
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-lg-2 d-flex align-items-center">
-                    <p>Pinterest URL</p>
-                </div>
-                <div class="col-lg-8">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="pinterest" id="pinterest" placeholder="Enter url here" value="<%= results[0].pinterest %>">
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-lg-2 d-flex align-items-center">
-                    <p>Clubhouse URL</p>
-                </div>
-                <div class="col-lg-8">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="clubhouse" id="clubhouse" placeholder="Enter url here" value="<%= results[0].clubhouse %>">
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-lg-2 d-flex align-items-center">
-                    <p>Website URL</p>
-                </div>
-                <div class="col-lg-8">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="website" id="website" placeholder="Enter url here" value="<%= results[0].website %>">
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-lg-2 d-flex align-items-center">
-                    <p>Online Shop URL</p>
-                </div>
-                <div class="col-lg-8">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="online_shop" id="online_shop" placeholder="Enter url here" value="<%= results[0].online_shop %>">
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-lg-2 d-flex align-items-center">
-                    <p>Amazon URL</p>
-                </div>
-                <div class="col-lg-8">
-                    <div class="form-group">
-                        <input type="text" class="form-control" name="amazon" id="amazon" placeholder="Enter url here" value="<%= results[0].amazon %>">
-                    </div>
-                </div>
-            </div>
-            <br>
             <div class="row">
                 <div class="col-lg-2">
                     <div class="button">
@@ -196,6 +61,43 @@
             </div>
             <br><br>
         </form>
+        <h5>Social Links</h5>
+        <hr>
+        <table>
+            <thead>
+                <th>IMAGE</th>
+                <th>NAME</th>
+                <th>URL</th>
+                <th>SHOW IN</th>
+                <th>LINKED CATEGORY</th>
+                <th>LINKED ITEM</th>
+                <!-- <th>OPTIONS</th> -->
+            </thead>
+            <tbody id="data">
+                <% social_links.forEach(element => { %>
+                    <tr>
+                        <td><a href="<%= element.image %>"><img src="<%= element.image %>"></a></td>
+                        <td><%= element.name %></td>
+                        <td><a href="<%= element.url %>" target="_blank"><%= element.url %></a></td>
+                        <td><%= element.show_category %></td>
+                        <td><%= element.linked_category %></td>
+                        <td><%= element.linked_array %></td>
+                        <!-- <td>
+                            <div class="options"> 
+                                <a class="edit" onclick="editsociallink()">
+                                    <span class="iconify" data-icon="akar-icons:edit"></span>
+                                </a> 
+                                <a class="delete" onclick="deletesociallink('<%= element.id %>')">
+                                    <span class="iconify" data-icon="ant-design:delete-outlined"></span>
+                                </a>
+                            </div>
+                        </td> -->
+                    </tr>
+                <% }); %> 
+            </tbody>
+          </table>
+          <br>
+          <br>
     </div>
 </div>
 
@@ -204,6 +106,31 @@
 <!---->
 
 <script>
+
+    function deletesociallink(id) {
+        if(confirm('Do you want to delete it?') == true){
+            $.ajax({
+                    url : '/deleteSocialLink',
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        id:id
+                    },
+                    success: function(response){
+                        alert('Deleted Successfullyt!!');
+                        location.reload();
+                    },
+                    error: function(err){
+                        console.log(err);
+                        alert('Some error occured !!');
+                    }
+            });
+        } 
+    }
+
+    function editsociallink(id) {
+
+    }
 
     function checkPassword(c_password){
         var password = document.getElementById('password').value;

@@ -223,7 +223,7 @@
     </div>
     <div class="add_button">
       <a href="#">Books</a>
-      <div class="search_bar">
+      <!-- <div class="search_bar">
         <div class="search_input">
             <div class="icon">
               <a><span class="iconify" data-icon="akar-icons:search"></span></a>
@@ -232,7 +232,7 @@
               <input type="text" name="" id="" onkeyup="searchUser(this.value)" placeholder="Search by title">
             </div>
           </div>
-      </div>
+      </div> -->
       <button type="button" data-bs-toggle="modal" data-bs-target="#addBook">Add Book</button>
     </div>
     <table>
@@ -267,6 +267,21 @@
 var editBookModal = new bootstrap.Modal(document.getElementById('editBook'));
 var allVideosModal = new bootstrap.Modal(document.getElementById('allvideos'));
 
+    $(function(){
+        if($('textarea#description').length){
+            CKEDITOR.replace('description', {
+                // filebrowserUploadUrl: '/admin/upload',
+                // filebrowserUploadMethod: 'form'
+            });
+        }
+        if($('textarea#editdescription').length){
+            CKEDITOR.replace('editdescription', {
+                // filebrowserUploadUrl: '/admin/upload',
+                // filebrowserUploadMethod: 'form'
+            });
+        }
+    });
+
 function addBook(event){
       event.preventDefault();
 
@@ -275,7 +290,8 @@ function addBook(event){
       var price = document.getElementById('price').value;
       var discount_price = document.getElementById('discount_price').value;
       var days = document.getElementById('days').value;
-      var description = document.getElementById('description').value;
+    //   var description = document.getElementById('description').value;
+      var description = CKEDITOR.instances['description'].getData();
       var gallery = document.getElementsByClassName("gallery_image_path");
       var price_with_video = document.getElementById('price_with_video').value;
       var discont_price_with_video = document.getElementById('discount_price_with_video').value;
@@ -328,7 +344,8 @@ function addBook(event){
       var price = document.getElementById('editprice').value;
       var discount_price = document.getElementById('editdiscount_price').value;
       var days = document.getElementById('editdays').value;
-      var description = document.getElementById('editdescription').value;
+    //   var description = document.getElementById('editdescription').value;
+      var description = CKEDITOR.instances['editdescription'].getData();
       var price_with_video = document.getElementById('editprice_with_video').value;
       var discont_price_with_video = document.getElementById('editdiscount_price_with_video').value;
       var only_video_price = document.getElementById('editonly_video_price').value;
@@ -762,7 +779,7 @@ function editCourseVideo(id) {
       document.getElementById('editincludes_videos').value = includes_videos;
       document.getElementById('editdays').value = days;
       document.getElementById('editvideo_days').value = video_days;
-      document.getElementById('editdescription').value = description;
+      CKEDITOR.instances['editdescription'].setData(document.getElementById('ckeditorvalue' + id).value);
       document.getElementsByClassName('edit_form')[0].setAttribute('id',`form_${id}`);
       editBookModal.toggle();
       
@@ -778,7 +795,7 @@ function editCourseVideo(id) {
             success: function(response){
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].price_with_video +'</td><td>'+ response.data[i].discont_price_with_video +'</td><td>'+ response.data[i].days +'</td><td>'+ response.data[i].video_days +'</td><td>'+ response.data[i].includes_videos +'</td> <td> <div class="options"> <a class="edit" onclick="editBooks(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].description+'\',\''+response.data[i].price_with_video+'\',\''+response.data[i].includes_videos+'\',\''+response.data[i].discont_price_with_video+'\',\''+response.data[i].video_days+'\',\''+response.data[i].only_video_price+'\',\''+response.data[i].only_video_discount_price+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBooks('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td> </tr>');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].price_with_video +'</td><td>'+ response.data[i].discont_price_with_video +'</td><td>'+ response.data[i].days +'</td><td>'+ response.data[i].video_days +'</td><td>'+ response.data[i].includes_videos +'</td> <td> <div class="options"> <a class="edit" onclick="editBooks(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].description+'\',\''+response.data[i].price_with_video+'\',\''+response.data[i].includes_videos+'\',\''+response.data[i].discont_price_with_video+'\',\''+response.data[i].video_days+'\',\''+response.data[i].only_video_price+'\',\''+response.data[i].only_video_discount_price+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBooks('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     $('#data').append('<tr><td>No Books present</td></tr>')

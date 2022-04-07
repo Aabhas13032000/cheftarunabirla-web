@@ -1,6 +1,6 @@
 <%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
 
-<div class="container-fluid user_data">
+<div class="container-fluid user_data" onscroll="getMore()">
     <br>
     <div class="modal fade" id="allvideos" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
@@ -10,19 +10,19 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form onsubmit="addLiveUser(event)" class="course_video" id="course_video_form_" method="post">
+                    <form onsubmit="addLiveClassUser(event)" class="course_video" id="course_video_form_" method="post">
                         <div class="form-group">
                             <select class="form-control" id="users" style="margin-bottom: 10px;" name="users" aria-label="Users Categories" required>
                               <option value="">Select User</option>
                             </select>
                         </div>
                         <div class="button">
-                            <button type="submit" id="course_video_button" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
+                            <button type="submit" id="course_video_button" class="btn btn-primary" style="width: 100%;margin-top: 20px;">Add</button>
                         </div>
                     </form>
                     <table style="table-layout: auto;">
                         <thead>
-                            <th>URL</th>
+                            <th>PHONE NUMBER</th>
                             <th>NAME</th>
                             <th>OPTIONS</th>
                         </thead>
@@ -36,14 +36,14 @@
     </div>
     <!-- Modal -->
     <div class="modal fade" id="addBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Add Live Class</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form onsubmit="addCourse(event)" id="form" method="post" enctype="multipart/form-data" autocomplete="off">
+                    <form onsubmit="addLiveClass(event)" id="form" method="post" enctype="multipart/form-data" autocomplete="off">
                         <div class="row">
                             <div class="col-lg-12 col-md-12 col-sm-12 col-12">
                                 <div class="form-group">
@@ -61,6 +61,12 @@
                                 </div>
                                 <div class="form-group">
                                     <input type="number" id="discount_price" name="discount_price" class="form-control" placeholder="Enter Discount Price" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="url" id="promo_video" name="promo_video" class="form-control" placeholder="Enter Promo Video URL" style="margin-bottom: 10px;">
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="">Images</label>
@@ -87,22 +93,18 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form onsubmit="editCourseSave(event)" id="form_" class="edit_form" method="post" enctype="multipart/form-data" autocomplete="off">
+                    <form onsubmit="editLiveClass(event)" id="form_" class="edit_form" method="post" enctype="multipart/form-data" autocomplete="off">
                         <div class="row">
                             <div class="col-lg-12 col-md-12 col-sm-12 col-12">
                                 <div class="form-group">
                                     <input type="text" id="edittitle" name="edittitle" class="form-control" placeholder="Enter Book Name"  style="margin-bottom: 10px;" required>
                                 </div>
                                 <div class="form-group">
-                                    <select class="form-control" id="editcategory" style="margin-bottom: 10px;" name="category" aria-label="Images Categories" required>
-                                      <option value="" id="editcategoryoption">Select course category</option>
-                                      <option value="online">Online</option>
-                                      <option value="offline">Offline</option>
-                                      <option value="free">Free</option>
-                                    </select>
+                                    <input type="url" id="editurl" name="editurl" class="form-control" placeholder="Enter Link Video URL" style="margin-bottom: 10px;">
                                 </div>
                                 <div class="form-group">
-                                    <input type="url" id="editpromo_video" name="editpromo_video" class="form-control" placeholder="Enter Promo Video URL" style="margin-bottom: 10px;">
+                                    <label for="">Date</label>
+                                    <input type="date" id="editlive_date" name="editlive_date" class="form-control" placeholder="Enter Course Price" style="margin-bottom: 10px;" required>
                                 </div>
                                 <div class="form-group">
                                     <input type="number" id="editprice" name="editprice" class="form-control" placeholder="Enter Course Price" style="margin-bottom: 10px;" required>
@@ -111,14 +113,14 @@
                                     <input type="number" id="editdiscount_price" name="editdiscount_price" class="form-control" placeholder="Enter Discount Price" style="margin-bottom: 10px;" required>
                                 </div>
                                 <div class="form-group">
-                                    <input type="number" id="editdays" name="editdays" class="form-control" placeholder="Enter Subscription Days" style="margin-bottom: 10px;" required>
+                                    <input type="url" id="editpromo_video" name="editpromo_video" class="form-control" placeholder="Enter Promo Video URL" style="margin-bottom: 10px;">
                                 </div>
                                 <div class="form-group">
                                     <textarea class="form-control" id="editdescription" name="editdescription" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="">Images</label>
-                                    <input class="form-control" onchange="uploadImages('edit')" style="margin-bottom: 10px;" type="file" multiple id="edit_course_images" name="images" accept="image/*">
+                                    <input class="form-control" onchange="uploadImages('edit')" style="margin-bottom: 10px;" type="file" id="edit_live_images" name="images" accept="image/*">
                                 </div>
                                 <div id="editpreview" class="row preview_images">
                                     
@@ -168,18 +170,34 @@
 
     var editCourseModal = new bootstrap.Modal(document.getElementById('editCourse'));
     var allVideosModal = new bootstrap.Modal(document.getElementById('allvideos'));
+    var offset = 0;
 
-    function getUsers(offset) {
-    var select = document.getElementById("users");
-    var length = select.options.length;
-    for (var i = length-1; i >= 0; i--) {
-        select.options[i] = null;
-    }   
-                    var option = document.createElement("option");
-                        option.text = "Select Users";
-                        option.value= "";
-                        select.add(option);             
-    $.ajax({
+    $(function(){
+        if($('textarea#description').length){
+            CKEDITOR.replace('description', {
+                // filebrowserUploadUrl: '/admin/upload',
+                // filebrowserUploadMethod: 'form'
+            });
+        }
+        if($('textarea#editdescription').length){
+            CKEDITOR.replace('editdescription', {
+                // filebrowserUploadUrl: '/admin/upload',
+                // filebrowserUploadMethod: 'form'
+            });
+        }
+    });
+
+    function getUsers() {
+        var select = document.getElementById("users");
+        var length = select.options.length;
+        for (var i = length-1; i >= 0; i--) {
+            select.options[i] = null;
+        }  
+        var option = document.createElement("option");
+        option.text = "Select Users";
+        option.value= "";
+        select.add(option);             
+        $.ajax({
             url : `/getSubscriptionUsers`,
             dataType: "json",
             type: "GET",
@@ -207,126 +225,38 @@
         });
   }
 
-    function uploadCategoryImages(id) {
-        var imageFiles = document.getElementById('course_category_images').files;
-        //   console.log(imageFiles);
-        var form = new FormData();
-        //   document.getElementById('preview').innerHTML = '';
-        form.append(`category_images`, imageFiles[0]);
-
-        $.ajax({
-            url : `/saveCategoryImages/${id}`,
-            type: "POST",
-            cache: false,
-            contentType: false,
-            processData: false,
-            data : form,
-            success: function(response){
-                console.log(response.files);
-                location.reload();
-            },
-            error: function(err){
-                console.log(err.status);
-            }
-        });
-    }
-
-    function deleteCategoryImage(path,id) {
-        if(confirm('Do you want to delete it?') == true){
-        // console.log(path);
-        $.ajax({
-            url : `/updateCategoryImages`,
-            type: "POST",
-            data : {
-                path:path,
-                id:id
-            },
-            success: function(response){
-                console.log(response.files);
-                location.reload();
-            },
-            error: function(err){
-                console.log(err.status);
-            }
-        });
-    } 
-    }
-
-    function toggleImportant(id) {
-    $.ajax({
-            url : '/markedCourseCategoryImportant',
-            dataType: "json",
-            type: "POST",
-            data: {
-                id:id
-            },
-            success: function(response){
-                alert('Edited Successfullyt!!');
-            },
-            error: function(err){
-                console.log(err);
-                alert('Some error occured !!');
-            }
-        });
-  }
-
-    function getCategoryCourse() {
-        $.ajax({
-            url : `/getCourseCategories`,
-            dataType: "json",
-            type: "GET",
-            success: function(response){
-                // console.log(response);
-                for(var i=0;i<response.data.length;i++){
-                    $('#all_category').append('<tr><td>'+ response.data[i].name +'</td><td>'+ (response.data[i].path.length == 0 ? '<div class="form-group"><input class="form-control" onchange="uploadCategoryImages(\''+ response.data[i].id +'\')" style="margin-bottom: 10px;" type="file" id="course_category_images" name="images" accept="image/*" required></div>' : '<div class="row preview_images" id="category_image_'+ response.data[i].path +'"><div class="col-12"><div class="card" id="append_image_'+ response.data[i].path +'"><a class="delete_gallery_image" onclick="deleteCategoryImage(\''+ response.data[i].path +'\',\''+ response.data[i].id +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ response.data[i].path +'" alt=""></div></div></div>') +'</td><td> <div class="form-check form-switch">'+ (response.data[i].imp == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')" checked>') +' </div> </td> </tr>');
-                }
-            },
-            error: function(err){
-                console.log(err);
-                alert('Some error occured !!');
-            }
-        });
-        allcategoriesModal.toggle();
-    }
-
-    function addCourse(event){
+    function addLiveClass(event){
       event.preventDefault();
 
       var title = document.getElementById('title').value;
-      var category = document.getElementById('category').value;
-      var promo_video = document.getElementById('promo_video').value;
+      var url = document.getElementById('url').value;
+      var live_date = document.getElementById('live_date').value;
       var price = document.getElementById('price').value;
-      var days = document.getElementById('days').value;
       var discount_price = document.getElementById('discount_price').value;
-      var description = document.getElementById('description').value;
-      var gallery = document.getElementsByClassName("gallery_image_path");
-      var pdf_path = document.getElementsByClassName("pdf_path");
-      var gallery_values = [];
-      var pdf = [];
+      var gallery = document.getElementsByClassName("gallery_image_path")[0].value;
+      var promo_video = document.getElementById('promo_video').value;
+      var description = CKEDITOR.instances['description'].getData();
+    //   var gallery_values = [];
       if(gallery.length != 0) {
-        for(var i =0;i<gallery.length;i++) {
-            gallery_values.push(gallery[i].value);
-        }
-        for(var i =0;i<pdf_path.length;i++) {
-            pdf.push(pdf_path[i].value);
-        }
+        // for(var i =0;i<gallery.length;i++) {
+        //     gallery_values.push(gallery[i].value);
+        // }
         $.ajax({
-                url : '/addCourse',
+                url : '/addLiveClass',
                 dataType: "json",
                 type: "POST",
                 data: {
                     title:title,
-                    category:category,
-                    promo_video:promo_video,
+                    url:url,
+                    live_date:live_date,
                     price:price,
-                    gallery:gallery_values,
-                    description:description,
-                    pdf:pdf,
-                    days:days,
+                    gallery:gallery,
                     discount_price:discount_price,
+                    description:description,
+                    promo_video:promo_video
                 },
                 success: function(response){
-                    alert('Course added successfully');
+                    alert('Live class added successfully');
                     location.reload();
                 },
                 error: function(err){
@@ -337,32 +267,22 @@
       }
   }
 
-  function editCourseSave(event){
+  function addLiveClassUser(event){
       event.preventDefault();
 
-      var title = document.getElementById('edittitle').value;
-      var category = document.getElementById('editcategory').value;
-      var days = document.getElementById('editdays').value;
-      var price = document.getElementById('editprice').value;
-      var discount_price = document.getElementById('editdiscount_price').value;
-      var description = document.getElementById('editdescription').value;
-      var promo_video = document.getElementById('editpromo_video').value;
-      var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
-            $.ajax({
-                url : `/editCourse/${id}`,
+      
+    var user_id = document.getElementById('users').value;
+    var live_id = document.getElementsByClassName('course_video')[0].getAttribute('id').split('_')[3];
+    $.ajax({
+                url : '/addLiveClassUser',
                 dataType: "json",
                 type: "POST",
                 data: {
-                    title:title,
-                    category:category,
-                    promo_video:promo_video,
-                    price:price,
-                    description:description,
-                    days:days,
-                    discount_price:discount_price,
+                    user_id:user_id,
+                    live_id:live_id
                 },
                 success: function(response){
-                    alert('Course edited successfully');
+                    alert('Live class user added successfully');
                     location.reload();
                 },
                 error: function(err){
@@ -372,13 +292,76 @@
             });
   }
 
-    function deleteCurrentGalleryImage(id,input_id) {
+  function editLiveClass(event){
+      event.preventDefault();
+
+      var title = document.getElementById('edittitle').value;
+      var url = document.getElementById('editurl').value;
+      var live_date = document.getElementById('editlive_date').value;
+      var price = document.getElementById('editprice').value;
+      var discount_price = document.getElementById('editdiscount_price').value;
+      var promo_video = document.getElementById('editpromo_video').value;
+      var description = CKEDITOR.instances['editdescription'].getData();
+
+    //   console.log(gallery);
+
+      var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+            $.ajax({
+                url : `/editLiveClass`,
+                dataType: "json",
+                type: "POST",
+                data: {
+                    title:title,
+                    url:url,
+                    live_date:live_date,
+                    price:price,
+                    discount_price:discount_price,
+                    description:description,
+                    promo_video:promo_video,
+                    id:id
+                },
+                success: function(response){
+                    alert('Live Class edited successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+  }
+
+function deleteCurrentGalleryImage(id,input_id) {
     var path = document.getElementById(input_id).value;
     if(confirm('Do you want to delete it?') == true){
         console.log(path);
         if(path != '/images/extra/nopreview.jpeg') {
             $.ajax({
                 url : '/deletePhoto',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    path:path
+                },
+                success: function(response){
+                    alert('Removed Successfully');
+                    document.getElementById(id).remove();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        }
+    } 
+}
+
+function deleteEditCurrentGalleryImage(id,path) {
+    if(confirm('Do you want to delete it?') == true){
+        console.log(path);
+        if(path != '/images/extra/nopreview.jpeg') {
+            $.ajax({
+                url : `/deleteEditPhoto`,
                 dataType: "json",
                 type: "POST",
                 data: {
@@ -431,31 +414,33 @@
             }
         });
       } else {
-        var imageFiles = document.getElementById('edit_course_images').files;
-        var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+        var fileForm = new FormData();
+        var image = document.getElementById('edit_live_images').files[0];
         //   console.log(imageFiles);
-        var form = new FormData();
-        for(var i=0;i<imageFiles.length;i++){
-            if(imageFiles[i] != undefined){
-                form.append(`book_images`, imageFiles[i]);
-            }
-        }
+        // var form = new FormData();
+        //   document.getElementById('preview').innerHTML = '';
+        var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+            fileForm.append('slider_image',image);
+
+        // for(var i=0;i<imageFiles.length;i++){
+        //     if(imageFiles[i] != undefined){
+        //         form.append(`book_images`, imageFiles[i]);
+        //     }
+        // }
 
         $.ajax({
-            url : `/saveEditBookImages/${id}/courses`,
+            url : `/uploadSliderImage/${id}`,
             type: "POST",
             cache: false,
             contentType: false,
             processData: false,
-            data : form,
+            data : fileForm,
             success: function(response){
-                console.log(response.files);
-                for(var i=0;i<response.files.length;i++) {
-                    var path = response.files[i].path.slice(6,response.files[i].path.length);
-                    $('#editpreview').append('<div class="col-6" id="edit_gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteEditCurrentGalleryImage(\''+ ( "edit_gallery_image_"+ path )  +'\',\''+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""></div></div>');
-                }
-                document.getElementById('edit_course_images').value='';
-        $(parent.document).find('#image_loader').css('display','none');
+                document.getElementById('editpreview').innerHTML = '';
+                var path = response.path.slice(6,response.path.length);
+                $('#editpreview').append('<div class="col-6" id="gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentGalleryImage(\''+ ( "gallery_image_"+ path )  +'\',\'gallery_image_path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="edit_gallery_image_path" name="gallery_image_path" id="gallery_image_path_'+ path +'" value="'+ path +'"></div></div>');
+                    document.getElementById('live_images').value = '';
+                    $(parent.document).find('#image_loader').css('display','none');
             },
             error: function(err){
                 console.log(err.status);
@@ -464,102 +449,31 @@
       }
   }
 
-  function deleteCurrentPdf(path) {
-    // var path = document.getElementById(input_id).value;
-    if(confirm('Do you want to delete it?') == true){
-        console.log(path);
-        if(path != '/images/extra/nopreview.jpeg') {
-            $.ajax({
-                url : '/deletePDF',
-                dataType: "json",
-                type: "POST",
-                data: {
-                    path:path
-                },
-                success: function(response){
-                    alert('Removed Successfully');
-                    document.getElementById('pdf_'+path).remove();
-                },
-                error: function(err){
-                    console.log(err);
-                    alert('Some error occured !!');
-                }
-            });
-        }
-    } 
-}
-
-  function uploadPDF(value) {
-      if(value != 'edit') {
-        var imageFiles = document.getElementById('pdf').files;
-        //   console.log(imageFiles);
-        var form = new FormData();
-        //   document.getElementById('preview').innerHTML = '';
-
-        for(var i=0;i<imageFiles.length;i++){
-            if(imageFiles[i] != undefined){
-                form.append(`pdf`, imageFiles[i]);
-            }
-        }
-
-        $.ajax({
-            url : "/savePdf",
-            type: "POST",
-            cache: false,
-            contentType: false,
-            processData: false,
-            data : form,
-            success: function(response){
-                console.log(response);
-                for(var i=0;i<response.files.length;i++) {
-                    var path = response.files[i].path.slice(6,response.files[i].path.length);
-                    $('#preview_pdf').append('<div class="col-12" id="pdf_'+ path +'"><a href="'+ path +'">'+ path +'</a> <a onclick="deleteCurrentPdf(\''+ path +'\')" style="color:red;margin-left:20px"><span class="iconify" data-icon="akar-icons:cross" style="color:red;width:30px;height:30px"></span></a><input type="hidden" class="pdf_path" name="pdf_path" id="pdf_path_'+ path +'" value="'+ path +'"></div>');
-                }
-                document.getElementById('pdf').value='';
-            },
-            error: function(err){
-                console.log(err.status);
-            }
-        });
-      } else {
-        var imageFiles = document.getElementById('editpdf').files;
-        //   console.log(imageFiles);
-        var form = new FormData();
-        var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
-        //   document.getElementById('preview').innerHTML = '';
-
-        for(var i=0;i<imageFiles.length;i++){
-            if(imageFiles[i] != undefined){
-                form.append(`pdf`, imageFiles[i]);
-            }
-        }
-
-        $.ajax({
-            url : `/saveEditPdf/${id}/courses`,
-            type: "POST",
-            cache: false,
-            contentType: false,
-            processData: false,
-            data : form,
-            success: function(response){
-                console.log(response);
-                for(var i=0;i<response.files.length;i++) {
-                    var path = response.files[i].path.slice(6,response.files[i].path.length);
-                    $('#editpreview_pdf').append('<div class="col-12" id="pdf_'+ path +'"><a href="'+ path +'">'+ path +'</a> <a onclick="deleteEditCurrentPdf(\''+ path +'\')" style="color:red;margin-left:20px"><span class="iconify" data-icon="akar-icons:cross" style="color:red;width:30px;height:30px"></span></a></div>');
-                }
-                document.getElementById('editpdf').value='';
-            },
-            error: function(err){
-                console.log(err.status);
-            }
-        });
-      }
-  }
-
-  function deleteCourses(id) {
+  function deleteLiveClass(id) {
     if(confirm('Do you want to delete it?') == true){
       $.ajax({
-            url : '/deleteCourse',
+            url : '/deleteLiveClass',
+            dataType: "json",
+            type: "POST",
+            data: {
+                id:id
+            },
+            success: function(response){
+                alert('Deleted Successfullyt!!');
+                location.reload();
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+      });
+    } 
+  }
+
+  function deleteLiveClassUser(id) {
+    if(confirm('Do you want to delete it?') == true){
+      $.ajax({
+            url : '/deleteLiveClassUser',
             dataType: "json",
             type: "POST",
             data: {
@@ -601,190 +515,62 @@
     } 
 }
 
-  function getImages(id,value) {
-    $.ajax({
-            url : `/getCourseImages/${id}`,
-            dataType: "json",
-            type: "GET",
-            success: function(response){
-                console.log(response);
-                if(value == 'edit') {
-                    for(var i=0;i<response.data.length;i++) {
-                        var path = response.data[i].path;
-                        $('#editpreview').append('<div class="col-6" id="edit_gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteEditCurrentGalleryImage(\''+ ( "edit_gallery_image_"+ path )  +'\',\''+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""></div></div>');
-                    }
-                } 
-            },
-            error: function(err){
-                console.log(err);
-                alert('Some error occured !!');
-            }
-        });
-  }
-
-  function deleteEditCurrentPdf(path) {
-    if(confirm('Do you want to delete it?') == true){
-        // console.log(path);
-        if(path != '/images/extra/nopreview.jpeg') {
-            $.ajax({
-                url : `/deleteEditPdf`,
-                dataType: "json",
-                type: "POST",
-                data: {
-                    path:path
-                },
-                success: function(response){
-                    alert('Removed Successfully');
-                    document.getElementById('pdf_' + path).remove();
-                },
-                error: function(err){
-                    console.log(err);
-                    alert('Some error occured !!');
-                }
-            });
-        }
-    } 
-}
-
-  function getPdf(id,value) {
-    $.ajax({
-            url : `/getCoursePdf/${id}`,
-            dataType: "json",
-            type: "GET",
-            success: function(response){
-                console.log(response);
-                if(value == 'edit') {
-                    for(var i=0;i<response.data.length;i++) {
-                        var path = response.data[i].pdflink;
-                        $('#editpreview_pdf').append('<div class="col-12" id="pdf_'+ path +'"><a href="'+ path +'">'+ path +'</a> <a onclick="deleteEditCurrentPdf(\''+ path +'\')" style="color:red;margin-left:20px"><span class="iconify" data-icon="akar-icons:cross" style="color:red;width:30px;height:30px"></span></a></div>');
-                    }
-                } 
-            },
-            error: function(err){
-                console.log(err);
-                alert('Some error occured !!');
-            }
-        });
-  }
-
-  function editCourse(id,title,price,category,days,description,discount_price,promo_video) {
-      getImages(id,'edit');
-      getPdf(id,'edit');
+  function editLiveClassValues(id,title,url,live_date,price,discount_price,path,promo_video) {
       document.getElementById('editpreview').innerHTML = '';
-      document.getElementById('editpreview_pdf').innerHTML = '';
+      if(path != null && path.length !=0){
+    $('#editpreview').append('<div class="col-6" id="edit_gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteEditCurrentGalleryImage(\''+ ( "edit_gallery_image_"+ path )  +'\',\''+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""></div></div>');
+      }
       document.getElementById('edittitle').value = title;
-      document.getElementById('editcategoryoption').innerHTML = category;
-      document.getElementById('editcategoryoption').setAttribute('value',category);
+      document.getElementById('editlive_date').innerHTML = live_date;
       document.getElementById('editprice').value = price;
       document.getElementById('editdiscount_price').value = discount_price;
       document.getElementById('editpromo_video').value = promo_video;
-      document.getElementById('editdays').value = days;
-      document.getElementById('editdescription').value = description;
+      document.getElementById('editurl').value = url;
+      CKEDITOR.instances['editdescription'].setData(document.getElementById('ckeditorvalue' + id).value);
       document.getElementsByClassName('edit_form')[0].setAttribute('id',`form_${id}`);
       editCourseModal.toggle();
   }
 
-  function addcoursevideo(event) {
-    event.preventDefault();
-
-    var course_video = document.getElementById('course_video').value;
-    var video_name = document.getElementById('video_name').value;
-    var id = document.getElementsByClassName('course_video')[0].getAttribute('id').split('_')[3];
-    $.ajax({
-                url : `/addCourseVideos`,
-                dataType: "json",
-                type: "POST",
-                data: {
-                    path:course_video,
-                    id:id,
-                    video_name:video_name
-                },
-                success: function(response){
-                    alert('Video added successfully');
-                    location.reload();
-                },
-                error: function(err){
-                    console.log(err);
-                    alert('Some error occured !!');
-                }
-            });
-}
-
-function deleteCourseVideo(id) {
-    $.ajax({
-                url : `/deleteCourseVideo`,
-                dataType: "json",
-                type: "POST",
-                data: {
-                    id:id
-                },
-                success: function(response){
-                    alert('Video deleted successfully');
-                    location.reload();
-                },
-                error: function(err){
-                    console.log(err);
-                    alert('Some error occured !!');
-                }
-            });
-}
-
-function editCourseVideo(id) {
-    var path = document.getElementById('edit_course_video_'+id).value;
-    var name = document.getElementById('edit_course_name_'+id).value;
-    if(path.length !=0 && name.length !=0){
-    $.ajax({
-                url : `/editCourseVideos`,
-                dataType: "json",
-                type: "POST",
-                data: {
-                    id:id,
-                    path:path,
-                    name:name
-                },
-                success: function(response){
-                    // alert('Video edited successfully');
-                    // location.reload();
-                },
-                error: function(err){
-                    console.log(err);
-                    alert('Some error occured !!');
-                }
-            });
+  function getMore() {
+        offset = offset+20;
+        getLive(offset);
     }
-}
 
-  function videoCourses(id) {
-    document.getElementById('category_data').innerHTML = '';
-    $.ajax({
-            url : `/getCourseVideos/${id}`,
-            dataType: "json",
-            type: "GET",
-            success: function(response){
-                // console.log(response);
-                for(var i=0;i<response.data.length;i++) {
-                        var path = response.data[i].path;
-                        $('#category_data').append('<tr><td><div class="form-group"><input type="url" id="edit_course_video_'+ response.data[i].id +'" name="course_video" class="form-control" placeholder="Enter Course Video URL" style="margin-bottom: 0px;" value="'+ response.data[i].path +'" onchange="editCourseVideo(\''+ response.data[i].id +'\')" required></div></td><td><div class="form-group"><input type="url" id="edit_course_name_'+ response.data[i].id +'" name="course_video" class="form-control" placeholder="Enter Course Video Name" style="margin-bottom: 0px;" onchange="editCourseVideo(\''+ response.data[i].id +'\')" value="'+ response.data[i].name +'" required></div></td><td><a class="delete" onclick="deleteCourseVideo('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></td></tr>');
+    function getLiveUsers(id) {
+        document.getElementById('category_data').innerHTML = '';
+        $.ajax({
+                url : `/getLiveUsers/${id}`,
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    console.log(response);
+                    for(var i=0;i<response.data.length;i++) {
+                        $('#category_data').append('<tr><td>'+ response.data[i].phone_number +'</td><td>'+ response.data[i].name +'</td><td><a class="delete" onclick="deleteLiveClassUser('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></td></tr>');
                     }
-            },
-            error: function(err){
-                console.log(err);
-                alert('Some error occured !!');
-            }
-    });
-    document.getElementsByClassName('course_video')[0].setAttribute('id',`course_video_form_${id}`); 
-    allVideosModal.toggle();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+        });
+        document.getElementsByClassName('course_video')[0].setAttribute('id',`course_video_form_${id}`); 
+        allVideosModal.toggle();
   }
 
-  function getLive() {
+    function liveClassUser(id) {
+        getLiveUsers(id);
+        // allVideosModal.toggle();
+    }
+
+  function getLive(offset) {
     $.ajax({
-            url : '/getLive',
+            url : `/getLive/${offset}`,
             dataType: "json",
             type: "GET",
             success: function(response){
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td><a href="'+ (response.data[i].url != null ? response.data[i].url : "#" ) +'" target="_blank">URL</a></td><td>'+ Date(response.data[i].created_at).slice(0,16) +'</td><td>'+ Date(response.data[i].live_date).slice(0,16) +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td><img src="'+ response.data[i].image_path +'" alt="no_image"></td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Users</a></div> </td> </tr>');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td><a href="'+ (response.data[i].url != null ? response.data[i].url : "#" ) +'" target="_blank">URL</a></td><td>'+ Date(response.data[i].created_at).slice(0,16) +'</td><td>'+ Date(response.data[i].live_date).slice(0,16) +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td><img src="'+ response.data[i].image_path +'" alt="no_image"></td> <td> <div class="options"> <a class="edit" onclick="editLiveClassValues(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].url+'\',\''+response.data[i].live_date+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].image_path+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteLiveClass('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="liveClassUser('+response.data[i].id+')" class="profile">View Users</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Courses present</td></tr>')
@@ -796,9 +582,10 @@ function editCourseVideo(id) {
                 alert('Some error occured !!');
             }
         });
+        getUsers();
   }
   
-  window.onload = getLive();
+  window.onload = getLive(0);
 
 </script>
 

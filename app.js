@@ -8,8 +8,8 @@ var cors = require('cors');
 
 var indexRouter = require('./routes/index');
 var userRouter = require('./routes/users');
-var streamRouter = require('./routes/stream');
 var apiRouter = require('./routes/api');
+var chatRouter = require('./routes/chat');
 
 var app = express();
 app.use(cors());
@@ -18,26 +18,6 @@ app.listen(3000,'192.168.1.16');
 // app.listen(3000,'192.168.29.248');
 // app.listen(3000,'172.20.10.2');
 // app.listen(3000,'192.168.29.248');
-
-// // Add headers before the routes are defined
-// app.use(function (req, res, next) {
-
-//   // Website you wish to allow to connect
-//   res.setHeader('Access-Control-Allow-Origin', '*');
-
-//   // Request methods you wish to allow
-//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-
-//   // Request headers you wish to allow
-//   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
-//   // Set to true if you need the website to include cookies in the requests sent
-//   // to the API (e.g. in case you use sessions)
-//   res.setHeader('Access-Control-Allow-Credentials', true);
-
-//   // Pass to next layer of middleware
-//   next();
-// });
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -61,10 +41,8 @@ app.use('/', session({
  }), indexRouter);
 
  app.use('/users',userRouter);
- app.use('/stream',streamRouter);
  app.use('/api',apiRouter);
-
-//  app.use('/',indexRouter);
+ app.use('/chat',chatRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

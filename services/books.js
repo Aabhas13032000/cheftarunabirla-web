@@ -79,7 +79,11 @@ module.exports = {
         });
     },
     getbookimages : (data,callback) => {
-        const query  = "SELECT * FROM `images` WHERE `book_id` = '"+ data +"'";
+        if(data.offset){
+            var query  = "SELECT * FROM `images` WHERE `book_id` = '"+ data +"' LIMIT 20 OFFSET "+ data.offset +"";
+        } else { 
+            var query  = "SELECT * FROM `images` WHERE `book_id` = '"+ data +"'";
+        }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);

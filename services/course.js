@@ -2,7 +2,11 @@ const pool = require('../database/connection');
 
 module.exports = {
     getcourse : (data,callback) => {
-        const query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `created_at` DESC LIMIT 20 OFFSET "+ data.offset +"";
+        if(data.offset){
+            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `created_at` DESC LIMIT 20 OFFSET "+ data.offset +"";
+         } else {
+            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `created_at` DESC";
+         }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -12,7 +16,11 @@ module.exports = {
         });
     },
     getcoursebyId : (data,callback) => {
-        const query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`course_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"' AND `status` = 1) AS subscribed FROM `courses` c WHERE `status` = 1 AND `id` = '"+ data.id +"' ORDER BY `title`";
+        if(data.user_id){
+            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"' AND `status` = 1) AS subscribed FROM `courses` c WHERE `status` = 1 AND `id` = '"+ data.id +"' ORDER BY `title`";
+        } else {
+            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 AND `id` = '"+ data.id +"' ORDER BY `title`";
+        }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -22,7 +30,11 @@ module.exports = {
         });
     },
     getusercourse : (data,callback) => {
-        const query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`course_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"' AND `status` = 1) AS subscribed FROM `courses` c WHERE `status` = 1 ORDER BY `title`";
+        if(data.offset){
+            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"' AND `status` = 1) AS subscribed FROM `courses` c WHERE `status` = 1 ORDER BY `title` LIMIT 20 OFFSET "+ data.offset +"";
+        } else {
+            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"' AND `status` = 1) AS subscribed FROM `courses` c WHERE `status` = 1 ORDER BY `title`";
+        }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -32,7 +44,11 @@ module.exports = {
         });
     },
     getcategorycourse : (data,callback) => {
-        const query = "SELECT c.*,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`course_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"' AND `status` = 1) AS subscribed FROM `courses` c WHERE `status` = 1 AND `category` = '"+ data.category +"' ORDER BY `title`";
+        if(data.offset){
+            var query = "SELECT c.*,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"' AND `status` = 1) AS subscribed FROM `courses` c WHERE `status` = 1 AND `category` = '"+ data.category +"' ORDER BY `title` LIMIT 20 OFFSET "+ data.offset +"";
+        } else {
+            var query = "SELECT c.*,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"' AND `status` = 1) AS subscribed FROM `courses` c WHERE `status` = 1 AND `category` = '"+ data.category +"' ORDER BY `title`";
+        }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -43,7 +59,7 @@ module.exports = {
     },
     getsearchedcourse : (data,callback) => {
         if(data.user_id){
-            var query = "SELECT c.*,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`course_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"') AS subscribed FROM `courses` c WHERE `status` = 1 AND `title` LIKE '%"+ data.name +"%' ORDER BY `title`";
+            var query = "SELECT c.*,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path,(SELECT COUNT(*) FROM `subscription` WHERE `subscription`.`course_id` = c.`id` AND `subscription`.`user_id` = '"+ data.user_id +"') AS subscribed FROM `courses` c WHERE `status` = 1 AND `title` LIKE '%"+ data.name +"%' ORDER BY `title`";
         } else {
             var query = "SELECT c.*,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 AND `title` LIKE '%"+ data.name +"%' ORDER BY `title`";
         }
@@ -131,7 +147,11 @@ module.exports = {
         });
     },
     getcourseimages : (data,callback) => {
-        const query  = "SELECT * FROM `images` WHERE `course_id` = '"+ data +"' AND `iv_category` = 'image'";
+        if(data.offset){
+            var query  = "SELECT * FROM `images` WHERE `course_id` = '"+ data +"' AND `iv_category` = 'image' LIMIT 20 OFFSET "+ data.offset +"";
+        } else {
+            var query  = "SELECT * FROM `images` WHERE `course_id` = '"+ data +"' AND `iv_category` = 'image'";
+        }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);

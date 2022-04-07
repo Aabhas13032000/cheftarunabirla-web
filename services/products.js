@@ -2,7 +2,7 @@ const pool = require('../database/connection');
 
 module.exports = {
     addproduct : (data,callback) => {
-        const query  = "INSERT INTO `products` (`name`,`description`,`price`,`discount_price`,`category_id`) VALUES ('"+ data.name +"','"+ data.description +"','"+ data.price +"','"+ data.discount_price +"','"+ data.category +"')";
+        const query  = "INSERT INTO `products` (`name`,`description`,`price`,`discount_price`,`category_id`,`related_products_array`) VALUES ('"+ data.name +"','"+ data.description +"','"+ data.price +"','"+ data.discount_price +"','"+ data.category +"','"+ data.relatedproducts +"')";
         var images_array = [];
         if(typeof (Object.entries(data)[4])[1] != 'string'){
             images_array = (Object.entries(data)[4])[1];
@@ -49,7 +49,11 @@ module.exports = {
         });
     },
     getuserproduct : (data,callback) => {
-        const query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path , (SELECT COUNT(*) FROM `cart` WHERE `cart`.`product_id` = p.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 ORDER BY p.`created_at` DESC";
+        if(data.offset){
+            var query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 ORDER BY p.`created_at` DESC LIMIT 20 OFFSET "+ data.offset +"";
+        } else {
+            var query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 ORDER BY p.`created_at` DESC";
+        }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -59,7 +63,11 @@ module.exports = {
         });
     },
     getuserproductbyid : (data,callback) => {
-        const query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path , (SELECT COUNT(*) FROM `cart` WHERE `cart`.`product_id` = p.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND p.`id` = '"+ data.id +"' ORDER BY p.`created_at` DESC";
+        if(data.user_id){
+            var query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path , (SELECT COUNT(*) FROM `cart` WHERE `cart`.`product_id` = p.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND p.`id` = '"+ data.id +"' ORDER BY p.`created_at` DESC";
+        } else {
+            var query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path  FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND p.`id` = '"+ data.id +"' ORDER BY p.`created_at` DESC";
+        }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -69,7 +77,11 @@ module.exports = {
         });
     },
     getcategoryproduct : (data,callback) => {
-        const query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path , (SELECT COUNT(*) FROM `cart` WHERE `cart`.`product_id` = p.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND c.`name` = '"+ data.category +"' ORDER BY p.`created_at` DESC";
+        if(data.offset){
+            var query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path , (SELECT COUNT(*) FROM `cart` WHERE `cart`.`product_id` = p.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND c.`name` = '"+ data.category +"' ORDER BY p.`created_at` DESC LIMIT 20 OFFSET "+ data.offset +"";
+        } else {
+            var query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path , (SELECT COUNT(*) FROM `cart` WHERE `cart`.`product_id` = p.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND c.`name` = '"+ data.category +"' ORDER BY p.`created_at` DESC";
+        }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -85,6 +97,7 @@ module.exports = {
             var query = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND p.`name` LIKE '%"+ data.name +"%' ORDER BY p.`created_at` DESC";
         }
         pool.query(query,function(err,results,fields){
+            // console.log(results);
             if(err) {
                 callback(err);
             } else {
@@ -103,7 +116,11 @@ module.exports = {
         });
     },
     getproductimages : (data,callback) => {
-        const query  = "SELECT * FROM `images` WHERE `product_id` = '"+ data +"'";
+        if(data.offset){
+            var query  = "SELECT * FROM `images` WHERE `product_id` = '"+ data +"' LIMIT 20 OFFSET "+ data.offset +"";
+        } else { 
+            var query  = "SELECT * FROM `images` WHERE `product_id` = '"+ data +"'";
+        }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -144,7 +161,7 @@ module.exports = {
         });
     },
     editproduct : (data,id,callback) => {
-        const query2  = "UPDATE `products` SET `name` = '"+ data.name +"',`category_id` = '"+ data.category +"' ,`price` = '"+ data.price +"',`discount_price` = '"+ data.discount_price +"',`description` = '"+ data.description +"' , `stock` = '"+ data.stock +"' WHERE `id` = '"+ id +"'";
+        const query2  = "UPDATE `products` SET `name` = '"+ data.name +"',`category_id` = '"+ data.category +"' ,`price` = '"+ data.price +"',`discount_price` = '"+ data.discount_price +"',`description` = '"+ data.description +"' , `stock` = '"+ data.stock +"' , `related_products_array` = '"+ data.relatedproducts +"' WHERE `id` = '"+ id +"'";
         pool.query(query2,function(err,results,fields){
             if(err) {
                 callback(err);

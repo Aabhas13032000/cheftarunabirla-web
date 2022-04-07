@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no,maximum-scale=1.0, minimum-scale=1">
+    <meta property="og:title" content=""/>
+    <meta property="og:url" content=""/>
+    <meta property="og:image" content="">
+
+    <title>Taruna Birla's Dashboard</title>
+    <link rel="icon" href="/images/logo/Mono.png" type="image/icon type">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css"/>
+
+    <!-- Bootstrap -->
+    <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Jquery -->
+    <script src="/jquery/jquery.js"></script>
+
+    <!-- Ckeditor Cdn -->
+    <script src="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js"></script>
+
+    <link rel="stylesheet" href="/stylesheets/chat.css">
+</head>
+<body>
+
+<div class="container-fluid live_chat">
+    <div class="chat_section" id="chat_section">
+        <% for(var i=0;i<30;i++) { %> 
+            <div class="meesage_outer_box">
+                <div class="message">
+                    <h6 class="name">Aabhas Choudhary</h6>
+                    <h6 class="text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Facilisi donec in nunc urna, quam venenatis vel it, sceleris que. Feugiat gravida bibendum.</h6>
+                </div>
+            </div>
+        <% } %> 
+    </div>
+    <div class="input_box">
+            <div class="row">
+                <div class="col-10">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="message" name="message" placeholder="Enter your message" required autocomplete="off">
+                    </div>
+                    <input type="hidden" id="name" value="<%= query.user_id %>">
+                </div>
+                <div class="col-2">
+                    <a class="send_button" id="send_button" onclick="addMessage()"><span class="iconify" data-icon="mdi:send-circle"></span></a>
+                </div>
+            </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('chat_section').style.height = `${screen.height - 50}px`;
+    var objDiv = document.getElementById("chat_section");
+    objDiv.scrollTop = objDiv.scrollHeight;
+
+    function addMessage() {
+        var message = document.getElementById('message').value;
+        var name = document.getElementById('name').value;
+        $('#chat_section').append('<div class="meesage_outer_box"><div class="message"><h6 class="name">'+ name +'</h6><h6 class="text">'+ message +'</h6></div></div>');
+        var objDiv = document.getElementById("chat_section");
+        objDiv.scrollTop = objDiv.scrollHeight;
+        document.getElementById('message').value = '';
+    }
+
+    $("#message").keypress(function(event) {
+        if (event.keyCode === 13) {
+            var message = document.getElementById('message').value;
+            var name = document.getElementById('name').value;
+            $('#chat_section').append('<div class="meesage_outer_box"><div class="message"><h6 class="name">'+ name +'</h6><h6 class="text">'+ message +'</h6></div></div>');
+            var objDiv = document.getElementById("chat_section");
+            objDiv.scrollTop = objDiv.scrollHeight;
+            document.getElementById('message').value = '';
+        }
+    });
+
+//     function getLive(offset) {
+//     $.ajax({
+//             url : `/getLive/${offset}`,
+//             dataType: "json",
+//             type: "GET",
+//             success: function(response){
+//                 if(response.data.length != 0){
+//                   for(var i=0;i<response.data.length;i++){
+//                     $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td><a href="'+ (response.data[i].url != null ? response.data[i].url : "#" ) +'" target="_blank">URL</a></td><td>'+ Date(response.data[i].created_at).slice(0,16) +'</td><td>'+ Date(response.data[i].live_date).slice(0,16) +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td><img src="'+ response.data[i].image_path +'" alt="no_image"></td> <td> <div class="options"> <a class="edit" onclick="editLiveClassValues(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].url+'\',\''+response.data[i].live_date+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].image_path+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteLiveClass('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="liveClassUser('+response.data[i].id+')" class="profile">View Users</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+//                   }
+//                 } else {
+//                     // $('#data').append('<tr><td>No Courses present</td></tr>')
+//                 }
+//                 //   document.getElementById('tableLoader').style.display = 'none';
+//             },
+//             error: function(err){
+//                 console.log(err);
+//                 alert('Some error occured !!');
+//             }
+//         });
+//   }
+
+//   setInterval(() => {
+//     getLive(0)
+//   },2000);
+  
+//   window.onload = getLive(0);
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 

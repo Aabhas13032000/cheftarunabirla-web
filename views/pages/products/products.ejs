@@ -69,6 +69,14 @@
                                 <div id="preview" class="row preview_images">
                                     
                                 </div>
+                                <div class="form-group">
+                                    <label for="">People will also like to buy</label>
+                                    <select class="form-control" id="relatedproducts" style="margin-bottom: 10px;" name="relatedproducts" aria-label="Images Categories" multiple required>
+                                      <% for(var i=0;i<products.length;i++) { %>
+                                        <option value="<%= products[i].id %>"><%= products[i].name %></option>
+                                      <% } %>
+                                    </select>
+                                </div>
                                 <div class="button">
                                     <button type="submit" id="product_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
                                 </div>
@@ -121,6 +129,14 @@
                                 <div id="editpreview" class="row preview_images">
                                     
                                 </div>
+                                <div class="form-group">
+                                    <label for="">People will also like to buy</label>
+                                    <select class="form-control editrelatedproducts" id="editrelatedproducts" style="margin-bottom: 10px;" name="editrelatedproducts" aria-label="Images Categories" multiple required>
+                                      <% for(var i=0;i<products.length;i++) { %>
+                                        <option value="<%= products[i].id %>"><%= products[i].name %></option>
+                                      <% } %>
+                                    </select>
+                                </div>
                                 <div class="button">
                                     <button type="submit" id="edit_product_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;">Save</button>
                                 </div>
@@ -169,6 +185,18 @@
       </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="sendingNotification" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h3>Sending Notification Please Wait!!</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 <!--Bootstrap js-->
 <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!---->
@@ -199,6 +227,43 @@ $(function(){
     }
 });
 
+function sendNotification(title,description,news_id,share_url,image){
+        var send_image;
+        if(image.length !=0){
+                send_image = `https://dashboard.cheftarunabirla.com/${image}`;
+        } else {
+            send_image = 'https://dashboard.cheftarunabirla.com/images/all/logo.png';
+        console.log(share_url);
+        }
+        $('#sendingNotification').modal('toggle');
+        $.ajax({
+            url:"/admin/sendNotification",
+            dataType: "jsonp",
+            type:"POST",
+            data:{
+                title:title,
+                description:description.split('\n')[0],
+                share_url:share_url,
+                link:`https://dashboard.cheftarunabirla.com/getUserProductById/${news_id}`,
+                news_id:news_id,
+                type:'news',
+                image:send_image
+            },
+            success: function(data){
+                console.log('done');
+                if(data.message == 'success'){
+                    alert('notification sent');
+                } else {
+                    alert('Some error occured');
+                }
+                $('#sendingNotification').modal('toggle');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+    }
+
 //function search
 function searchUser(value){
     offset = 0;
@@ -211,7 +276,7 @@ function searchUser(value){
         success: function(response){
             if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td> <td>'+ response.data[i].c_name +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].stock == 1 ? '<a style="color:green">In stock</a>' : '<a style="color:red">Out of stock</a>') +'</td> <td> <div class="options"> <a class="edit" onclick="editproducts(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].price+'\',\''+response.data[i].c_name+'\',\''+response.data[i].category_id+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].stock+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteproducts('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td> <td>'+ response.data[i].c_name +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].stock == 1 ? '<a style="color:green">In stock</a>' : '<a style="color:red">Out of stock</a>') +'</td> <td> <div class="options"> <a class="edit" onclick="editproducts(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].price+'\',\''+response.data[i].c_name+'\',\''+response.data[i].category_id+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].stock+'\',\''+response.data[i].related_products_array+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteproducts('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Products present</td></tr>')
@@ -258,8 +323,14 @@ function addProduct(event){
     //   var description = document.getElementById('description').value;
       var description = CKEDITOR.instances['description'].getData();
       var gallery = document.getElementsByClassName("gallery_image_path");
+      var relatedproducts = [];
       var gallery_values = [];
-      console.log(description);
+      for(var option of document.getElementById('relatedproducts').options){
+        if (option.selected) {
+            relatedproducts.push(option.value);    
+        }
+      }
+    //   console.log(relatedproducts);
       if(gallery.length != 0) {
         for(var i =0;i<gallery.length;i++) {
             gallery_values.push(gallery[i].value);
@@ -275,6 +346,7 @@ function addProduct(event){
                     description:description,
                     gallery:gallery_values,
                     discount_price:discount_price,
+                    relatedproducts:relatedproducts.toString(),
                 },
                 success: function(response){
                     alert('Product added successfully');
@@ -299,6 +371,12 @@ function addProduct(event){
     //   var description = document.getElementById('editdescription').value;
       var description = CKEDITOR.instances['editdescription'].getData();
       var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
+      var relatedproducts = [];
+      for(var option of document.getElementById('editrelatedproducts').options){
+        if (option.selected) {
+            relatedproducts.push(option.value);    
+        }
+      }
             $.ajax({
                 url : `/editProduct/${id}`,
                 dataType: "json",
@@ -310,6 +388,7 @@ function addProduct(event){
                     description:description,
                     discount_price:discount_price,
                     stock:stock,
+                    relatedproducts:relatedproducts.toString(),
                 },
                 success: function(response){
                     alert('Product edited successfully');
@@ -637,7 +716,7 @@ function deleteproducts(id) {
         });
   }
 
-  function editproducts(id,name,price,c_name,category,discount_price,stock) {
+  function editproducts(id,name,price,c_name,category,discount_price,stock,relatedProducts) {
     //   console.log(cat_options);
     //   console.log(cat_values);
       var select = document.getElementById("editcategory");
@@ -673,6 +752,15 @@ function deleteproducts(id) {
       document.getElementById('editprice').value = price;
       document.getElementById('editdiscount_price').value = discount_price;
       CKEDITOR.instances['editdescription'].setData(document.getElementById('ckeditorvalue' + id).value);
+      var selected_array = relatedProducts.split(',');
+      for(var option of document.getElementsByClassName('editrelatedproducts')[0].options){
+        option.selected = '';
+      }
+      for(var option of document.getElementsByClassName('editrelatedproducts')[0].options){
+        if(selected_array.includes(option.value)){
+            option.selected = 'selected';
+        }
+      }
       document.getElementsByClassName('edit_form')[0].setAttribute('id',`form_${id}`);
       editproductModal.toggle();
   }
@@ -688,9 +776,10 @@ function deleteproducts(id) {
             dataType: "json",
             type: "GET",
             success: function(response){
+                // console.log(response);
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td> <td>'+ response.data[i].c_name +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].stock == 1 ? '<a style="color:green">In stock</a>' : '<a style="color:red">Out of stock</a>') +'</td> <td> <div class="options"> <a class="edit" onclick="editproducts(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].price+'\',\''+response.data[i].c_name+'\',\''+response.data[i].category_id+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].stock+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteproducts('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td> <td>'+ response.data[i].c_name +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].stock == 1 ? '<a style="color:green">In stock</a>' : '<a style="color:red">Out of stock</a>') +'</td> <td> <div class="options"> <a class="edit" onclick="editproducts(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].price+'\',\''+response.data[i].c_name+'\',\''+response.data[i].category_id+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].stock+'\',\''+response.data[i].related_products_array+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteproducts('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Products present</td></tr>')
