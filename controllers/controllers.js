@@ -796,7 +796,7 @@ module.exports = {
         });
     },
     getCourseImages: (req,res) => {
-        getcourseimages(req.params.id,(err,results) => {
+        getcourseimages(req.params,(err,results) => {
             if(err) {
                 console.log(err);
                 res.json({message:'Database connection error !!'});

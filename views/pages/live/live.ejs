@@ -2,6 +2,39 @@
 
 <div class="container-fluid user_data" onscroll="getMore()">
     <br>
+    <div class="modal fade" id="givesubscription" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Give Subscription</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="giveSubscriptionToUsers(event)" class="course_video" id="course_video_form_" method="post">
+                        <div class="form-group">
+                            <select class="form-control" id="category" style="margin-bottom: 10px;" onchange="getCoursesByCategory()"  name="category" aria-label="Images Categories" required>
+                              <option value="">Select course category</option>
+                              <option value="online">Online</option>
+                              <option value="offline">Offline</option>
+                              <option value="free">Free</option>
+                              <option value="live">Live</option>
+                              <option value="Budget Friendly">Budget Friendly</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control" id="linked_item" style="margin-bottom: 10px;" name="linked_item" aria-label="Images Categories" required>
+                              <option value="no_linked_item">Select Item</option>
+                            </select>
+                        </div>
+                        <input type="hidden" name="" id="giveSubscriptionLiveId" value="">
+                        <div class="button">
+                            <button type="submit" id="course_video_button" class="btn btn-primary" style="width: 100%;margin-top: 20px;">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="allvideos" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
             <div class="modal-content">
@@ -50,7 +83,7 @@
                                     <input type="text" id="title" name="title" class="form-control" placeholder="Enter live title"  style="margin-bottom: 10px;" required>
                                 </div>
                                 <div class="form-group">
-                                    <input type="url" id="url" name="url" class="form-control" placeholder="Enter Link Video URL" style="margin-bottom: 10px;">
+                                    <input type="text" id="url" name="url" class="form-control" placeholder="Enter Link Video URL" style="margin-bottom: 10px;">
                                 </div>
                                 <div class="form-group">
                                     <label for="">Date</label>
@@ -100,7 +133,7 @@
                                     <input type="text" id="edittitle" name="edittitle" class="form-control" placeholder="Enter Book Name"  style="margin-bottom: 10px;" required>
                                 </div>
                                 <div class="form-group">
-                                    <input type="url" id="editurl" name="editurl" class="form-control" placeholder="Enter Link Video URL" style="margin-bottom: 10px;">
+                                    <input type="text" id="editurl" name="editurl" class="form-control" placeholder="Enter Link Video URL" style="margin-bottom: 10px;">
                                 </div>
                                 <div class="form-group">
                                     <label for="">Date</label>
@@ -170,6 +203,7 @@
 
     var editCourseModal = new bootstrap.Modal(document.getElementById('editCourse'));
     var allVideosModal = new bootstrap.Modal(document.getElementById('allvideos'));
+    var givesubscriptionModal = new bootstrap.Modal(document.getElementById('givesubscription'));
     var offset = 0;
 
     $(function(){
@@ -186,6 +220,78 @@
             });
         }
     });
+
+    function getCoursesByCategory() {
+        var value = document.getElementById("category").value;
+            var select = document.getElementById("linked_item");
+            var length = select.options.length;
+            for (var i = length-1; i >= 0; i--) {
+                select.options[i] = null;
+            }   
+        if(value.length != 0){
+            $.ajax({
+            url : `/getCategoryCourse/${value}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+              // console.log(response);
+                if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    var option = document.createElement("option");
+                            option.text = response.data[i].title;
+                            option.value = response.data[i].id;
+                            select.add(option);
+                  }
+                } else {
+                    var option = document.createElement("option");
+                        option.text = "No Courses present";
+                        option.value= "";
+                        select.add(option);
+                }
+                  document.getElementById('tableLoader').style.display = 'none';
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+        } else {
+            var option = document.createElement("option");
+            option.text = "Select Item";
+            option.value= "";
+            select.add(option);  
+        }
+    }
+
+    function giveSubscriptionToUsers(event) {
+        $(parent.document).find('#image_loader').css('display','flex');
+        event.preventDefault();
+        var course_id = document.getElementById("linked_item").value;
+        var live_id = document.getElementById("giveSubscriptionLiveId").value;
+        if(value.length != 0){
+            // alert(value + ' ' + live_id);
+            $.ajax({
+                url : '/addLiveToSubscription',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    course_id:course_id,
+                    live_id:live_id,
+                },
+                success: function(response){
+                    alert('Subscription updates successfully');
+                    $(parent.document).find('#image_loader').css('display','none');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        } else {
+            alert('No courses present in the selected category');
+        }
+    }
 
     function getUsers() {
         var select = document.getElementById("users");
@@ -562,6 +668,41 @@ function deleteEditCurrentGalleryImage(id,path) {
         // allVideosModal.toggle();
     }
 
+    function giveSubscription(live_id,course_id,days) {
+        // document.getElementById('giveSubscriptionLiveId').value = id;
+        // document.getElementById("category").value = "";
+        //     var select = document.getElementById("linked_item");
+        //     var length = select.options.length;
+        //     for (var i = length-1; i >= 0; i--) {
+        //         select.options[i] = null;
+        //     }   
+        // var option = document.createElement("option");
+        //     option.text = "Select Item";
+        //     option.value= "";
+        //     select.add(option);  
+        // givesubscriptionModal.toggle();
+        $(parent.document).find('#image_loader').css('display','flex');
+        $.ajax({
+                url : '/addLiveToSubscription',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    course_id:course_id,
+                    live_id:live_id,
+                    days:days
+                },
+                success: function(response){
+                    alert('Subscription updates successfully');
+                    $(parent.document).find('#image_loader').css('display','none');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+    }
+
   function getLive(offset) {
     $.ajax({
             url : `/getLive/${offset}`,
@@ -570,7 +711,7 @@ function deleteEditCurrentGalleryImage(id,path) {
             success: function(response){
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td><a href="'+ (response.data[i].url != null ? response.data[i].url : "#" ) +'" target="_blank">URL</a></td><td>'+ Date(response.data[i].created_at).slice(0,16) +'</td><td>'+ Date(response.data[i].live_date).slice(0,16) +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td><img src="'+ response.data[i].image_path +'" alt="no_image"></td> <td> <div class="options"> <a class="edit" onclick="editLiveClassValues(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].url+'\',\''+response.data[i].live_date+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].image_path+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteLiveClass('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="liveClassUser('+response.data[i].id+')" class="profile">View Users</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td><a href="'+ (response.data[i].url != null ? response.data[i].url : "#" ) +'" target="_blank">URL</a></td><td>'+ Date(response.data[i].created_at).slice(0,16) +'</td><td>'+ Date(response.data[i].live_date).slice(0,16) +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td><img src="'+ response.data[i].image_path +'" alt="no_image"></td> <td> <div class="options"> <a class="edit" onclick="editLiveClassValues(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].url+'\',\''+response.data[i].live_date+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].image_path+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteLiveClass('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="liveClassUser('+response.data[i].id+')" class="profile">View Users</a>'+ (response.data[i].course_id != null ? '<a onclick="giveSubscription(\''+response.data[i].id+'\',\''+response.data[i].course_id+'\',\''+response.data[i].days+'\')" class="profile">Give Subscription</a>' : '') +'</div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Courses present</td></tr>')

@@ -3,9 +3,9 @@ const pool = require('../database/connection');
 module.exports = {
     getlive : (data,callback) => {
         if(data.offset){ 
-            var query = "SELECT * FROM `live` WHERE `status` = 1 ORDER BY `created_at` DESC LIMIT 20 OFFSET "+ data.offset +"";
+            var query = "SELECT * ,(SELECT `id` FROM `courses` WHERE `courses`.`live_id` = `live`.`id`) AS course_id,(SELECT `days` FROM `courses` WHERE `courses`.`live_id` = `live`.`id`) AS days FROM `live` WHERE `status` = 1 ORDER BY `created_at` DESC LIMIT 20 OFFSET "+ data.offset +"";
         } else {
-            var query = "SELECT * FROM `live` WHERE `status` = 1 ORDER BY `created_at` DESC";
+            var query = "SELECT * ,(SELECT `id` FROM `courses` WHERE `courses`.`live_id` = `live`.`id`) AS course_id,(SELECT `days` FROM `courses` WHERE `courses`.`live_id` = `live`.`id`) AS days FROM `live` WHERE `status` = 1 ORDER BY `created_at` DESC";
         }
         pool.query(query,function(err,results,fields){
             if(err) {
@@ -60,7 +60,7 @@ module.exports = {
         });
     },
     editliveclass : (data,callback) => {
-        const query  = "UPDATE `live` SET `title` = '"+ data.title +"',`live_date` = '"+ data.live_date +"',`price` = '"+ data.price +"',`discount_price` = '"+ data.discount_price +"',`description` = '"+ data.description +"',`promo_video` = '"+ data.promo_video +"' WHERE `id` = '"+ data.id +"'";
+        const query  = "UPDATE `live` SET `title` = '"+ data.title +"',`url` = '"+ data.url +"',`live_date` = '"+ data.live_date +"',`price` = '"+ data.price +"',`discount_price` = '"+ data.discount_price +"',`description` = '"+ data.description +"',`promo_video` = '"+ data.promo_video +"' WHERE `id` = '"+ data.id +"'";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);

@@ -44,7 +44,7 @@ router.post('/app_data',(req,res) => {
     const user = "SELECT * FROM `users` WHERE `device_id` = '"+ req.body.token +"'";
     const product_categories = "SELECT * FROM `product_categories` WHERE `status` = 1";
     const social_links = "SELECT * FROM `social_links` WHERE `status` = 1";
-    const course_categories = "SELECT * FROM `course_categories` WHERE `status` = 1";
+    const course_categories = "SELECT * FROM `course_categories` WHERE `status` = 1 ORDER BY `order` ASC";
     const check_user = "SELECT * FROM `admin` LIMIT 1 OFFSET 0";
     const impBooks = "SELECT c.*, (SELECT `path` FROM `images` WHERE `images`.`book_id` = c.`id` LIMIT 1 OFFSET 0) AS image_path FROM `books` c WHERE `status` = 1 AND `imp` = 1 LIMIT 2 OFFSET 0";
     const slider = "SELECT * FROM `slider` WHERE `status` = 1 AND `show_category` = 'all' ORDER BY `date` DESC";

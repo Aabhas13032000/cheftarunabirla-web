@@ -59,10 +59,10 @@
     </div>
     <!-- Modal -->
     <div class="modal fade" id="addBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Add Courses</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Add Course</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -78,6 +78,8 @@
                                       <option value="online">Online</option>
                                       <option value="offline">Offline</option>
                                       <option value="free">Free</option>
+                                      <option value="live">Live</option>
+                                      <option value="Budget Friendly">Budget Friendly</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -91,6 +93,18 @@
                                 </div>
                                 <div class="form-group">
                                     <input type="number" id="days" name="days" class="form-control" placeholder="Enter Subscription Days" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="includes_live" style="margin-bottom: 10px;" name="category" aria-label="Images Categories">
+                                        <option value="0">No live</option>
+                                      <% live.forEach(element => { %>
+                                        <% if(element.course_id != null){ %>
+                                            <option value="<%= element.id %>" disabled><%= element.title %></option>
+                                        <% } else { %>
+                                            <option value="<%= element.id %>"><%= element.title %></option>
+                                        <% } %>  
+                                      <% }); %> 
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
@@ -120,10 +134,10 @@
         </div>
     </div>
     <div class="modal fade" id="editCourse" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Edit Book</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Edit Course</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -139,6 +153,8 @@
                                       <option value="online">Online</option>
                                       <option value="offline">Offline</option>
                                       <option value="free">Free</option>
+                                      <option value="live">Live</option>
+                                      <option value="Budget Friendly">Budget Friendly</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -152,6 +168,19 @@
                                 </div>
                                 <div class="form-group">
                                     <input type="number" id="editdays" name="editdays" class="form-control" placeholder="Enter Subscription Days" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Select Live class</label>
+                                    <select class="form-control" id="editincludes_live" style="margin-bottom: 10px;" name="category" aria-label="Images Categories">
+                                      <option value="0">No live</option>
+                                      <% live.forEach(element => { %>
+                                        <% if(element.course_id != null){ %>
+                                            <option value="<%= element.id %>" disabled><%= element.title %></option>
+                                        <% } else { %>
+                                            <option value="<%= element.id %>"><%= element.title %></option>
+                                        <% } %>  
+                                      <% }); %> 
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <textarea class="form-control" id="editdescription" name="editdescription" rows="3" placeholder="Enter description here.." style="margin-bottom: 10px;" required></textarea>
@@ -257,7 +286,7 @@ function searchUser(value){
         success: function(response){
             if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\',\''+response.data[i].live_id+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Courses present</td></tr>')
@@ -384,6 +413,7 @@ function searchUser(value){
       var price = document.getElementById('price').value;
       var days = document.getElementById('days').value;
       var discount_price = document.getElementById('discount_price').value;
+      var live_id = document.getElementById('includes_live').value;
       var description = CKEDITOR.instances['description'].getData();
       var gallery = document.getElementsByClassName("gallery_image_path");
       var pdf_path = document.getElementsByClassName("pdf_path");
@@ -410,6 +440,7 @@ function searchUser(value){
                     pdf:pdf,
                     days:days,
                     discount_price:discount_price,
+                    live_id:live_id
                 },
                 success: function(response){
                     alert('Course added successfully');
@@ -433,6 +464,7 @@ function searchUser(value){
       var discount_price = document.getElementById('editdiscount_price').value;
       var description = CKEDITOR.instances['editdescription'].getData();
       var promo_video = document.getElementById('editpromo_video').value;
+      var live_id = document.getElementById('editincludes_live').value;
       var id = document.getElementsByClassName('edit_form')[0].getAttribute('id').split('_')[1];
             $.ajax({
                 url : `/editCourse/${id}`,
@@ -446,6 +478,7 @@ function searchUser(value){
                     description:description,
                     days:days,
                     discount_price:discount_price,
+                    live_id:live_id
                 },
                 success: function(response){
                     alert('Course edited successfully');
@@ -755,7 +788,7 @@ function searchUser(value){
         });
   }
 
-  function editCourse(id,title,price,category,days,discount_price,promo_video) {
+  function editCourse(id,title,price,category,days,discount_price,promo_video,live_id) {
       getImages(id,'edit');
       getPdf(id,'edit');
       document.getElementById('editpreview').innerHTML = '';
@@ -767,6 +800,7 @@ function searchUser(value){
       document.getElementById('editdiscount_price').value = discount_price;
       document.getElementById('editpromo_video').value = promo_video;
       document.getElementById('editdays').value = days;
+      document.getElementById('editincludes_live').value = live_id;
       CKEDITOR.instances['editdescription'].setData(document.getElementById('ckeditorvalue' + id).value);
       document.getElementsByClassName('edit_form')[0].setAttribute('id',`form_${id}`);
       editCourseModal.toggle();
@@ -877,7 +911,7 @@ function editCourseVideo(id) {
             success: function(response){
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\',\''+response.data[i].live_id+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Courses present</td></tr>')

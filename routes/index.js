@@ -354,7 +354,17 @@ router.get('/relatedProducts/:array', function(req, res, next) {
 
 /* GET Courses page. */
 router.get('/courses', function(req, res, next) {
-  res.render('pages/courses/courses');
+  const live = "SELECT * ,(SELECT `id` FROM `courses` WHERE `courses`.`live_id` = `live`.`id`) AS course_id FROM `live` WHERE `status` = 1";
+  pool.query(live,function(err,live,fields){
+    if(err) {
+        console.log(err);
+        res.send('Database error');
+    } else {
+        res.render('pages/courses/courses',{
+          live:live
+        });
+    }
+  });
 });
 
 /* GET Coupons page. */
@@ -557,6 +567,7 @@ router.get('/getCourseImages/:id/:offset',controllers.getCourseImages);
 router.get('/getSearchedCourse/:name/:user_id',controllers.getSearchedCourse);
 router.get('/getSearchedCourse/:name',controllers.getSearchedCourse);
 router.get('/getCategoryCourse/:category/:user_id',controllers.getCategoryCourse);
+router.get('/getCategoryCourse/:category/',controllers.getCategoryCourse);
 router.get('/getCategoryCourse/:category/:user_id/:offset',controllers.getCategoryCourse);
 router.get('/getCourseVideos/:id',controllers.getCourseVideos);
 router.post('/addCourseVideos',controllers.addCourseVideos);
@@ -1099,6 +1110,39 @@ router.post('/signupascustomer',function(req,res,next){
   res.json({message:'hello'});
 });
 
+router.post('/addLiveToSubscription',function(req,res,next){
+  var query  = "SELECT * , (SELECT COUNT(*) FROM `subscription` s WHERE s.course_id = '"+ req.body.course_id +"' AND s.user_id = l.user_id AND s.status = 1 ) AS subscribed FROM `live_subscription` l WHERE live_id = '"+ req.body.live_id +"'";
+  var end_date = new Date(new Date().getTime() + parseInt(req.body.days) * 24 * 60 * 60 * 1000);
+  var counter = 1;
+  pool.query(query,function(err,live_users,fields){
+    live_users.forEach((user) => {
+      if(user.subscribed == 0) {
+        var query2 = "INSERT INTO `subscription` (`category`,`user_id`,`course_id`,`end_date`) VALUES ('course','"+ user.user_id +"','"+ req.body.course_id +"','"+ end_date.toISOString().slice(0, 19).replace('T', ' ') +"')";
+        pool.query(query2,function(err,query2,fields){
+          if(err) {
+            console.log(err);
+          } else {
+            check_counter(counter,live_users.length);
+            counter++;
+          }
+        });
+      } else {
+        check_counter(counter,live_users.length);
+        counter++;
+      }
+    });
+  }); 
+  function check_counter(counter1,length_of_table){
+    // console.log(counter1);
+    // console.log(length_of_table);
+    if(counter1 == length_of_table){
+      res.json({
+        message :'success'
+      })
+    }
+  }
+});
+
 //Subscription
 var instance = new Razorpay({
   key_id: 'rzp_test_66bBsmPqVcCA29',
@@ -1152,17 +1196,28 @@ router.post('/complete_payment_live/:user_id/:live_id',function (req,res,next){
   instance.payments.fetch(req.body.razorpay_payment_id).then((paymentDocument) => {
     // console.log(paymentDocument);
     if (paymentDocument.status == "captured") {
+      var query1 = "SELECT * FROM `courses` WHERE `live_id` = '"+ req.params.live_id +"' AND `status` = 1";
       var query = "INSERT INTO `live_subscription` (`user_id`,`live_id`) VALUES ('"+ req.params.user_id +"','"+ req.params.live_id +"')";
-      pool.query(query,function(err,results,fields){
-        if(err) {
-          console.log(err);
-        } else {
-          res.render('subscription/live_payment_status',{
-            message:'success',
-            messageClass:'alert-success'
-          });
-        }
-      }); 
+      pool.query(query1,function(err,results1,fields){
+        var end_date = new Date(new Date().getTime() + parseInt(results1[0].days) * 24 * 60 * 60 * 1000);
+            var query2 = "INSERT INTO `subscription` (`category`,`user_id`,`course_id`,`end_date`) VALUES ('course','"+ req.params.user_id +"','"+ results1[0].id +"','"+ end_date.toISOString().slice(0, 19).replace('T', ' ') +"')";
+            pool.query(query2,function(err,query2,fields){
+              if(err) {
+                console.log(err);
+              } else {
+                pool.query(query,function(err,results,fields){
+                  if(err) {
+                    console.log(err);
+                  } else {
+                    res.render('subscription/live_payment_status',{
+                      message:'success',
+                      messageClass:'alert-success'
+                    });
+                  }
+                }); 
+              }
+            });
+      });
     } else {
       res.render('subscription/live_payment_status',{
         message:'failed',
@@ -1191,7 +1246,7 @@ router.get('/complete_apple_payment_live/:user_id/:live_id/:actual_total_price',
 });
 
 router.get('/applePayment/:user_id/:total_price/:actual_total_price/:address/:pincode/:number_of_courses',function (req,res,next){
-    var query = "SELECT c.*,c.image_path AS order_image,CASE WHEN `category` = 'course' THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `name` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `title` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS name,CASE WHEN `category` = 'course' THEN (SELECT `category` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `category_id` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `category` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS item_category,CASE WHEN `category` = 'course' THEN (SELECT `discount_price` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `discount_price` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `only_video_discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS price,CASE WHEN `category` = 'course' THEN (SELECT `days` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN 0 WHEN `category` = 'book' THEN (SELECT `days` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `video_days` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS days,CASE WHEN `category` = 'course' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`product_id` = `products`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` WHERE `books`.`id` = c.`book_id`) END AS image_path FROM `cart` c WHERE `user_id` = '"+ req.params.user_id +"' AND `cart_category` IS NULL";
+    var query = "SELECT c.*,c.image_path AS order_image,CASE WHEN `category` = 'course' THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `name` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `title` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS name,CASE WHEN `category` = 'course' THEN (SELECT `category` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `category_id` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `category` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS item_category,CASE WHEN `category` = 'course' THEN (SELECT `discount_price` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `discount_price` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `only_video_discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS price,CASE WHEN `category` = 'course' THEN (SELECT `days` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN 0 WHEN `category` = 'book' THEN (SELECT `days` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `video_days` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS days,CASE WHEN `category` = 'course' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`product_id` = `products`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` WHERE `books`.`id` = c.`book_id`) END AS image_path,CASE WHEN `category` = 'course' THEN (SELECT `live_id` FROM `courses` WHERE `courses`.`id` = c.`course_id`) ELSE 0 END AS live_id FROM `cart` c WHERE `user_id` = '"+ req.params.user_id +"' AND `cart_category` IS NULL";
       pool.query(query,function(err,results,fields){
         if(err) {
           console.log(err);
@@ -1221,6 +1276,16 @@ router.get('/applePayment/:user_id/:total_price/:actual_total_price/:address/:pi
                       console.log(results2);
                     }
                   });
+                  if(result.live_id !=0){
+                    var query10 = "INSERT INTO `live_subscription` (`user_id`,`live_id`) VALUES ('"+ req.params.user_id +"','"+ result.live_id +"')";
+                    pool.query(query10,function(err,results10,fields){
+                      if(err) {
+                        console.log(err);
+                      } else {
+                        console.log(results10);
+                      }
+                    });
+                  }
                 }
                 if(result.category == 'course'){
                   var query4 = "INSERT INTO `orders` (`order_id`,`payment_status`,`payment_method`,`price`,`paid_price`,`address`,`approved`,`description`,`quantity`,`category`,`course_id`,`user_id`,`coupon_id`,`image_path`,`pincode`) VALUES ('"+ req.body.razorpay_payment_id +"','done','online','"+ result.price +"','"+ req.params.actual_total_price +"','"+ req.params.address +"',1,'"+ result.description +"','"+ result.quantity +"','"+ result.category +"','"+ result.course_id +"','"+ req.params.user_id +"','0','"+ result.order_image +"','"+ req.params.pincode +"')";
@@ -1268,7 +1333,7 @@ router.post('/complete_payment/:user_id/:total_price/:actual_total_price/:addres
   instance.payments.fetch(req.body.razorpay_payment_id).then((paymentDocument) => {
     // console.log(paymentDocument);
     if (paymentDocument.status == "captured") {
-      var query = "SELECT c.*,c.image_path AS order_image,CASE WHEN `category` = 'course' THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `name` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `title` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS name,CASE WHEN `category` = 'course' THEN (SELECT `category` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `category_id` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `category` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS item_category,CASE WHEN `category` = 'course' THEN (SELECT `discount_price` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `discount_price` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `only_video_discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS price,CASE WHEN `category` = 'course' THEN (SELECT `days` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN 0 WHEN `category` = 'book' THEN (SELECT `days` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `video_days` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS days,CASE WHEN `category` = 'course' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`product_id` = `products`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` WHERE `books`.`id` = c.`book_id`) END AS image_path FROM `cart` c WHERE `user_id` = '"+ req.params.user_id +"' AND `cart_category` IS NULL";
+      var query = "SELECT c.*,c.image_path AS order_image,CASE WHEN `category` = 'course' THEN (SELECT `title` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `name` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `title` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS name,CASE WHEN `category` = 'course' THEN (SELECT `category` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `category_id` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' OR `category` = 'book-videos' THEN (SELECT `category` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS item_category,CASE WHEN `category` = 'course' THEN (SELECT `discount_price` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT `discount_price` FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT `discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `only_video_discount_price` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS price,CASE WHEN `category` = 'course' THEN (SELECT `days` FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN 0 WHEN `category` = 'book' THEN (SELECT `days` FROM `books` WHERE `books`.`id` = c.`book_id`) WHEN `category` = 'book-videos' THEN (SELECT `video_days` FROM `books` WHERE `books`.`id` = c.`book_id`) END AS days,CASE WHEN `category` = 'course' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` WHERE `courses`.`id` = c.`course_id`) WHEN `category` = 'product' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`product_id` = `products`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `products` WHERE `products`.`id` = c.`product_id`) WHEN `category` = 'book' THEN (SELECT (SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` WHERE `books`.`id` = c.`book_id`) END AS image_path,CASE WHEN `category` = 'course' THEN (SELECT `live_id` FROM `courses` WHERE `courses`.`id` = c.`course_id`) ELSE 0 END AS live_id FROM `cart` c WHERE `user_id` = '"+ req.params.user_id +"' AND `cart_category` IS NULL";
       pool.query(query,function(err,results,fields){
         if(err) {
           console.log(err);
@@ -1298,6 +1363,16 @@ router.post('/complete_payment/:user_id/:total_price/:actual_total_price/:addres
                       console.log(results2);
                     }
                   });
+                  if(result.live_id !=0){
+                    var query10 = "INSERT INTO `live_subscription` (`user_id`,`live_id`) VALUES ('"+ req.params.user_id +"','"+ result.live_id +"')";
+                    pool.query(query10,function(err,results10,fields){
+                      if(err) {
+                        console.log(err);
+                      } else {
+                        console.log(results10);
+                      }
+                    });
+                  }
                 }
                 if(result.category == 'course'){
                   var query4 = "INSERT INTO `orders` (`order_id`,`payment_status`,`payment_method`,`price`,`paid_price`,`address`,`approved`,`description`,`quantity`,`category`,`course_id`,`user_id`,`coupon_id`,`image_path`,`pincode`) VALUES ('"+ req.body.razorpay_payment_id +"','done','online','"+ result.price +"','"+ req.params.actual_total_price +"','"+ req.params.address +"',1,'"+ result.description +"','"+ result.quantity +"','"+ result.category +"','"+ result.course_id +"','"+ req.params.user_id +"','0','"+ result.order_image +"','"+ req.params.pincode +"')";

@@ -164,7 +164,7 @@ router.post('/save_user_mobile', function(req, res, next) {
                                                 console.log(err);
                                                 res.json({message:'Some error occured'});
                                             } else {
-                                                // console.log(results5);
+                                                console.log(results5);
                                                 const query1 = "UPDATE `cart` SET `user_id` = '"+ results5[0].id +"' WHERE `user_id` = '"+ results2[0].id +"'"
                                                 pool.query(query1,function(err,results6,fields){
                                                     if(err) {
@@ -288,7 +288,12 @@ router.post('/removefromcart',function(req,res,next){
 
 router.post('/applepaymentsucessfull',function(req,res,next){
     // console.log(req.body);
-    var query  = "UPDATE `users` SET `wallet` = `wallet` + '"+ req.body.payment +"' WHERE `id` = '"+ req.body.id +"'";
+    if(parseInt(req.body.payment) < 200){
+        var wallet = parseInt(req.body.payment) * 76.32;
+    } else {
+        var wallet = req.body.payment;
+    }
+    var query  = "UPDATE `users` SET `wallet` = `wallet` + '"+ wallet +"' WHERE `id` = '"+ req.body.id +"'";
     // console.log(query);
     pool.query(query,function(err,results,fields){
         if(err) {
@@ -513,14 +518,31 @@ router.get('/updateBookVideosSubscription/:book_id/:user_id', function(req, res,
 });
 
 router.get('/updateCourseSubscription/:course_id/:user_id', function(req, res, next) {
-    var query = "UPDATE `subscription` SET `status` = 0 WHERE `user_id` = '"+ req.params.user_id +"' AND `course_id` = '"+ req.params.course_id +"'";
-    pool.query(query,function(err,results,fields){
+    var query2 = "SELECT DATEDIFF(end_date, CURRENT_TIMESTAMP()) AS days FROM `subscription` WHERE `user_id` = '"+ req.params.user_id +"' AND `course_id` = '"+ req.params.course_id +"' AND `status` = 1";
+    pool.query(query2,function(err,query2,fields){
         if(err) {
             console.log(err);
             res.json({message:'Some error occured'});
         } else {
-            // console.log(results);
-            res.json({message:'success'});
+            if(query2.length != 0){
+                if(query2[0].days == 0){
+                    var query = "UPDATE `subscription` SET `status` = 0 WHERE `user_id` = '"+ req.params.user_id +"' AND `course_id` = '"+ req.params.course_id +"'";
+                    pool.query(query,function(err,results,fields){
+                        if(err) {
+                            console.log(err);
+                            res.json({message:'Some error occured'});
+                        } else {
+                            // console.log(results);
+                            res.json({message:'success'});
+                        }
+                    });
+                } else {
+                    res.json({message:'success'});
+                }
+            } else {
+                // console.log(results);
+                res.json({message:'success'});
+            }
         }
     });
 });
