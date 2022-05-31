@@ -71,7 +71,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="">People will also like to buy</label>
-                                    <select class="form-control" id="relatedproducts" style="margin-bottom: 10px;" name="relatedproducts" aria-label="Images Categories" multiple required>
+                                    <select class="form-control" id="relatedproducts" style="margin-bottom: 10px;" name="relatedproducts" aria-label="Images Categories" multiple>
                                       <% for(var i=0;i<products.length;i++) { %>
                                         <option value="<%= products[i].id %>"><%= products[i].name %></option>
                                       <% } %>
@@ -131,7 +131,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="">People will also like to buy</label>
-                                    <select class="form-control editrelatedproducts" id="editrelatedproducts" style="margin-bottom: 10px;" name="editrelatedproducts" aria-label="Images Categories" multiple required>
+                                    <select class="form-control editrelatedproducts" id="editrelatedproducts" style="margin-bottom: 10px;" name="editrelatedproducts" aria-label="Images Categories" multiple>
                                       <% for(var i=0;i<products.length;i++) { %>
                                         <option value="<%= products[i].id %>"><%= products[i].name %></option>
                                       <% } %>

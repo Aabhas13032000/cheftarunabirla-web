@@ -61,7 +61,103 @@
             </div>
             <br><br>
         </form>
-        <h5>Social Links</h5>
+        <!-- Modal -->
+    <div class="modal fade" id="addBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add social link</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="addSlider(event)" id="form" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <label for="">Image</label>
+                                    <input class="form-control" onchange="uploadImages()" style="margin-bottom: 10px;" type="file" id="slider_images" name="images" accept="image/*">
+                                </div>
+                                <div id="preview" class="row preview_images">
+                                    
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" id="name" name="name" class="form-control" placeholder="Enter Name"  style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="url" id="link_url" name="link_url" class="form-control" placeholder="Enter link URL" style="margin-bottom: 10px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="show_in" style="margin-bottom: 10px;" name="show_in" aria-label="Show Categories"required>
+                                      <option value="">Select where to show in</option>
+                                      <option value="social_link">Social link</option>
+                                      <option value="our_store">Our store</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="show_category" style="margin-bottom: 10px;" name="show_category" aria-label="Images Categories" onchange="getItems('add')" required>
+                                      <option value="">Select Linked category</option>
+                                      <option value="no">No Category</option>
+                                      <option value="course">Course</option>
+                                      <option value="product">Product</option>
+                                      <option value="book">Book</option>
+                                      <option value="live">Live</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="linked_item" style="margin-bottom: 10px;" name="linked_item" aria-label="Images Categories" required>
+                                      <option value="no_linked_item">Select Linked Item</option>
+                                    </select>
+                                </div>
+                                <div class="button">
+                                    <button type="submit" id="book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="modal fade" id="editSlider" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Linked Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="editSliderSave(event)" class="edit_form" id="form_" method="post" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                                <div class="form-group">
+                                    <select class="form-control" id="editshow_category" style="margin-bottom: 10px;" name="editshow_category" onchange="getItems('edit')" aria-label="Images Categories" required>
+                                      <option value="" id="editshow_category_option">Select Linked category</option>
+                                      <option value="no">No Category</option>
+                                      <option value="course">Course</option>
+                                      <option value="product">Product</option>
+                                      <option value="book">Book</option>
+                                      <option value="live">Live</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="editlinked_array" style="margin-bottom: 10px;" name="editlinked_array" aria-label="Images Categories" required>
+                                      <option value="">Select Linked category First</option>
+                                    </select>
+                                </div>
+                                <div class="button">
+                                    <button type="submit" id="book_verify" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> -->
+        <div class="add_button">
+            <a href="#">Social links</a>
+            <button type="button" data-bs-toggle="modal" data-bs-target="#addBook">Add social link</button>
+          </div>
         <hr>
         <table>
             <thead>
@@ -71,7 +167,7 @@
                 <th>SHOW IN</th>
                 <th>LINKED CATEGORY</th>
                 <th>LINKED ITEM</th>
-                <!-- <th>OPTIONS</th> -->
+                <th>OPTIONS</th>
             </thead>
             <tbody id="data">
                 <% social_links.forEach(element => { %>
@@ -82,16 +178,16 @@
                         <td><%= element.show_category %></td>
                         <td><%= element.linked_category %></td>
                         <td><%= element.linked_array %></td>
-                        <!-- <td>
+                        <td>
                             <div class="options"> 
-                                <a class="edit" onclick="editsociallink()">
+                                <!-- <a class="edit" onclick="editsociallink()">
                                     <span class="iconify" data-icon="akar-icons:edit"></span>
-                                </a> 
+                                </a>  -->
                                 <a class="delete" onclick="deletesociallink('<%= element.id %>')">
                                     <span class="iconify" data-icon="ant-design:delete-outlined"></span>
                                 </a>
                             </div>
-                        </td> -->
+                        </td>
                     </tr>
                 <% }); %> 
             </tbody>
@@ -106,6 +202,7 @@
 <!---->
 
 <script>
+    var editSliderModal = new bootstrap.Modal(document.getElementById('editSlider'));
 
     function deletesociallink(id) {
         if(confirm('Do you want to delete it?') == true){
@@ -126,6 +223,267 @@
                     }
             });
         } 
+    }
+
+
+    function uploadImages() {
+        $(parent.document).find('#image_loader').css('display','flex');
+        var fileForm = new FormData();
+        var image = document.getElementById('slider_images').files[0];
+        if(image != undefined) {
+            fileForm.append('slider_image',image);
+            $.ajax({
+                url : "/uploadSliderImage",
+                type: "POST",
+                cache: false,
+                contentType: false,
+                processData: false,
+                data : fileForm,
+                success: function(response){
+                    var path = response.path.slice(6,response.path.length);
+                    $('#preview').append('<div class="col-6" id="gallery_image_'+ path +'"><div class="card" id="append_image_'+ path +'"><a class="delete_gallery_image" onclick="deleteCurrentGalleryImage(\''+ ( "gallery_image_"+ path )  +'\',\'gallery_image_path_'+ path +'\')"><span class="iconify" data-icon="akar-icons:cross"></span></a><img src="'+ path +'" id="preview_galler_image_'+ path +'" alt=""><input type="hidden" class="gallery_image_path" name="gallery_image_path" id="gallery_image_path_'+ path +'" value="'+ path +'"></div></div>');
+                    document.getElementById('slider_images').value = '';
+                    $(parent.document).find('#image_loader').css('display','none');
+                },
+                error: function(err){
+                    console.log(err.status);
+                    alert('Some error occured !!');
+                    location.reload();
+                }
+            });
+        }
+    }
+
+
+    function addSlider(event){
+      event.preventDefault();
+
+      var image = document.getElementsByClassName('gallery_image_path')[0];
+      var name = document.getElementById('name').value;
+      var url = document.getElementById('link_url').value;
+      var show_category = document.getElementById('show_in').value;
+      var linked_category = document.getElementById('show_category').value;
+      var linked_array = document.getElementById('linked_item').value;
+      if(image == undefined){
+        alert('Add image first!!');
+      }
+      if(image != undefined){
+      $.ajax({
+                url : '/addSocialLink',
+                dataType: "json",
+                type: "POST",
+                data: {
+                    image:image.value,
+                    name:name,
+                    url:url,
+                    show_category:show_category,
+                    linked_category:linked_category,
+                    linked_array:linked_array
+                },
+                success: function(response){
+                    alert('Link added successfully');
+                    location.reload();
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        }
+    }
+
+
+    function getItems(form_value) {
+        if(form_value == 'add') {
+            var value = document.getElementById('show_category').value;
+        } else {
+            var value = document.getElementById('editshow_category').value;
+        }
+        var select;
+        console.log(value);
+        if(value == 'course'){
+            $.ajax({
+                url : '/getCourse',
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    if(form_value == 'add') {
+                        select = document.getElementById("linked_item");
+                    } else {
+                        select = document.getElementById("editlinked_array");
+                    }
+                    var length = select.options.length;
+                    for (var i = length-1; i >= 0; i--) {
+                        select.options[i] = null;
+                    }
+                    if(response.data.length != 0){
+                        var option2 = document.createElement("option");
+                        option2.text = 'No linking';
+                        option2.value= 'no_linked_item';
+                        select.add(option2);
+                        var option3 = document.createElement("option");
+                        option3.text = 'Multiple';
+                        option3.value= 'multiple';
+                        select.add(option3);
+                        for(var i=0;i<response.data.length;i++){
+                            var option = document.createElement("option");
+                            option.text = response.data[i].title;
+                            option.value= response.data[i].id;
+                            select.add(option);
+                        }
+                    } else {
+                        var option = document.createElement("option");
+                        option.text = "No Courses present";
+                        option.value= 'no_linked_item';
+                        select.add(option);
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        } else if(value == 'product'){
+            $.ajax({
+                url : '/getProducts',
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    if(form_value == 'add') {
+                        select = document.getElementById("linked_item");
+                    } else {
+                        select = document.getElementById("editlinked_array");
+                    }
+                    var length = select.options.length;
+                    for (var i = length-1; i >= 0; i--) {
+                        select.options[i] = null;
+                    }
+                    if(response.data.length != 0){
+                        var option2 = document.createElement("option");
+                        option2.text = 'No linking';
+                        option2.value= 'no_linked_item';
+                        select.add(option2);
+                        var option3 = document.createElement("option");
+                        option3.text = 'Multiple';
+                        option3.value= 'multiple';
+                        select.add(option3);
+                        for(var i=0;i<response.data.length;i++){
+                            var option = document.createElement("option");
+                            option.text = response.data[i].name;
+                            option.value= response.data[i].id;
+                            select.add(option);
+                        }
+                    } else {
+                        var option = document.createElement("option");
+                        option.text = "No Courses present";
+                        option.value= 'no_linked_item';
+                        select.add(option);
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        } else if(value == 'book'){
+            $.ajax({
+                url : '/getBooks',
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    if(form_value == 'add') {
+                        select = document.getElementById("linked_item");
+                    } else {
+                        select = document.getElementById("editlinked_array");
+                    }
+                    var length = select.options.length;
+                    for (var i = length-1; i >= 0; i--) {
+                        select.options[i] = null;
+                    }
+                    if(response.data.length != 0){
+                        var option2 = document.createElement("option");
+                        option2.text = 'No linking';
+                        option2.value= 'no_linked_item';
+                        select.add(option2);
+                        var option3 = document.createElement("option");
+                        option3.text = 'Multiple';
+                        option3.value= 'multiple';
+                        select.add(option3);
+                        for(var i=0;i<response.data.length;i++){
+                            var option = document.createElement("option");
+                            option.text = response.data[i].title;
+                            option.value= response.data[i].id;
+                            select.add(option);
+                        }
+                    } else {
+                        var option = document.createElement("option");
+                        option.text = "No Courses present";
+                        option.value= 'no_linked_item';
+                        select.add(option);
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        } else if(value == 'live'){
+            $.ajax({
+                url : '/getLive',
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    if(form_value == 'add') {
+                        select = document.getElementById("linked_item");
+                    } else {
+                        select = document.getElementById("editlinked_array");
+                    }
+                    var length = select.options.length;
+                    for (var i = length-1; i >= 0; i--) {
+                        select.options[i] = null;
+                    }
+                    if(response.data.length != 0){
+                        var option2 = document.createElement("option");
+                        option2.text = 'No linking';
+                        option2.value= 'no_linked_item';
+                        select.add(option2);
+                        var option3 = document.createElement("option");
+                        option3.text = 'Multiple';
+                        option3.value= 'multiple';
+                        select.add(option3);
+                        for(var i=0;i<response.data.length;i++){
+                            var option = document.createElement("option");
+                            option.text = response.data[i].title;
+                            option.value= response.data[i].id;
+                            select.add(option);
+                        }
+                    } else {
+                        var option = document.createElement("option");
+                        option.text = "No Courses present";
+                        option.value= 'no_linked_item';
+                        select.add(option);
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        } else {
+            if(form_value == 'add') {
+                select = document.getElementById("linked_item");
+            } else {
+                select = document.getElementById("editlinked_array");
+            }
+            var length = select.options.length;
+            for (var i = length-1; i >= 0; i--) {
+                select.options[i] = null;
+            }
+            var option2 = document.createElement("option");
+            option2.text = 'No linking';
+            option2.value= 'no_linked_item';
+            select.add(option2);
+        }
     }
 
     function editsociallink(id) {

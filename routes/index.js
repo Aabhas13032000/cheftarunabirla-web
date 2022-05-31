@@ -73,17 +73,17 @@ router.get('/', function(req, res, next) {
 //Create Dynamic Link
 async function createDynamicLink(linkToCreate) {
   const { shortLink, previewLink } = await firebaseDynamicLinks.createLink({
-      dynamicLinkInfo: {
-        domainUriPrefix: 'https://cheftarunabirla.page.link',
-        link: linkToCreate,
-        androidInfo: {
-          androidPackageName: 'com.cheftarunbirla',
-        },
-        iosInfo: {
-          iosBundleId: 'com.technotwist.tarunaBirla',
-        },
+    dynamicLinkInfo: {
+      domainUriPrefix: 'https://cheftarunabirla.page.link',
+      link: linkToCreate,
+      androidInfo: {
+        androidPackageName: 'com.cheftarunbirla',
       },
-    });
+      iosInfo: {
+        iosBundleId: 'com.technotwist.tarunaBirla',
+      },
+    },
+  });
   return {
       shortLink:shortLink,
       previewLink:previewLink
@@ -93,10 +93,10 @@ async function createDynamicLink(linkToCreate) {
 //send notification
 router.post('/sendNotification', function(req, res, next) {
   var title = req.body.title;
-  var description = req.body.description;
   var url = req.body.share_url;
   var sql = "SELECT * FROM `users` WHERE LENGTH(`device_id`) > 30";
   var registration_ids = [];
+  console.log(url);
   if(url.length == 0){
       createDynamicLink(req.body.link).then((result) => {
           if(req.body.type == 'product'){
@@ -108,12 +108,12 @@ router.post('/sendNotification', function(req, res, next) {
           } else if(req.body.type == 'book'){
             var sql1 = "UPDATE `books` SET `share_url` = '"+ result.shortLink +"' WHERE `id` = '"+ req.body.item_id +"'";
           }
-          mysqlconnection.query(sql1,function(err,data1){
+          pool.query(sql1,function(err,data1){
               if(err) {
                   console.log(err);
                   res.jsonp({message:'failed'});
               } else {
-                  mysqlconnection.query(sql,function(err,data){
+                pool.query(sql,function(err,data){
                       if(data.length !=0) {
                           if(Math.ceil(data.length/500) > 1){
                               var number_of_times = 0;
@@ -136,7 +136,7 @@ router.post('/sendNotification', function(req, res, next) {
                                                   tokens: registration_ids,
                                                   notification: {
                                                       title: title,
-                                                      body: description
+                                                      body: 'Click here to know more about this course'
                                                   },
                                                   android: {
                                                       notification: {
@@ -170,7 +170,7 @@ router.post('/sendNotification', function(req, res, next) {
                                   tokens: registration_ids,
                                   notification: {
                                       title: title,
-                                      body: description
+                                      body: 'Click here to know more about this course'
                                   },
                                   android: {
                                       notification: {
@@ -200,7 +200,7 @@ router.post('/sendNotification', function(req, res, next) {
           console.log(err);
       })
   } else {
-      mysqlconnection.query(sql,function(err,data){
+    pool.query(sql,function(err,data){
           if(data.length !=0) {
               if(Math.ceil(data.length/500) > 1){
                   var number_of_times = 0;
@@ -223,7 +223,7 @@ router.post('/sendNotification', function(req, res, next) {
                                       tokens: registration_ids,
                                       notification: {
                                           title: title,
-                                          body: description
+                                          body: 'Click here to know more about this course'
                                       },
                                       android: {
                                           notification: {
@@ -257,7 +257,7 @@ router.post('/sendNotification', function(req, res, next) {
                       tokens: registration_ids,
                       notification: {
                           title: title,
-                          body: description
+                          body: 'Click here to know more about this course'
                       },
                       android: {
                           notification: {
@@ -417,7 +417,7 @@ router.get('/logout', function(req, res, next) {
 /* GET Profile page. */
 router.get('/profile', function(req, res, next) {
   const query = "SELECT * FROM `admin`";
-  const social_links = "SELECT * FROM `social_links`";
+  const social_links = "SELECT * FROM `social_links` WHERE `status` = 1";
     pool.query(query,function(err,results,fields){
       pool.query(social_links,function(err,social_links,fields){
         if(err) {
@@ -470,7 +470,7 @@ router.post('/updateSocialLinks', function(req, res, next) {
     if(err) {
       console.log()
     }
-    res.redirect('/profile');      
+    res.json({message:'success'});    
   });
 });
 
@@ -481,16 +481,27 @@ router.post('/deleteSocialLink', function(req, res, next) {
     if(err) {
       console.log()
     }
-    res.json({message:'success'});      
+    res.json({message:'success'});    
   });
 });
 
+/* Add Social Links. */
+router.post('/addSocialLink', function(req, res, next) {
+  const query = "INSERT INTO `social_links` (`name`,`url`,`image`,`show_category`,`linked_category`,`linked_array`) VALUES ('"+ req.body.name +"','"+ req.body.url +"','"+ req.body.image +"','"+ req.body.show_category +"','"+ req.body.linked_category +"','"+ req.body.linked_array +"')";
+  pool.query(query,function(err,results,fields){
+    if(err) {
+      console.log()
+    }
+    res.json({message:'success'});    
+  });
+});
 
 // Api's
 router.post('/addGalleryImages',controllers.addGalleryImages);
 
 //Orders
 router.get('/getOrders/:offset',controllers.getOrders);
+router.post('/markedOrderPlaced',controllers.markedOrderPlaced);
 
 //Live
 router.get('/getLive/:offset',controllers.getLive);
@@ -607,6 +618,7 @@ router.get('/getReviewsByItem/:category/:item_id',controllers.getReviewsByItem);
 //Reviews
 router.post('/deleteSubscription',controllers.deleteSubscription);
 router.get('/getSubscription/:category/:offset',controllers.getSubscription);
+router.get('/getSearchSubscription',controllers.getSearchSubscription);
 router.get('/getSearchSubscription/:category/:phone_number',controllers.getSearchSubscription);
 router.post('/addSubscription',controllers.addSubscription);
 router.post('/editSubscription',controllers.editSubscription);
@@ -748,6 +760,7 @@ router.post('/uploadSliderImage/testimonial/:id',upload.single('slider_image'),a
 router.get('/getUsers/:offset',controllers.getUsers);
 router.get('/updateDeviceRequest/:phone_number',controllers.updateDeviceRequest);
 router.get('/getSearchUser/:phone_number',controllers.getSearchUser);
+router.post('/markedUserBlocked',controllers.markedUserBlocked);
 
 //Gallery
 router.get('/getGalleryImages/:offset',controllers.getGalleryImages);

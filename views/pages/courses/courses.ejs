@@ -17,6 +17,13 @@
                         <div class="form-group">
                             <input type="text" id="video_name" name="video_name" class="form-control" placeholder="Enter Video Display Name"  style="margin-bottom: 10px;" required>
                         </div>
+                        <div class="form-group">
+                            <label>Full Screen</label>
+                            <select class="form-control" id="is_full_screen" style="margin-bottom: 10px;" name="is_full_screen" aria-label="Images Categories" required>
+                              <option value="1">Yes</option>
+                              <option value="0">No</option>
+                            </select>
+                        </div>
                         <div class="button">
                             <button type="submit" id="course_video_button" class="btn btn-primary" style="width: 100%;margin-top: 20px;" >Create</button>
                         </div>
@@ -25,6 +32,7 @@
                         <thead>
                             <th>URL</th>
                             <th>NAME</th>
+                            <th>FULL SCREEN</th>
                             <th>OPTIONS</th>
                         </thead>
                         <tbody id="category_data">
@@ -252,11 +260,26 @@
 <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!---->
 
+
+<!-- Modal -->
+<div class="modal fade" id="sendingNotification" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h3>Sending Notification Please Wait!!</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
 <script>
 
     var editCourseModal = new bootstrap.Modal(document.getElementById('editCourse'));
     var allVideosModal = new bootstrap.Modal(document.getElementById('allvideos'));
     var allcategoriesModal = new bootstrap.Modal(document.getElementById('allcategories'));
+    var sendingNotification = new bootstrap.Modal(document.getElementById('sendingNotification'));
     var offset = 0;
 
     $(function(){
@@ -273,6 +296,50 @@
             });
         }
     });
+
+    function sendNotification(title,course_id,share_url,image){
+        sendingNotification.toggle();
+        var send_image;
+        if(image.length !=0){
+            send_image = `https://dashboard.cheftarunabirla.com${image}`;
+        } else {
+            send_image = 'https://dashboard.cheftarunabirla.com/images/all/logo.png';
+        }
+        console.log( typeof share_url);
+        var shareUrl = share_url != 'null' ? share_url : '';
+        console.log(shareUrl);
+        $.ajax({
+            url : '/sendNotification',
+            dataType: "json",
+            type: "POST",
+            data: {
+                title:title,
+                share_url:shareUrl,
+                link:`https://dashboard.cheftarunabirla.com/getUserCourseById/${course_id}?course_id=${course_id}`,
+                item_id:course_id,
+                type:'course',
+                image:send_image
+            },
+            success: function(response){
+                console.log('done');
+                if(response.message == 'success'){
+                    alert('notification sent');
+                } else {
+                    alert('Some error occured');
+                }
+                setTimeout(() => {
+                    sendingNotification.toggle();
+                },1000);
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+                setTimeout(() => {
+                    sendingNotification.toggle();
+                },1000);
+            }
+      });
+    }
 
 //function search
 function searchUser(value){
@@ -811,6 +878,7 @@ function searchUser(value){
 
     var course_video = document.getElementById('course_video').value;
     var video_name = document.getElementById('video_name').value;
+    var is_full_screen = document.getElementById('is_full_screen').value;
     var id = document.getElementsByClassName('course_video')[0].getAttribute('id').split('_')[3];
     $.ajax({
                 url : `/addCourseVideos`,
@@ -819,7 +887,8 @@ function searchUser(value){
                 data: {
                     path:course_video,
                     id:id,
-                    video_name:video_name
+                    video_name:video_name,
+                    is_full_screen:is_full_screen
                 },
                 success: function(response){
                     alert('Video added successfully');
@@ -854,6 +923,7 @@ function deleteCourseVideo(id) {
 function editCourseVideo(id) {
     var path = document.getElementById('edit_course_video_'+id).value;
     var name = document.getElementById('edit_course_name_'+id).value;
+    var is_full_screen = document.getElementById('editis_full_screen_'+id).value;
     if(path.length !=0 && name.length !=0){
     $.ajax({
                 url : `/editCourseVideos`,
@@ -862,7 +932,8 @@ function editCourseVideo(id) {
                 data: {
                     id:id,
                     path:path,
-                    name:name
+                    name:name,
+                    is_full_screen:is_full_screen
                 },
                 success: function(response){
                     // alert('Video edited successfully');
@@ -886,7 +957,7 @@ function editCourseVideo(id) {
                 // console.log(response);
                 for(var i=0;i<response.data.length;i++) {
                         var path = response.data[i].path;
-                        $('#category_data').append('<tr><td><div class="form-group"><input type="url" id="edit_course_video_'+ response.data[i].id +'" name="course_video" class="form-control" placeholder="Enter Course Video URL" style="margin-bottom: 0px;" value="'+ response.data[i].path +'" onchange="editCourseVideo(\''+ response.data[i].id +'\')" required></div></td><td><div class="form-group"><input type="url" id="edit_course_name_'+ response.data[i].id +'" name="course_video" class="form-control" placeholder="Enter Course Video Name" style="margin-bottom: 0px;" onchange="editCourseVideo(\''+ response.data[i].id +'\')" value="'+ response.data[i].name +'" required></div></td><td><a class="delete" onclick="deleteCourseVideo('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></td></tr>');
+                        $('#category_data').append('<tr><td><div class="form-group"><input type="url" id="edit_course_video_'+ response.data[i].id +'" name="course_video" class="form-control" placeholder="Enter Course Video URL" style="margin-bottom: 0px;" value="'+ response.data[i].path +'" onchange="editCourseVideo(\''+ response.data[i].id +'\')" required></div></td><td><div class="form-group"><input type="url" id="edit_course_name_'+ response.data[i].id +'" name="course_video" class="form-control" placeholder="Enter Course Video Name" style="margin-bottom: 0px;" onchange="editCourseVideo(\''+ response.data[i].id +'\')" value="'+ response.data[i].name +'" required></div></td><td> <div class="form-group"><select class="form-control" id="editis_full_screen_'+ response.data[i].id +'" style="margin-bottom: 10px;" name="editis_full_screen_'+ response.data[i].id +'" aria-label="Images Categories" onchange="editCourseVideo(\''+ response.data[i].id +'\')"><option '+ (response.data[i].is_full_screen == '1' ? "selected" : "") +' value="1">Yes</option><option '+ (response.data[i].is_full_screen == '0' ? "selected" : "") +' value="0">No</option></select></div></td><td><a class="delete" onclick="deleteCourseVideo('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></td></tr>');
                     }
             },
             error: function(err){
@@ -909,9 +980,10 @@ function editCourseVideo(id) {
             dataType: "json",
             type: "GET",
             success: function(response){
+                // console.log(response);
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\',\''+response.data[i].live_id+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].promo_video.length !=0 ? '<a href='+ response.data[i].promo_video +' target="_blank">URL</a>' : 'No Promo video') +'</td><td>'+ response.data[i].days +'</td> <td> <div class="options"> <a class="edit" onclick="editCourse(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].promo_video+'\',\''+response.data[i].live_id+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteCourses('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+response.data[i].image_path+'\')" class="profile">Send Notification</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Courses present</td></tr>')

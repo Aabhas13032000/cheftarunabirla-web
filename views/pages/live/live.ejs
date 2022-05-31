@@ -322,6 +322,9 @@
                         option.value= "";
                         select.add(option);
                 }
+                $('#users').selectize({
+                    sortField: 'text'
+                });
                   document.getElementById('tableLoader').style.display = 'none';
             },
             error: function(err){
@@ -639,7 +642,7 @@ function deleteEditCurrentGalleryImage(id,path) {
 
   function getMore() {
         offset = offset+20;
-        getLive(offset);
+        getLive(offset,false);
     }
 
     function getLiveUsers(id) {
@@ -649,7 +652,7 @@ function deleteEditCurrentGalleryImage(id,path) {
                 dataType: "json",
                 type: "GET",
                 success: function(response){
-                    console.log(response);
+                    // console.log(response);
                     for(var i=0;i<response.data.length;i++) {
                         $('#category_data').append('<tr><td>'+ response.data[i].phone_number +'</td><td>'+ response.data[i].name +'</td><td><a class="delete" onclick="deleteLiveClassUser('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></td></tr>');
                     }
@@ -703,7 +706,7 @@ function deleteEditCurrentGalleryImage(id,path) {
             });
     }
 
-  function getLive(offset) {
+  function getLive(offset,callFunction) {
     $.ajax({
             url : `/getLive/${offset}`,
             dataType: "json",
@@ -723,10 +726,12 @@ function deleteEditCurrentGalleryImage(id,path) {
                 alert('Some error occured !!');
             }
         });
+        if(callFunction) {
         getUsers();
+        }
   }
   
-  window.onload = getLive(0);
+  window.onload = getLive(0,true);
 
 </script>
 

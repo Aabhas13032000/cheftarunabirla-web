@@ -10,6 +10,8 @@ var indexRouter = require('./routes/index');
 var userRouter = require('./routes/users');
 var apiRouter = require('./routes/api');
 var chatRouter = require('./routes/chat');
+var coursesRouter = require('./routes/courses');
+var cartRouter = require('./routes/cart');
 
 var app = express();
 app.use(cors());
@@ -37,12 +39,15 @@ app.use('/', session({
   cookie: {
    //  secure: true
   //  maxAge: 10000,
+   maxAge: 24 * 60 * 60 * 1000,
   }
  }), indexRouter);
 
  app.use('/users',userRouter);
  app.use('/api',apiRouter);
  app.use('/chat',chatRouter);
+ app.use('/courses_api',coursesRouter);
+ app.use('/cart_api',cartRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

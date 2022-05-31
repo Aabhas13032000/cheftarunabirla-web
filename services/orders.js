@@ -2,12 +2,33 @@ const pool = require('../database/connection');
 
 module.exports = {
     getorders : (data,callback) => {
-        const query = "SELECT o.* , (SELECT `phone_number` FROM `users` WHERE `users`.`id` = o.`user_id`) AS phoneNumber FROM `orders` o WHERE `status` = 1 ORDER BY `date_purchased` DESC LIMIT 20 OFFSET "+ data.offset +"";
+        const query = "SELECT o.* , (SELECT `phone_number` FROM `users` WHERE `users`.`id` = o.`user_id`) AS phoneNumber ,(SELECT `name` FROM `products` WHERE `products`.`id` = o.`product_id` ) FROM `orders` o WHERE o.`status` = 1 AND o.`category` = 'product' ORDER BY o.`date_purchased` DESC LIMIT 20 OFFSET "+ data.offset +"";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
             } else {
                 callback(null,results);
+            }
+        });
+    },
+    markedorderplaced : (data,callback) => {
+        const query  = "SELECT * FROM `orders` WHERE `id` = '"+ data.id +"'";
+        pool.query(query,function(err,results,fields){
+            if(err) {
+                callback(err);
+            } else {
+                if(results[0].placed == 0){
+                    var query2  = "UPDATE `orders` SET `placed` = 1  WHERE `id` = '"+ data.id +"'";
+                } else {
+                    var query2  = "UPDATE `orders` SET `placed` = 0  WHERE `id` = '"+ data.id +"'";
+                }
+                pool.query(query2,function(err,results,fields){
+                    if(err) {
+                        callback(err);
+                    } else {
+                        callback(null,results);
+                    }
+                });
             }
         });
     },

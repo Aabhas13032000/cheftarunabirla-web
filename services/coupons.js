@@ -32,7 +32,7 @@ module.exports = {
         });            
     },
     addcoupons : (data,callback) => {
-        const query2  = "INSERT INTO `coupon` (`user_id`,`ccode`,`dis`,`linked_category`,`minimum`,`maximum`) VALUES ('all','"+ data.ccode +"','"+ data.dis +"','"+ data.linked_category +"','"+ data.minimum +"','"+ data.maximum +"')";
+        const query2  = "INSERT INTO `coupon` (`user_id`,`ccode`,`dis`,`linked_category`,`linked_array`,`discount_for`,`minimum`,`maximum`) VALUES ('all','"+ data.ccode +"','"+ data.dis +"','"+ data.linked_category +"','"+ data.linked_item +"','"+ data.discount_for +"','"+ data.minimum +"','"+ data.maximum +"')";
         pool.query(query2,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -42,7 +42,7 @@ module.exports = {
         });            
     },
     editcoupons : (data,id,callback) => {
-        const query2  = "UPDATE `coupon` SET `ccode` = '"+ data.ccode +"', `dis` = '"+ data.dis +"',`linked_category` = '"+ data.linked_category +"',`minimum` = '"+ data.minimum +"',`maximum` = '"+ data.maximum +"'  WHERE `id` = '"+ id +"'";
+        const query2  = "UPDATE `coupon` SET `ccode` = '"+ data.ccode +"', `dis` = '"+ data.dis +"',`linked_category` = '"+ data.linked_category +"',`minimum` = '"+ data.minimum +"',`maximum` = '"+ data.maximum +"',`linked_array` = '"+ data.linked_item +"',`discount_for` = '"+ data.discount_for +"'  WHERE `id` = '"+ id +"'";
         pool.query(query2,function(err,results,fields){
             if(err) {
                 callback(err);

@@ -133,59 +133,72 @@ router.post('/save_user_mobile', function(req, res, next) {
                 }
             });
         } else {
-            if(results[0].device_id.length !=0){
-                if(results[0].device_id == req.body.token) {
-                    res.json({message: 'success',user_id:''});
-                } else {
-                    res.json({message: 'deviceNotMatched'});
-                }
+            if(results[0].blocked == 1){
+                res.json({message: 'User_blocked_by_admin'});
             } else {
-                const query4 = "SELECT * FROM `users` WHERE `device_id` = '"+ req.body.token +"'";
-                const query3 = "DELETE FROM `users` WHERE `device_id` = '"+ req.body.token +"' AND `phone_number` IS NULL ";
-                const query2  = "UPDATE `users` SET `device_id` = '"+ req.body.token +"',`logged_in` = 1 WHERE `phone_number` = '"+ req.body.phone_number +"'";
-                const query5 = "SELECT * FROM `users` WHERE `phone_number` = '"+ req.body.phone_number +"'"
-                pool.query(query4,function(err,results2,fields){
-                    if(err) {
-                        console.log(err);
-                        res.json({message:'Some error occured'});
+                console.log(results[0].device_id);
+                console.log(req.body.token);
+                if(results[0].device_id.length !=0){
+                    if(results[0].device_id == req.body.token) {
+                        const query6 = "DELETE FROM `users` WHERE `device_id` = '"+ req.body.token +"' AND `phone_number` IS NULL";
+                        pool.query(query6,function(err,results1,fields){
+                            res.json({message: 'success',user_id:results[0].id});
+                        });
                     } else {
+                        res.json({message: 'deviceNotMatched'});
+                    }
+                } else {
+                    const query4 = "SELECT * FROM `users` WHERE `device_id` = '"+ req.body.token +"'";
+                    const query3 = "DELETE FROM `users` WHERE `device_id` = '"+ req.body.token +"' AND `phone_number` IS NULL";
+                    const query2  = "UPDATE `users` SET `device_id` = '"+ req.body.token +"',`logged_in` = 1 WHERE `phone_number` = '"+ req.body.phone_number +"'";
+                    const query5 = "SELECT * FROM `users` WHERE `phone_number` = '"+ req.body.phone_number +"'"
+                    pool.query(query4,function(err,results2,fields){
                         pool.query(query3,function(err,results1,fields){
-                            if(err) {
-                                console.log(err);
-                                res.json({message:'Some error occured'});
-                            } else {
-                                pool.query(query2,function(err,results,fields){
+                            pool.query(query2,function(err,results,fields){
+                                pool.query(query5,function(err,results5,fields){
                                     if(err) {
                                         console.log(err);
                                         res.json({message:'Some error occured'});
                                     } else {
-                                        pool.query(query5,function(err,results5,fields){
+                                        // console.log(results5);
+                                        const query1 = "UPDATE `cart` SET `user_id` = '"+ results5[0].id +"' WHERE `user_id` = '"+ results2[0].id +"'"
+                                        pool.query(query1,function(err,results6,fields){
                                             if(err) {
                                                 console.log(err);
                                                 res.json({message:'Some error occured'});
                                             } else {
-                                                console.log(results5);
-                                                const query1 = "UPDATE `cart` SET `user_id` = '"+ results5[0].id +"' WHERE `user_id` = '"+ results2[0].id +"'"
-                                                pool.query(query1,function(err,results6,fields){
-                                                    if(err) {
-                                                        console.log(err);
-                                                        res.json({message:'Some error occured'});
-                                                    } else {
-                                                        res.json({message: 'success',user_id:results5[0].id});
-                                                    }
+                                                res.json({
+                                                    message: 'success',
+                                                    user_id:results5[0].id,
                                                 });
                                             }
                                         });
-                                        // res.json({message: 'success'});
                                     }
                                 });
-                            }
+                            });
                         });
-                    }
-                });
+                    });
+                }
             }
         }
     });
+});
+
+router.post('/increaseWarningCount',function(req,res,next){
+    if(req.headers.token) {
+        var query  = "UPDATE `users` SET `warning` = `warning` + 1 WHERE `device_id` = '"+ req.headers.token +"'";
+        // console.log(query);
+        pool.query(query,function(err,results,fields){
+            if(err) {
+                console.log(err);
+                res.json({message:'some_error_occured'});
+            } else {
+                res.json({message: 'success'});
+            }
+        });
+    } else {
+        res.json({message:'some_error_occured'});
+    }
 });
 
 router.post('/addtowhislist',function(req,res,next){
@@ -254,7 +267,7 @@ router.post('/addtocart',function(req,res,next){
 
 router.post('/addproducttocart',function(req,res,next){
     // console.log(req.body);
-    var query  = "INSERT INTO `cart` (`category`,`product_id`,`user_id`,`description`,`address`,`image_path`,`quantity`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"','"+ req.body.description +"','"+ req.body.address +"','"+ req.body.image_path +"','"+ req.body.quantity +"')";
+    var query  = "INSERT INTO `cart` (`category`,`product_id`,`user_id`,`description`,`address`,`image_path`,`quantity`,`pincode`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"','"+ req.body.description +"','"+ req.body.address +"','"+ req.body.image_path +"','"+ req.body.quantity +"','"+ req.body.pincode +"')";
     pool.query(query,function(err,results,fields){
         if(err) {
             console.log(err);
@@ -440,7 +453,7 @@ router.get('/getUserCourses/:user_id', function(req, res, next) {
 });
 
 router.get('/getUserBooks/:user_id', function(req, res, next) {
-    var query = "SELECT c.*,`books`.*,`books`.`category` AS sub_category ,(SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`book_id` = `books`.`id` AND `cart`.`user_id` = '"+ req.params.user_id +"') AS count FROM `subscription` c INNER JOIN `books` ON `books`.`id` = c.`book_id` WHERE c.`user_id` = '"+ req.params.user_id +"' AND c.`status` =  1 AND c.`category` = 'book-videos'";
+    var query = "SELECT c.*,`books`.*,`books`.`category` AS sub_category ,(SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `images`.`iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`book_id` = `books`.`id` AND `cart`.`user_id` = '"+ req.params.user_id +"') AS count FROM `subscription` c INNER JOIN `books` ON `books`.`id` = c.`book_id` WHERE c.`user_id` = '"+ req.params.user_id +"' AND c.`status` =  1";
     pool.query(query,function(err,results,fields){
         if(err) {
             console.log(err);

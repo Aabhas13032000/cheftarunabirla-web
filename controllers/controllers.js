@@ -6,8 +6,8 @@ const { getcourse,addcourse,deletecourse,getcourseimages,getcoursepdf,editcourse
 const { getcoupons,deletecoupons,addcoupons,editcoupons,getcouponsbycategory } = require('../services/coupons');
 const { getslider,addslider,deleteslider,getsliderbycategory,editslider} = require('../services/slider');
 const { addblog, getblogs, editblog, deleteblog,getblogimages,getsearchedblogs} =  require('../services/blogs');
-const { getusers,updatedevicerequest,getsearchuser } = require('../services/user');
-const { getorders } = require('../services/orders')
+const { getusers,updatedevicerequest,getsearchuser,markeduserblocked } = require('../services/user');
+const { getorders,markedorderplaced } = require('../services/orders')
 const { getreviews,addreviews,deletereviews,getreviewsbyitem } = require('../services/reviews');
 const { getsubscription,deletesubscription,editsubscription,getsubscriptionusers,addsubscription,getsearchsubscription } = require('../services/subscription');
 const { getlive,addliveclass,deleteliveclass,editliveclass,getliveusers,deleteliveclassuser,addliveclassuser,getuserlive } = require('../services/live');
@@ -181,6 +181,17 @@ module.exports = {
             }
         });
     },
+    markedOrderPlaced: (req,res) => {
+        markedorderplaced(req.body,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
     getSubscription: (req,res) => {
         getsubscription(req.params,(err,results) => {
             if(err) {
@@ -193,7 +204,7 @@ module.exports = {
         });
     },
     getSearchSubscription: (req,res) => {
-        getsearchsubscription(req.params,(err,results) => {
+        getsearchsubscription(req.params,req.query,(err,results) => {
             if(err) {
                 console.log(err);
                 res.json({message:'Database connection error !!'});
@@ -1149,6 +1160,17 @@ module.exports = {
     },
     getUsers: (req,res) => {
         getusers(req.params,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
+            }
+        });
+    },
+    markedUserBlocked: (req,res) => {
+        markeduserblocked(req.body,(err,results) => {
             if(err) {
                 console.log(err);
                 res.json({message:'Database connection error !!'});

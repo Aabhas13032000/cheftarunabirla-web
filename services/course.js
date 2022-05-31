@@ -3,9 +3,9 @@ const pool = require('../database/connection');
 module.exports = {
     getcourse : (data,callback) => {
         if(data.offset){
-            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `created_at` DESC LIMIT 20 OFFSET "+ data.offset +"";
+            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `id` DESC LIMIT 20 OFFSET "+ data.offset +"";
          } else {
-            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `created_at` DESC";
+            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 AND `category` <> 'free' ORDER BY `title`";
          }
         pool.query(query,function(err,results,fields){
             if(err) {
@@ -153,7 +153,7 @@ module.exports = {
     },
     getcourseimages : (data,callback) => {
         if(data.offset){
-            var query  = "SELECT * FROM `images` WHERE `course_id` = '"+ data.id +"' AND `iv_category` = 'image' LIMIT 20 OFFSET "+ int.parse(data.offset) + 1 +"";
+            var query  = "SELECT * FROM `images` WHERE `course_id` = '"+ data.id +"' AND `iv_category` = 'image' LIMIT 20 OFFSET "+ ( parseInt(data.offset) + 1 ) +"";
         } else {
             var query  = "SELECT * FROM `images` WHERE `course_id` = '"+ data.id +"' AND `iv_category` = 'image'";
         }
@@ -197,7 +197,7 @@ module.exports = {
         });
     },
     editcoursevideos : (data,callback) => {
-        const query  = "UPDATE `images` SET `path` = '"+ data.path +"', `name` = '"+ data.name +"'  WHERE `id` = '"+ data.id +"'";
+        const query  = "UPDATE `images` SET `path` = '"+ data.path +"', `name` = '"+ data.name +"',`is_full_screen` = '"+ data.is_full_screen +"'  WHERE `id` = '"+ data.id +"'";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -207,7 +207,7 @@ module.exports = {
         });
     },
     addcoursevideos : (data,callback) => {
-        const query  = "INSERT INTO `images` (`path`,`iv_category`,`category`,`course_id`,`name`) VALUES ('"+ data.path +"','video','course','"+ data.id +"','"+ data.video_name +"')";
+        const query  = "INSERT INTO `images` (`path`,`iv_category`,`category`,`course_id`,`name`,`is_full_screen`) VALUES ('"+ data.path +"','video','course','"+ data.id +"','"+ data.video_name +"','"+ data.is_full_screen +"')";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);

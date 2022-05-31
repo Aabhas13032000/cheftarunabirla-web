@@ -31,7 +31,7 @@
 
                                 </div>
                                 <div class="form-group">
-                                    <select class="form-control" id="show_category" style="margin-bottom: 10px;" name="show_category" aria-label="Images Categories" onchange="getItems('add')" required>
+                                    <select class="form-control" id="show_category" style="margin-bottom: 10px;" name="show_category" aria-label="Images Categories" onchange="getItems('add','linked_item',this.value,false)" required>
                                         <option value="">Select Category</option>
                                       <option value="course">Course</option>
                                       <option value="book">Book</option>
@@ -86,19 +86,27 @@
               <a><span class="iconify" data-icon="akar-icons:search"></span></a>
             </div>
             <div class="input">
-              <input type="text" name="" id="" onkeyup="searchUser(this.value)" placeholder="Search by phone number">
+              <input type="text" name="" id="phoneNumber" placeholder="Search by phone number">
             </div>
           </div>
       </div>
-      <div class="options">
-        <a style="color: black;display: inline;font-size: 16px;">Select Category</a>
-        <div class="form-group" style="display: inline-block;">
-          <select class="form-control" id="editstock" onchange="getSubscriptionOnchange(this.value)" name="editstock" aria-label="Images Categories" required>
-            <option value="course">Courses</option>
-            <option value="book">Books</option>
-            <option value="book-videos">Book Videos</option>
+      <div class="form-group" style="display: inline-block;width: 150px;">
+        <select class="form-control" id="searchCategory" onchange="getItems('add','linked_items',this.value,true)" name="searchCategory" aria-label="Images Categories" required>
+            <option value="">Select Category</option>
+          <option value="course">Courses</option>
+          <option value="book">Books</option>
+          <option value="book-videos">Book Videos</option>
+        </select>
+      </div>
+      <div class="form-group" style="display: inline-block;width: 150px;">
+          <select class="form-control" id="linked_items" name="linked_items" aria-label="Images Categories" required>
+            <option value="">All</option>
           </select>
-        </div>
+      </div>
+      <div class="options">
+        <button type="button" style="margin-left:20px" onclick="searchUser()">Search</button>
+      </div>
+      <div class="options">
         <button type="button" data-bs-toggle="modal" data-bs-target="#addBook">Create Subscription</button>
       </div>
     </div>
@@ -146,13 +154,43 @@
     }
 
     //function search
-  function searchUser(value){
+  function searchUser(){
     offset = 0;
     document.getElementById('data').innerHTML = '';
-    var category = document.getElementById('editstock').value;
-    if(value.length != 0) {
-      $.ajax({
-        url : `/getSearchSubscription/${category}/${value}`,
+    var value = document.getElementById('phoneNumber').value;
+    var category = document.getElementById('searchCategory').value;
+    var item_id = document.getElementById('linked_items').value;
+    if(item_id.length == 0 || category.length == 0){
+        if(value.length !=0){
+            $.ajax({
+                url : `/getSearchSubscription?category=${category}&value=${value}&item_id=${item_id}`,
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                // console.log(response);
+                if(response.data.length != 0){
+                        for(var i=0;i<response.data.length;i++){
+                            var end_date  = new Date(response.data[i].end_date);
+                            var date_purchased  = new Date(response.data[i].date_purchased);
+                            //   console.log(end_date);
+                            $('#data').append('<tr><td>'+ response.data[i].phoneNumber +'</td><td>'+ date_purchased.toString().slice(4,15) +'</td><td>'+ end_date.toString().slice(4,15) +'</td><td>'+ response.data[i].category +'</td><td>'+ response.data[i].item_name +'</td><td>'+ response.data[i].item_category +'</td><td><div class="options"> <a class="edit" onclick="editsubscription(\''+response.data[i].id+'\',\''+response.data[i].end_date+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deletesubscription('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div></td></tr>');
+                        }
+                        }
+                        document.getElementById('tableLoader').style.display = 'none';
+                },
+                error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+                }
+            });
+        } else if(category.length == 0){
+            getSubscription('course',0,true,false);
+        } else {
+            getSubscription(category,0,true,false);
+        }
+    } else {
+        $.ajax({
+        url : `/getSearchSubscription?category=${category}&value=${value}&item_id=${item_id}`,
         dataType: "json",
         type: "GET",
         success: function(response){
@@ -172,26 +210,31 @@
           alert('Some error occured !!');
         }
       });
-    } else {
-      getSubscription(category,0);
     }
   }
 
     function getMore() {
         offset = offset+20;
-        var value = document.getElementById('editstock').value;
-        // console.log(value);
-        // getSubscription(value,offset);
+        var value = document.getElementById('phoneNumber').value;
+        var category = document.getElementById('searchCategory').value;
+        var item_id = document.getElementById('linked_items').value;
+        if(value.length == 0 && item_id.length == 0){
+            if(category.length == 0){
+                getSubscription('course',offset,false,false);
+            } else {
+                getSubscription(category,offset,false,false);
+            }
+        }
     }
 
     function getSubscriptionOnchange(value) {
         offset = 0;
-        getSubscription(value,offset);
+        getSubscription(value,offset,true,false);
     }
 
 
-function getItems(form_value) {
-        var value = document.getElementById('show_category').value;
+function getItems(form_value,className,value,callFunction) {
+        // var value = document.getElementById('show_category').value;
         var select;
         // console.log(value);
         if(value == 'course'){
@@ -200,10 +243,21 @@ function getItems(form_value) {
                 dataType: "json",
                 type: "GET",
                 success: function(response){
-                    select = document.getElementById("linked_item");
+                    select = document.getElementById(className);
                     var length = select.options.length;
                     for (var i = length-1; i >= 0; i--) {
                         select.options[i] = null;
+                    }
+                    if(className == 'linked_items'){
+                        var option = document.createElement("option");
+                        option.text = 'All';
+                        option.value= '';
+                        select.add(option);
+                    }else {
+                        var option = document.createElement("option");
+                        option.text = 'Select item';
+                        option.value= '';
+                        select.add(option);
                     }
                     if(response.data.length != 0){
                         for(var i=0;i<response.data.length;i++){
@@ -218,6 +272,9 @@ function getItems(form_value) {
                         option.value= 'no_linked_item';
                         select.add(option);
                     }
+                    $('#'+className).selectize({
+                        sortField: 'text'
+                    });
                 },
                 error: function(err){
                     console.log(err);
@@ -230,10 +287,21 @@ function getItems(form_value) {
                 dataType: "json",
                 type: "GET",
                 success: function(response){
-                    select = document.getElementById("linked_item");
+                    select = document.getElementById(className);
                     var length = select.options.length;
                     for (var i = length-1; i >= 0; i--) {
                         select.options[i] = null;
+                    }
+                    if(className == 'linked_items'){
+                    var option = document.createElement("option");
+                            option.text = 'All';
+                            option.value= '';
+                            select.add(option);
+                    } else {
+                        var option = document.createElement("option");
+                            option.text = 'Select item';
+                            option.value= '';
+                            select.add(option);
                     }
                     if(response.data.length != 0){
                         for(var i=0;i<response.data.length;i++){
@@ -248,13 +316,37 @@ function getItems(form_value) {
                         option.value= 'no_linked_item';
                         select.add(option);
                     }
+                    $('#'+className).selectize({
+                        sortField: 'text'
+                    });
                 },
                 error: function(err){
                     console.log(err);
                     alert('Some error occured !!');
                 }
             });
-        } 
+        } else {
+
+            if(className == 'linked_items'){
+                select = document.getElementById(className);
+                var length = select.options.length;
+                for (var i = length-1; i >= 0; i--) {
+                    select.options[i] = null;
+                }
+                var option = document.createElement("option");
+                option.text = 'All';
+                option.value= '';
+                select.add(option);
+            } else {
+                var option = document.createElement("option");
+                option.text = 'Select item';
+                option.value= '';
+                select.add(option);
+            }
+        }
+        if(callFunction){
+            getSubscriptionOnchange(value);
+        }
     }
 
 
@@ -348,10 +440,12 @@ function deletesubscription(id) {
     for (var i = length-1; i >= 0; i--) {
         select.options[i] = null;
     }   
-                    var option = document.createElement("option");
-                        option.text = "Select Users";
-                        option.value= "";
-                        select.add(option);             
+
+    var option = document.createElement("option");
+    option.text = "Select Users";
+    option.value= "";
+    select.add(option);
+
     $.ajax({
             url : `/getSubscriptionUsers`,
             dataType: "json",
@@ -372,6 +466,9 @@ function deletesubscription(id) {
                         select.add(option);
                 }
                   document.getElementById('tableLoader').style.display = 'none';
+                $('#users').selectize({
+                    sortField: 'text'
+                });
             },
             error: function(err){
                 console.log(err);
@@ -380,8 +477,11 @@ function deletesubscription(id) {
         });
   }
 
-  function getSubscription(category,offset) {
+  function getSubscription(category,offset,callFunction,userCallFunction) {
+      if(callFunction) {
     document.getElementById('data').innerHTML = '';
+      }
+    document.getElementById('searchCategory').value = category;
     $.ajax({
             url : `/getSubscription/${category}/${offset}`,
             dataType: "json",
@@ -397,7 +497,12 @@ function deletesubscription(id) {
                   }
                 }
                   document.getElementById('tableLoader').style.display = 'none';
-                  getUsers();
+                  if(userCallFunction) {
+                    getUsers();
+                  }
+                  if(callFunction){
+                    getItems('add','linked_items',category,false);
+                  }
             },
             error: function(err){
                 console.log(err);
@@ -406,7 +511,7 @@ function deletesubscription(id) {
         });
   }
   
-  window.onload = getSubscription('course',0);
+  window.onload = getSubscription('course',0,true,true);
 
 </script>
 
