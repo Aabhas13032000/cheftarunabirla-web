@@ -323,33 +323,43 @@ router.get('/products', function(req, res, next) {
 });
 
 /* Get user related prodycts */
+router.get('/relatedProducts', function(req, res, next) {
+  res.json({data: []});
+});
+
+/* Get user related prodycts */
 router.get('/relatedProducts/:array', function(req, res, next) {
-  var array = req.params.array.split(',');
-  var response = [];
-  var counter = 1;
-  for (let i=0; i<array.length; i++) {
-    task(i,array[i]);
- }
-   
- function task(i,id) {
-   setTimeout(function() {
-    var query2  = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND p.`id` = '"+ id +"' ORDER BY p.`created_at` DESC";
-    pool.query(query2,function(err,results,fields){
-              if(err) {
-                  console.log(err);
-              } else {
-                response.push(results[0]);
-                check_counter(counter,response);
-                counter++;
-              }
-    });
-   }, 500 * i);
- }
-  function check_counter(counter1,response_array){
-    if(counter1 == array.length){
-      res.json({data: response_array});
+  if(req.params.array) {
+    var array = req.params.array.split(',');
+    var response = [];
+    var counter = 1;
+    for (let i=0; i<array.length; i++) {
+      task(i,array[i]);
+   }
+     
+   function task(i,id) {
+     setTimeout(function() {
+      var query2  = "SELECT p.* , c.`name` AS c_name, (SELECT `path` FROM `images` WHERE `images`.`product_id` = p.`id` LIMIT 1 OFFSET 0) AS image_path FROM `products` p INNER JOIN `product_categories` c ON c.`id` = p.`category_id` WHERE p.`status` = 1 AND p.`id` = '"+ id +"' ORDER BY p.`created_at` DESC";
+      pool.query(query2,function(err,results,fields){
+                if(err) {
+                    console.log(err);
+                } else {
+                  response.push(results[0]);
+                  check_counter(counter,response);
+                  counter++;
+                }
+      });
+     }, 500 * i);
+   }
+    function check_counter(counter1,response_array){
+      if(counter1 == array.length){
+        res.json({data: response_array});
+      }
     }
+  } else {
+    res.json({data: []});
   }
+  
 });
 
 /* GET Courses page. */
