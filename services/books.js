@@ -1,5 +1,30 @@
 const pool = require('../database/connection');
 
+//Firebase dynamic links
+const { FirebaseDynamicLinks } = require('firebase-dynamic-links');
+const firebaseDynamicLinks = new FirebaseDynamicLinks('AIzaSyDBV0qQlbjCyFbLEsc2BicaHHXqoN6tCqE');
+
+async function createDynamicLink(linkToCreate) {
+    const { shortLink, previewLink } = await firebaseDynamicLinks.createLink({
+        dynamicLinkInfo: {
+          domainUriPrefix: 'https://cheftarunabirla.page.link',
+          link: linkToCreate,
+          androidInfo: {
+            androidPackageName: 'com.cheftarunbirla',
+          },
+          iosInfo: {
+            iosBundleId: 'com.technotwist.tarunaBirla',
+          },
+        },
+      });
+    // return {
+    //     shortLink:shortLink,
+    //     previewLink:previewLink
+    // };
+    return shortLink;
+}  
+
+
 module.exports = {
     addbook : (data,callback) => {
         const query  = "INSERT INTO `books` (`title`,`description`,`price`,`discount_price`,`days`,`category`,`price_with_video`,`discont_price_with_video`,`only_video_price`,`only_video_discount_price`,`includes_videos`,`video_days`) VALUES ('"+ data.title +"','"+ data.description +"','"+ data.price +"','"+ data.discount_price +"','"+ data.days +"','"+ data.category +"','"+ data.price_with_video +"','"+ data.discont_price_with_video +"','"+ data.only_video_price +"','"+ data.only_video_discount_price +"','"+ data.includes_videos +"','"+ data.video_days +"')";
@@ -49,12 +74,32 @@ module.exports = {
         });
     },
     getuserbookbyId : (data,callback) => {
-        const query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`book_id` = c.`id` LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`book_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count FROM `books` c WHERE `status` = 1 AND `id` = '"+ data.id +"' ORDER BY `created_at` ASC";
+        if(data.user_id) {
+            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`book_id` = c.`id` LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`book_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count FROM `books` c WHERE `status` = 1 AND `id` = '"+ data.id +"' ORDER BY `created_at` ASC";
+        } else {
+            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`book_id` = c.`id` LIMIT 1 OFFSET 0) AS image_path FROM `books` c WHERE `status` = 1 AND `id` = '"+ data.id +"' ORDER BY `created_at` ASC";
+        }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
             } else {
-                callback(null,results);
+                if(results[0].share_url == null || results[0].share_url.length == 0){
+                    createDynamicLink(`https://dashboard.cheftarunabirla.com/getUserBookbyId/${data.id}/${data.user_id}`).then((result1) => {
+                        results[0].share_url = result1;
+                        var updateShareUrl = "UPDATE `books` SET `share_url` = '"+ result1 +"' WHERE `id` = '"+ data.id +"'";
+                        pool.query(updateShareUrl,function(err,updateShareUrl){
+                            if(err) {
+                                callback(err);
+                            } else {
+                                callback(null,results);
+                            }
+                        });
+                    }).catch((err) => {
+                        console.log(err);
+                    });
+                } else {
+                    callback(null,results);
+                }
             }
         });
     },

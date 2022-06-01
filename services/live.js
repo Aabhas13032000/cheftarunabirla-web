@@ -17,9 +17,9 @@ module.exports = {
     },
     getuserlive : (data,callback) => {
         if(data.live_id){
-            var query = "SELECT c.* ,(SELECT COUNT(*) FROM `live_subscription` WHERE `live_subscription`.`live_id` = c.`id` AND `live_subscription`.`user_id` = '"+ data.user_id +"') AS subscribed FROM `live` c WHERE c.`status` = 1 AND c.`id` = '"+ data.live_id +"' ORDER BY `live_date`";
+            var query = "SELECT c.* ,`courses`.`id` AS course_id,(SELECT COUNT(*) FROM `live_subscription` WHERE `live_subscription`.`live_id` = c.`id` AND `live_subscription`.`user_id` = '"+ data.user_id +"') AS subscribed FROM `live` c INNER JOIN `courses` ON `courses`.`live_id` = c.`id` WHERE c.`status` = 1 AND c.`id` = '"+ data.live_id +"' ORDER BY `live_date`";
         } else {
-            var query = "SELECT c.* ,(SELECT COUNT(*) FROM `live_subscription` WHERE `live_subscription`.`live_id` = c.`id` AND `live_subscription`.`user_id` = '"+ data.user_id +"') AS subscribed FROM `live` c WHERE `status` = 1 ORDER BY `live_date`";
+            var query = "SELECT c.* ,`courses`.`id` AS course_id,(SELECT COUNT(*) FROM `live_subscription` WHERE `live_subscription`.`live_id` = c.`id` AND `live_subscription`.`user_id` = '"+ data.user_id +"') AS subscribed FROM `live` c INNER JOIN `courses` ON `courses`.`live_id` = c.`id` WHERE c.`status` = 1 ORDER BY `live_date`";
         }
         pool.query(query,function(err,results,fields){
             if(err) {

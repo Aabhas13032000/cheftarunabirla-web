@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../database/connection');
 
-async function getCartData(coursecart,productCart,bookCart,bookVideosCart,coupons,userWallet) {
+async function getCartData(coursecart,productCart,bookCart,bookVideosCart,coupons,userWallet,couponId) {
     var coursesum = coursecart.length !=0 ? coursecart[0].totalAmount : 0;
     var productsum = productCart.length !=0 ? productCart[0].totalAmount : 0;
     var booksum = bookCart.length !=0 ? bookCart[0].totalAmount : 0;
@@ -15,9 +15,9 @@ async function getCartData(coursecart,productCart,bookCart,bookVideosCart,coupon
     var bookSingleCouponTotal = [];
     var bookMultipleCouponTotal = '';
     var availableCoupons = [];
-    var shippingCharges = productCart.filter((element) => element.pincode == '311001');
+    var shippingCharges = productCart.filter((element) => element.pincode != '311001');
     var sumTotal = coursesum + productsum + booksum + bookvideossum;
-    var paybleAmount = 0 + ( productCart.length !=0 ? shippingCharges ? 0 : 90 : 0);
+    var paybleAmount = 0 + ( productCart.length !=0 ? shippingCharges.length != 0 ? 90 : 0 : 0);
     var appliedCoupon = '';
     var courseIds = coursecart.map((element) => {
         return element.item_id.toString();
@@ -69,9 +69,9 @@ async function getCartData(coursecart,productCart,bookCart,bookVideosCart,coupon
             var courseSum = 0;
             coursecart.forEach((course) => {
                 if(linkedArray.includes(course.item_id.toString())) {
-                    courseSum = (course.discount_price - ((course.discount_price*coupon.dis)/100)) + courseSum;
+                    courseSum = (course.discount_price - ((course.discount_price*coupon.dis)/100))*course.quantity + courseSum;
                 } else {
-                    courseSum = courseSum + course.discount_price;
+                    courseSum = courseSum + course.discount_price*course.quantity;
                 }
             });
             // console.log(`courseSum = ${courseSum}`);
@@ -103,12 +103,12 @@ async function getCartData(coursecart,productCart,bookCart,bookVideosCart,coupon
             var productSum = 0;
             productCart.forEach((product) => {
                 if(linkedArray.includes(product.item_id.toString())) {
-                    productSum = (product.discount_price - ((product.discount_price*coupon.dis)/100)) + productSum;
+                    productSum = (product.discount_price - ((product.discount_price*coupon.dis)/100))*product.quantity + productSum;
                 } else {
-                    productSum = productSum + product.discount_price;
+                    productSum = productSum + product.discount_price*product.quantity;
                 }
             });
-            // console.log(`productSum = ${productSum}`);
+            console.log(`productSum = ${productSum}`);
             productSingleCouponTotal.push({
                 amount:productSum,
                 couponName: coupon.ccode,
@@ -137,9 +137,9 @@ async function getCartData(coursecart,productCart,bookCart,bookVideosCart,coupon
             var bookSum = 0;
             bookCart.forEach((book) => {
                 if(linkedArray.includes(book.item_id.toString())) {
-                    bookSum = (book.discount_price - ((book.discount_price*coupon.dis)/100)) + bookSum;
+                    bookSum = (book.discount_price - ((book.discount_price*coupon.dis)/100))*book.quantity + bookSum;
                 } else {
-                    bookSum = bookSum + book.discount_price;
+                    bookSum = bookSum + book.discount_price*book.quantity;
                 }
             });
             // console.log(`bookSum = ${bookSum}`);
@@ -217,9 +217,13 @@ async function getCartData(coursecart,productCart,bookCart,bookVideosCart,coupon
     // console.log(minimumPrice);
 
     if(availableCoupons.length != 0){
-        var minPrice = Math.min.apply(Math, availableCoupons.map(function(element) { 
-            return element.totalAmount;
-        }));
+        if(couponId) {
+            var minPrice = availableCoupons.find((element) => element.id == couponId).totalAmount;
+        } else {
+            var minPrice = Math.min.apply(Math, availableCoupons.map(function(element) { 
+                return element.totalAmount;
+            }));
+        }
     } else {
         var minPrice = sumTotal;
     }
@@ -231,6 +235,31 @@ async function getCartData(coursecart,productCart,bookCart,bookVideosCart,coupon
 
     paybleAmount = minPrice + paybleAmount;
     appliedCoupon = finalCoupon.length != 0 ? finalCoupon[0].id : '';
+
+    coursecart = coursecart.map((element) => {
+        element.isPlusMinus = false;
+        return element;
+    });
+
+    productCart = productCart.map((element) => {
+        element.isPlusMinus = true;
+        return element;
+    });
+
+    bookCart = bookCart.map((element) => {
+        if(element.sub_category == 'e_book') {
+            element.isPlusMinus = false;
+            return element;
+        } else {
+            element.isPlusMinus = true;
+            return element;
+        }
+    });
+
+    bookVideosCart = bookVideosCart.map((element) => {
+        element.isPlusMinus = false;
+        return element;
+    });
 
     return {
         coursecart:coursecart,
@@ -251,8 +280,8 @@ async function getCartData(coursecart,productCart,bookCart,bookVideosCart,coupon
         cartvisetotal:cartvisetotal,
         paybleAmount:paybleAmount,
         availableCoupons:availableCoupons,
-        appliedCouponId:appliedCoupon,
-        shippingCharges:(shippingCharges ? 0 : 90),
+        appliedCouponId: couponId ? couponId : appliedCoupon,
+        shippingCharges:(shippingCharges.length != 0 ? 90 : 0),
         wallet : userWallet.length != 0 ? userWallet[0].wallet : 0,
     };
 }
@@ -261,23 +290,19 @@ async function getCartData(coursecart,productCart,bookCart,bookVideosCart,coupon
 router.get('/getUserCart', function(req, res, next) {
     if(req.headers.token){
         var data = req.query;
-        if(data.couponId){
-            var coupons = "SELECT * FROM `coupon` WHERE `status` = 1 AND `id` = '"+ data.couponId +"'";
-        } else {
-            var coupons = "SELECT * FROM `coupon` WHERE `status` = 1";
-        }
+        var coupons = "SELECT * FROM `coupon` WHERE `status` = 1";
         var userWallet = "SELECT `wallet` FROM `users` WHERE `id` = '"+ data.user_id +"'";
-        var courseCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`course_id` AS item_id,c.`quantity`,b.`title` AS name,b.`discount_price`,b.`image_path`,SUM(b.`discount_price`) OVER () AS totalAmount FROM `cart` c ,(SELECT `title`,`discount_price`,`id`,(SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`course_id` AND `cart_category` IS NULL AND `category` = 'course'";
-        var productCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`product_id` AS item_id,c.`quantity`,c.`address`,c.`description`,c.`pincode`,c.`image_path`,b.`name`,b.`discount_price`,SUM(b.`discount_price`) OVER () AS totalAmount FROM `cart` c ,(SELECT `name`,`discount_price`,`id` FROM `products`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`product_id` AND `cart_category` IS NULL AND `category` = 'product'";
-        var bookCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`book_id` AS item_id,c.`quantity`,b.`title`,b.`discount_price`,b.`image_path`,SUM(b.`discount_price`) OVER () AS totalAmount  FROM `cart` c ,(SELECT `title`,`discount_price`,`id`,(SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`book_id` AND `cart_category` IS NULL AND `category` = 'book'";
-        var bookVideosCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`book_id` AS item_id,c.`quantity`,b.`title` AS name,b.`discount_price`,b.`image_path`,SUM(b.`discount_price`) OVER () AS totalAmount  FROM `cart` c ,(SELECT `title`,`discount_price`,`id`,(SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`book_id` AND `cart_category` IS NULL AND `category` = 'book-videos'";
+        var courseCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`course_id` AS item_id,c.`quantity`,b.`title` AS name,b.`discount_price`,b.`image_path`,SUM(b.`discount_price`*c.`quantity`) OVER () AS totalAmount FROM `cart` c ,(SELECT `title`,`discount_price`,`id`,(SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`course_id` AND `cart_category` IS NULL AND `category` = 'course'";
+        var productCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`product_id` AS item_id,c.`quantity`,c.`address`,c.`description`,c.`pincode`,c.`image_path`,b.`name`,b.`discount_price`,SUM(b.`discount_price`*c.`quantity`) OVER () AS totalAmount FROM `cart` c ,(SELECT `name`,`discount_price`,`id` FROM `products`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`product_id` AND `cart_category` IS NULL AND `category` = 'product'";
+        var bookCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`book_id` AS item_id,c.`quantity`,b.`title` AS name,b.sub_category,b.`discount_price`,b.`image_path`,SUM(b.`discount_price`*c.`quantity`) OVER () AS totalAmount  FROM `cart` c ,(SELECT `title`,`discount_price`,`id`,`category` AS sub_category,(SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`book_id` AND `cart_category` IS NULL AND `category` = 'book'";
+        var bookVideosCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`book_id` AS item_id,c.`quantity`,b.`title` AS name,b.`discount_price`,b.`image_path`,SUM(b.`discount_price`*c.`quantity`) OVER () AS totalAmount  FROM `cart` c ,(SELECT `title`,`discount_price`,`id`,(SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`book_id` AND `cart_category` IS NULL AND `category` = 'book-videos'";
         pool.query(coupons,function(err,coupons){
             pool.query(courseCart,function(err,courseCart){
                 pool.query(productCart,function(err,productCart){
                     pool.query(bookCart,function(err,bookCart){
                         pool.query(bookVideosCart,function(err,bookVideosCart){
                             pool.query(userWallet,function(err,userWallet){
-                                getCartData(courseCart,productCart,bookCart,bookVideosCart,coupons,userWallet).then((result) => {
+                                getCartData(courseCart,productCart,bookCart,bookVideosCart,coupons,userWallet,data.couponId).then((result) => {
                                     res.json(result);
                                 }).catch((err)=>{
                                     console.log(err);

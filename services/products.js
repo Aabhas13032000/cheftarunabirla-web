@@ -1,5 +1,30 @@
 const pool = require('../database/connection');
 
+//Firebase dynamic links
+const { FirebaseDynamicLinks } = require('firebase-dynamic-links');
+const firebaseDynamicLinks = new FirebaseDynamicLinks('AIzaSyDBV0qQlbjCyFbLEsc2BicaHHXqoN6tCqE');
+
+async function createDynamicLink(linkToCreate) {
+    const { shortLink, previewLink } = await firebaseDynamicLinks.createLink({
+        dynamicLinkInfo: {
+          domainUriPrefix: 'https://cheftarunabirla.page.link',
+          link: linkToCreate,
+          androidInfo: {
+            androidPackageName: 'com.cheftarunbirla',
+          },
+          iosInfo: {
+            iosBundleId: 'com.technotwist.tarunaBirla',
+          },
+        },
+      });
+    // return {
+    //     shortLink:shortLink,
+    //     previewLink:previewLink
+    // };
+    return shortLink;
+}  
+
+
 module.exports = {
     addproduct : (data,callback) => {
         const query  = "INSERT INTO `products` (`name`,`description`,`price`,`discount_price`,`category_id`,`related_products_array`) VALUES ('"+ data.name +"','"+ data.description +"','"+ data.price +"','"+ data.discount_price +"','"+ data.category +"','"+ data.relatedproducts +"')";
@@ -72,7 +97,23 @@ module.exports = {
             if(err) {
                 callback(err);
             } else {
-                callback(null,results);
+                if(results[0].share_url == null || results[0].share_url.length == 0){
+                    createDynamicLink(`https://dashboard.cheftarunabirla.com/getUserProductById/${data.id}/${data.user_id}`).then((result1) => {
+                        results[0].share_url = result1;
+                        var updateShareUrl = "UPDATE `products` SET `share_url` = '"+ result1 +"' WHERE `id` = '"+ data.id +"'";
+                        pool.query(updateShareUrl,function(err,updateShareUrl){
+                            if(err) {
+                                callback(err);
+                            } else {
+                                callback(null,results);
+                            }
+                        });
+                    }).catch((err) => {
+                        console.log(err);
+                    });
+                } else {
+                    callback(null,results);
+                }
             }
         });
     },

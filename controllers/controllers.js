@@ -459,7 +459,10 @@ module.exports = {
                 res.json({message:'Database connection error !!'});
             } else {
                 // console.log(results);
-                res.json({data:results});
+                res.json({
+                    data:results,
+                    shareText: `${results[0].title} \n\n To explore more books click on the link given below\n\n👇\n\n${results[0].share_url}`,
+                });
             }
         });
     },
@@ -602,7 +605,10 @@ module.exports = {
                 res.json({message:'Database connection error !!'});
             } else {
                 // console.log(results);
-                res.json({data:results});
+                res.json({
+                    data:results,
+                    shareText: `${results[0].name} \n\n To explore more Products click on the link given below\n\n👇\n\n${results[0].share_url}`,
+                });
             }
         });
     },

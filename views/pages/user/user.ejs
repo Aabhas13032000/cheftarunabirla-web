@@ -22,6 +22,7 @@
             <th>DEVICE UPDATE REQUEST</th>
             <th>LOGGED IN</th>
             <th>ACCOUNT</th>
+            <th>DEVICE</th>
             <th>WARNING</th>
             <th>BLOCKED</th>
         </thead>
@@ -36,6 +37,8 @@
 
 <script>
 
+  // var callMoreFunction = true;
+
   //function search
   function searchUser(){
     offset = 0;
@@ -47,10 +50,10 @@
         dataType: "json",
         type: "GET",
         success: function(response){
-          console.log(response);
+          // console.log(response);
           if(response.data.length != 0){
             for(var i=0;i<response.data.length;i++){
-              $('#data').append('<tr> <td>'+ response.data[i].phone_number +'</td><td><a onclick="updateDeviceRequest('+response.data[i].phone_number+')" class="profile">Update</a></div> </td><td>'+ (response.data[i].logged_in == 1 ? 'Yes' : 'No') +'</td><td><a href="/users/eachUser/'+ response.data[i].id +'" class="profile">Open</a></td><td>'+ response.data[i].warning +'</td><td> <div class="form-check form-switch">'+ (response.data[i].blocked == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleBlocked('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleBlocked('+response.data[i].id+')" checked>') +' </div> </td> </tr>');
+              $('#data').append('<tr> <td>'+ response.data[i].phone_number +'</td><td><a onclick="updateDeviceRequest('+response.data[i].phone_number+')" class="profile">Update</a></div> </td><td>'+ (response.data[i].logged_in == 1 ? 'Yes' : 'No') +'</td><td><a href="/users/eachUser/'+ response.data[i].id +'" class="profile">Open</a></td><td>'+ response.data[i].device +'</td><td>'+ response.data[i].warning +'</td><td> <div class="form-check form-switch">'+ (response.data[i].blocked == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleBlocked('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleBlocked('+response.data[i].id+')" checked>') +' </div> </td> </tr>');
             }
           } else {
                     // $('#data').append('<tr><td>No Users present</td></tr>');
@@ -88,9 +91,12 @@
   }
 
   function getMore() {
-        document.getElementById('tableLoader').style.display = 'block';
-        offset = offset+20;
-        getUsers(offset);
+    // console.log(callMoreFunction);
+    // if(callMoreFunction){
+        // document.getElementById('tableLoader').style.display = 'block';
+          offset = offset+20;
+          getUsers(offset);
+        // }
   }
 
   function openUserAccount(id) {
@@ -116,6 +122,7 @@
     }
 
   function getUsers(offset) {
+    // callMoreFunction = false;
     $.ajax({
             url : `/getUsers/${offset}`,
             dataType: "json",
@@ -124,12 +131,13 @@
               // console.log(response);
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].phone_number +'</td><td><a onclick="updateDeviceRequest('+response.data[i].phone_number+')" class="profile">Update</a></div> </td><td>'+ (response.data[i].logged_in == 1 ? 'Yes' : 'No') +'</td><td><a href="/users/eachUser/'+ response.data[i].id +'" class="profile">Open</a></td><td>'+ response.data[i].warning +'</td><td> <div class="form-check form-switch">'+ (response.data[i].blocked == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleBlocked('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleBlocked('+response.data[i].id+')" checked>') +' </div> </td> </tr>');
+                    $('#data').append('<tr> <td>'+ response.data[i].phone_number +'</td><td><a onclick="updateDeviceRequest('+response.data[i].phone_number+')" class="profile">Update</a></div> </td><td>'+ (response.data[i].logged_in == 1 ? 'Yes' : 'No') +'</td><td><a href="/users/eachUser/'+ response.data[i].id +'" class="profile">Open</a></td><td>'+ response.data[i].device +'</td><td>'+ response.data[i].warning +'</td><td> <div class="form-check form-switch">'+ (response.data[i].blocked == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleBlocked('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleBlocked('+response.data[i].id+')" checked>') +' </div> </td> </tr>');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Users present</td></tr>');
                 }
                   document.getElementById('tableLoader').style.display = 'none';
+                  // callMoreFunction = true;
             },
             error: function(err){
                 console.log(err);

@@ -43,6 +43,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <div id="totalUsers"></div>
                     <form onsubmit="addLiveClassUser(event)" class="course_video" id="course_video_form_" method="post">
                         <div class="form-group">
                             <select class="form-control" id="users" style="margin-bottom: 10px;" name="users" aria-label="Users Categories" required>
@@ -656,6 +657,7 @@ function deleteEditCurrentGalleryImage(id,path) {
                     for(var i=0;i<response.data.length;i++) {
                         $('#category_data').append('<tr><td>'+ response.data[i].phone_number +'</td><td>'+ response.data[i].name +'</td><td><a class="delete" onclick="deleteLiveClassUser('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></td></tr>');
                     }
+                document.getElementById('totalUsers').innerHTML = 'Total live users = ' + response.data.length;
                 },
                 error: function(err){
                     console.log(err);
