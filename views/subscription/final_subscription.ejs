@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no,maximum-scale=1.0, minimum-scale=1">
+    <meta property="og:title" content=""/>
+    <meta property="og:url" content=""/>
+    <meta property="og:image" content="">
+
+    <title>Taruna Birla's Dashboard</title>
+    <link rel="icon" href="/images/logo/Mono.png" type="image/icon type">
+    
+    <!--  Razorpay  -->
+    <link rel="stylesheet" href="https://unpkg.com/bulma@0.9.0/css/bulma.min.css" />
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!---->
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0-2/css/all.min.css"/>
+
+    <!-- Bootstrap -->
+    <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Jquery -->
+    <script src="/jquery/jquery.js"></script>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/stylesheets/common.css">
+</head>
+<body>
+
+    <br><br><br>
+
+    <h1 style="text-align: center;">Redirecting to Razorpay...</h1>
+
+<!-- Bootstrap Javascript Plugins -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
+<!---->
+
+<!-- Iconify script -->
+<script src="https://code.iconify.design/1/1.0.6/iconify.min.js"></script>
+<!---->
+
+<script>
+
+    window.onload = callRazorPayFunction();
+
+function callRazorPayFunction(){
+    // console.log(total);
+    // console.log(price);
+    // console.log(subs_type);
+    // console.log(subs_id);
+    // console.log(original_days);
+    var data = {
+        total: '<%= actual_total_price %>',
+    }
+    $.ajax({
+        url:"/subscription",
+        dataType: "jsonp",
+        type:"POST",
+        data: data,
+        success: function(info){
+        //    console.log(info);
+            var options = {
+                "key": "rzp_test_66bBsmPqVcCA29", // Enter the Key ID generated from the Dashboard
+                "amount": parseFloat('<%= actual_total_price %>')*100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                "currency": "INR",
+                "name": 'Taruna Birla',
+                "description": "Subscription Pack",
+                "image": '',
+                "order_id": info.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                "callback_url": '/subscription_api/complete_payment/<%= user_id %>/<%= total_price %>/<%= actual_total_price %>/<%= coupon_id %>' ,
+                "prefill": {
+                    "name": "",
+                    "email": "",
+                    "contact": ``
+                },
+                "notes": {
+                    "address": "Razorpay Corporate Office"
+                },
+                "theme": {
+                    "color": "#1d2f3d"
+                }
+            };
+
+            var rzp1 = new Razorpay(options);
+            // document.getElementById('rzp-button1').onclick = function(e){
+            //     rzp1.open();
+            //     e.preventDefault();
+            // }
+            rzp1.open();
+        },
+        error: function(err){
+            console.log(err.status);
+            alert('Some Error occurred!');
+            location.reload();
+        }
+    });
+}
+</script>
+
+<%- include('../components/footer/footer.ejs') %> 

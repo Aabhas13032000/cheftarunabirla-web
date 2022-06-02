@@ -133,8 +133,8 @@
     </div>
     <table style="table-layout: auto;">
         <thead>
-            <!-- <th>ORDER ID</th>
-            <th>ITEM</th> -->
+            <!-- <th>ORDER ID</th> -->
+            <th>ITEM</th>
             <th>PHONE NUMBER</th>
             <th>DATE</th>
             <!-- <th>PRICE</th> -->
@@ -204,7 +204,7 @@ function getMore() {
                 // console.log(response);
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr><td>'+ response.data[i].phoneNumber +'</td><td>'+ response.data[i].date_purchased.slice(0,10) +'</td><td>'+ response.data[i].paid_price +'</td><td>'+ response.data[i].address +'</td><td>'+ response.data[i].pincode +'</td><td>'+ response.data[i].description +'</td><td>'+ response.data[i].category +'</td><td><a href="'+ response.data[i].image_path +'" target="_blank"><img src="'+ response.data[i].image_path +'" ></a></td><td>'+ response.data[i].quantity +'</td><td> <div class="form-check form-switch">'+ (response.data[i].placed == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="togglePlaced('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="togglePlaced('+response.data[i].id+')" checked>') +' </div> </td></tr>');
+                    $('#data').append('<tr><td>'+ response.data[i].name +'</td><td>'+ response.data[i].phoneNumber +'</td><td>'+ response.data[i].date_purchased.slice(0,10) +'</td><td>'+ response.data[i].paid_price +'</td><td>'+ response.data[i].address +'</td><td>'+ response.data[i].pincode +'</td><td>'+ response.data[i].description +'</td><td>'+ response.data[i].category +'</td><td><a href="'+ response.data[i].image_path +'" target="_blank"><img src="'+ response.data[i].image_path +'" ></a></td><td>'+ response.data[i].quantity +'</td><td> <div class="form-check form-switch">'+ (response.data[i].placed == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="togglePlaced('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="togglePlaced('+response.data[i].id+')" checked>') +' </div> </td></tr>');
                   }
                 }
                   document.getElementById('tableLoader').style.display = 'none';

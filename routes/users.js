@@ -265,6 +265,20 @@ router.post('/addtocart',function(req,res,next){
     });
 });
 
+router.post('/addbooktocart',function(req,res,next){
+    // console.log(req.body);
+    var query  = "INSERT INTO `cart` (`category`,`book_id`,`user_id`,`address`,`quantity`,`pincode`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"','"+ req.body.address +"','"+ req.body.quantity +"','"+ req.body.pincode +"')";
+    pool.query(query,function(err,results,fields){
+        if(err) {
+            console.log(err);
+            res.json({message:'Some error occured'});
+        } else {
+            res.json({message: 'success'});
+        }
+    });
+});
+
+
 router.post('/addproducttocart',function(req,res,next){
     // console.log(req.body);
     var query  = "INSERT INTO `cart` (`category`,`product_id`,`user_id`,`description`,`address`,`image_path`,`quantity`,`pincode`) VALUES ('"+ req.body.category +"','"+ req.body.id +"','"+ req.body.user_id +"','"+ req.body.description +"','"+ req.body.address +"','"+ req.body.image_path +"','"+ req.body.quantity +"','"+ req.body.pincode +"')";

@@ -228,7 +228,7 @@ async function getCartData(coursecart,productCart,bookCart,bookVideosCart,coupon
         var minPrice = sumTotal;
     }
 
-    var finalCoupon = availableCoupons.filter((element) => element.amount == minPrice);
+    var finalCoupon = availableCoupons.filter((element) => element.totalAmount == minPrice);
 
     // console.log(minPrice);
     // console.log(finalCoupon);

@@ -12,6 +12,7 @@ var apiRouter = require('./routes/api');
 var chatRouter = require('./routes/chat');
 var coursesRouter = require('./routes/courses');
 var cartRouter = require('./routes/cart');
+var subscriptionRouter = require('./routes/subscription');
 
 var app = express();
 app.use(cors());
@@ -48,6 +49,7 @@ app.use('/', session({
  app.use('/chat',chatRouter);
  app.use('/courses_api',coursesRouter);
  app.use('/cart_api',cartRouter);
+ app.use('/subscription_api',subscriptionRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
