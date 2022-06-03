@@ -136,7 +136,7 @@ router.post('/sendNotification', function(req, res, next) {
                                                   tokens: registration_ids,
                                                   notification: {
                                                       title: title,
-                                                      body: 'Click here to know more about this course'
+                                                      body: 'Click here to know more about this ' + req.body.type
                                                   },
                                                   android: {
                                                       notification: {

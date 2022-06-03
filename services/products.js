@@ -98,7 +98,7 @@ module.exports = {
                 callback(err);
             } else {
                 if(results[0].share_url == null || results[0].share_url.length == 0){
-                    createDynamicLink(`https://dashboard.cheftarunabirla.com/getUserProductById/${data.id}/${data.user_id}`).then((result1) => {
+                    createDynamicLink(`https://dashboard.cheftarunabirla.com/getUserProductById/${data.id}/${data.user_id}&product_id=${data.id}`).then((result1) => {
                         results[0].share_url = result1;
                         var updateShareUrl = "UPDATE `products` SET `share_url` = '"+ result1 +"' WHERE `id` = '"+ data.id +"'";
                         pool.query(updateShareUrl,function(err,updateShareUrl){
