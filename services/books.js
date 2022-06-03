@@ -54,7 +54,7 @@ module.exports = {
         });
     },
     getbook : (callback) => {
-        const query = "SELECT b.* FROM `books` b WHERE `status` = 1";
+        const query = "SELECT b.*,(SELECT `path` FROM `images` WHERE `images`.`book_id` = b.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` b WHERE `status` = 1";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -64,7 +64,7 @@ module.exports = {
         });
     },
     getuserbook : (data,callback) => {
-        const query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`book_id` = c.`id` LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`book_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count FROM `books` c WHERE `status` = 1 ORDER BY `created_at` ASC";
+        const query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`book_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`book_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count FROM `books` c WHERE `status` = 1 ORDER BY `created_at` ASC";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
@@ -75,16 +75,16 @@ module.exports = {
     },
     getuserbookbyId : (data,callback) => {
         if(data.user_id) {
-            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`book_id` = c.`id` LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`book_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count FROM `books` c WHERE `status` = 1 AND `id` = '"+ data.id +"' ORDER BY `created_at` ASC";
+            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`book_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path ,(SELECT COUNT(*) FROM `cart` WHERE `cart`.`book_id` = c.`id` AND `cart`.`user_id` = '"+ data.user_id +"') AS count FROM `books` c WHERE `status` = 1 AND `id` = '"+ data.id +"' ORDER BY `created_at` ASC";
         } else {
-            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`book_id` = c.`id` LIMIT 1 OFFSET 0) AS image_path FROM `books` c WHERE `status` = 1 AND `id` = '"+ data.id +"' ORDER BY `created_at` ASC";
+            var query = "SELECT c.* , (SELECT `path` FROM `images` WHERE `images`.`book_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` c WHERE `status` = 1 AND `id` = '"+ data.id +"' ORDER BY `created_at` ASC";
         }
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);
             } else {
                 if(results[0].share_url == null || results[0].share_url.length == 0){
-                    createDynamicLink(`https://dashboard.cheftarunabirla.com/getUserBookbyId/${data.id}/${data.user_id}`).then((result1) => {
+                    createDynamicLink(`https://dashboard.cheftarunabirla.com/getUserBookbyId/${data.id}/${data.user_id}&book_id=${data.id}`).then((result1) => {
                         results[0].share_url = result1;
                         var updateShareUrl = "UPDATE `books` SET `share_url` = '"+ result1 +"' WHERE `id` = '"+ data.id +"'";
                         pool.query(updateShareUrl,function(err,updateShareUrl){
@@ -104,7 +104,7 @@ module.exports = {
         });
     },
     getimpbooks : (callback) => {
-        const query = "SELECT c.*, (SELECT `path` FROM `images` WHERE `images`.`book_id` = c.`id` LIMIT 1 OFFSET 0) AS image_path FROM `books` c WHERE `status` = 1 AND `imp` = 1 LIMIT 2 OFFSET 0";
+        const query = "SELECT c.*, (SELECT `path` FROM `images` WHERE `images`.`book_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books` c WHERE `status` = 1 AND `imp` = 1 LIMIT 2 OFFSET 0";
         pool.query(query,function(err,results,fields){
             if(err) {
                 callback(err);

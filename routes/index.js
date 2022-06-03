@@ -96,8 +96,8 @@ router.post('/sendNotification', function(req, res, next) {
   var url = req.body.share_url;
   var sql = "SELECT * FROM `users` WHERE LENGTH(`device_id`) > 30";
   var registration_ids = [];
-  console.log(url);
-  if(url.length == 0){
+  // console.log(typeof url);
+  if(url.length == 0 || url == 'null'){
       createDynamicLink(req.body.link).then((result) => {
           if(req.body.type == 'product'){
               var sql1 = "UPDATE `products` SET `share_url` = '"+ result.shortLink +"' WHERE `id` = '"+ req.body.item_id +"'";
@@ -107,7 +107,10 @@ router.post('/sendNotification', function(req, res, next) {
             var sql1 = "UPDATE `live` SET `share_url` = '"+ result.shortLink +"' WHERE `id` = '"+ req.body.item_id +"'";
           } else if(req.body.type == 'book'){
             var sql1 = "UPDATE `books` SET `share_url` = '"+ result.shortLink +"' WHERE `id` = '"+ req.body.item_id +"'";
+          } else if(req.body.type == 'blog'){
+            var sql1 = "UPDATE `blog` SET `share_url` = '"+ result.shortLink +"' WHERE `id` = '"+ req.body.item_id +"'";
           }
+          // console.log(sql1);
           pool.query(sql1,function(err,data1){
               if(err) {
                   console.log(err);

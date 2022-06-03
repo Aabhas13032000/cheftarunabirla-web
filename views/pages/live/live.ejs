@@ -196,6 +196,18 @@
       </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="sendingNotification" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h3>Sending Notification Please Wait!!</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 <!--Bootstrap js-->
 <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!---->
@@ -708,6 +720,44 @@ function deleteEditCurrentGalleryImage(id,path) {
             });
     }
 
+
+function sendNotification(title,live_id,share_url,image){
+        var send_image;
+        if(image.length !=0){
+                send_image = `https://dashboard.cheftarunabirla.com${image}`;
+        } else {
+            send_image = 'https://dashboard.cheftarunabirla.com/images/all/logo.png';
+        // console.log(share_url);
+        }
+        $('#sendingNotification').modal('toggle');
+        $.ajax({
+            url:"/sendNotification",
+            dataType: "jsonp",
+            type:"POST",
+            data:{
+                title:title,
+                share_url:share_url,
+                link:`https://dashboard.cheftarunabirla.com/getLive/0&live_id=${live_id}`,
+                item_id:live_id,
+                type:'live',
+                image:send_image
+            },
+            success: function(data){
+                console.log('done');
+                if(data.message == 'success'){
+                    alert('notification sent');
+                } else {
+                    alert('Some error occured');
+                }
+                $('#sendingNotification').modal('toggle');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+    }
+
+
   function getLive(offset,callFunction) {
     $.ajax({
             url : `/getLive/${offset}`,
@@ -716,7 +766,7 @@ function deleteEditCurrentGalleryImage(id,path) {
             success: function(response){
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td><a href="'+ (response.data[i].url != null ? response.data[i].url : "#" ) +'" target="_blank">URL</a></td><td>'+ Date(response.data[i].created_at).slice(0,16) +'</td><td>'+ Date(response.data[i].live_date).slice(0,16) +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td><img src="'+ response.data[i].image_path +'" alt="no_image"></td> <td> <div class="options"> <a class="edit" onclick="editLiveClassValues(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].url+'\',\''+response.data[i].live_date+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].image_path+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteLiveClass('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="liveClassUser('+response.data[i].id+')" class="profile">View Users</a>'+ (response.data[i].course_id != null ? '<a onclick="giveSubscription(\''+response.data[i].id+'\',\''+response.data[i].course_id+'\',\''+response.data[i].days+'\')" class="profile">Give Subscription</a>' : '') +'</div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td><a href="'+ (response.data[i].url != null ? response.data[i].url : "#" ) +'" target="_blank">URL</a></td><td>'+ Date(response.data[i].created_at).slice(0,16) +'</td><td>'+ Date(response.data[i].live_date).slice(0,16) +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td><img src="'+ response.data[i].image_path +'" alt="no_image"></td> <td> <div class="options"> <a class="edit" onclick="editLiveClassValues(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].url+'\',\''+response.data[i].live_date+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].image_path+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteLiveClass('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+response.data[i].image_path+'\')" class="profile">Send Notification</a><a onclick="liveClassUser('+response.data[i].id+')" class="profile">View Users</a>'+ (response.data[i].course_id != null ? '<a onclick="giveSubscription(\''+response.data[i].id+'\',\''+response.data[i].course_id+'\',\''+response.data[i].days+'\')" class="profile">Give Subscription</a>' : '') +'</div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Courses present</td></tr>')

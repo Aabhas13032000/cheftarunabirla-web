@@ -117,6 +117,19 @@
       </div>
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="sendingNotification" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h3>Sending Notification Please Wait!!</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 <!--Bootstrap js-->
 <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!---->
@@ -142,6 +155,43 @@
 
     var offset = 0;
 
+
+function sendNotification(title,blog_id,share_url,image){
+        var send_image;
+        if(image.length !=0){
+                send_image = `https://dashboard.cheftarunabirla.com${image}`;
+        } else {
+            send_image = 'https://dashboard.cheftarunabirla.com/images/all/logo.png';
+        // console.log(share_url);
+        }
+        $('#sendingNotification').modal('toggle');
+        $.ajax({
+            url:"/sendNotification",
+            dataType: "jsonp",
+            type:"POST",
+            data:{
+                title:title,
+                share_url:share_url,
+                link:`https://dashboard.cheftarunabirla.com/getBlogs/0&blog_id=${blog_id}`,
+                item_id:blog_id,
+                type:'blog',
+                image:send_image
+            },
+            success: function(data){
+                console.log('done');
+                if(data.message == 'success'){
+                    alert('notification sent');
+                } else {
+                    alert('Some error occured');
+                }
+                $('#sendingNotification').modal('toggle');
+            },
+            error: function(err){
+                console.log(err.status);
+            }
+        });
+    }
+
 //function search
 function searchUser(value){
     offset = 0;
@@ -154,7 +204,7 @@ function searchUser(value){
         success: function(response){
             if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+response.data[i].path+'\')" class="profile">Send Notification</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Blogs present</td></tr>')
@@ -537,7 +587,7 @@ function searchUser(value){
                 // console.log(response);
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].pdf+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].pdf+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+response.data[i].path+'\')" class="profile">Send Notification</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Blogs present</td></tr>')
