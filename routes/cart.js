@@ -3,10 +3,26 @@ const router = express.Router();
 const pool = require('../database/connection');
 
 async function getCartData(coursecart,productCart,bookCart,bookVideosCart,coupons,userWallet,couponId) {
-    var coursesum = coursecart.length !=0 ? coursecart[0].totalAmount : 0;
-    var productsum = productCart.length !=0 ? productCart[0].totalAmount : 0;
-    var booksum = bookCart.length !=0 ? bookCart[0].totalAmount : 0;
-    var bookvideossum = bookVideosCart.length !=0 ? bookVideosCart[0].totalAmount : 0;
+    coursecart = coursecart ? coursecart : [];
+    productCart = productCart ? productCart : [];
+    bookCart = bookCart ? bookCart : [];
+    bookVideosCart = bookVideosCart ? bookVideosCart : [];
+    var coursesum = 0;
+    var productsum = 0;
+    var booksum = 0;
+    var bookvideossum = 0;
+    coursecart.forEach((cart) => {
+        coursesum = coursesum + cart.totalAmount;
+    });
+    productCart.forEach((cart) => {
+        productsum = productsum + cart.totalAmount;
+    });
+    bookCart.forEach((cart) => {
+        booksum = booksum + cart.totalAmount;
+    });
+    bookVideosCart.forEach((cart) => {
+        bookvideossum = bookvideossum + cart.totalAmount;
+    });
     var cartvisetotal;
     var courseSingleCouponTotal = [];
     var courseMultipleCouponTotal = '';
@@ -292,10 +308,10 @@ router.get('/getUserCart', function(req, res, next) {
         var data = req.query;
         var coupons = "SELECT * FROM `coupon` WHERE `status` = 1";
         var userWallet = "SELECT `wallet` FROM `users` WHERE `id` = '"+ data.user_id +"'";
-        var courseCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`course_id` AS item_id,c.`quantity`,b.`title` AS name,b.`discount_price`,b.`image_path`,SUM(b.`discount_price`*c.`quantity`) OVER () AS totalAmount FROM `cart` c ,(SELECT `title`,`discount_price`,`id`,(SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`course_id` AND `cart_category` IS NULL AND `category` = 'course'";
-        var productCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`product_id` AS item_id,c.`quantity`,c.`address`,c.`description`,c.`pincode`,c.`image_path`,b.`name`,b.`discount_price`,SUM(b.`discount_price`*c.`quantity`) OVER () AS totalAmount FROM `cart` c ,(SELECT `name`,`discount_price`,`id` FROM `products`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`product_id` AND `cart_category` IS NULL AND `category` = 'product'";
-        var bookCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`book_id` AS item_id,c.`quantity`,b.`title` AS name,b.sub_category,b.`discount_price`,b.`image_path`,SUM(b.`discount_price`*c.`quantity`) OVER () AS totalAmount  FROM `cart` c ,(SELECT `title`,`discount_price`,`id`,`category` AS sub_category,(SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`book_id` AND `cart_category` IS NULL AND `category` = 'book'";
-        var bookVideosCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`book_id` AS item_id,c.`quantity`,b.`title` AS name,b.`discount_price`,b.`image_path`,SUM(b.`discount_price`*c.`quantity`) OVER () AS totalAmount  FROM `cart` c ,(SELECT `title`,`discount_price`,`id`,(SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`book_id` AND `cart_category` IS NULL AND `category` = 'book-videos'";
+        var courseCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`course_id` AS item_id,c.`quantity`,b.`title` AS name,b.`discount_price`,b.`image_path`,SUM(b.`discount_price`*c.`quantity`) AS totalAmount FROM `cart` c ,(SELECT `title`,`discount_price`,`id`,(SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`course_id` AND `cart_category` IS NULL AND `category` = 'course' GROUP BY c.`id`";
+        var productCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`product_id` AS item_id,c.`quantity`,c.`address`,c.`description`,c.`pincode`,c.`image_path`,b.`name`,b.`discount_price`,SUM(b.`discount_price`*c.`quantity`) AS totalAmount FROM `cart` c ,(SELECT `name`,`discount_price`,`id` FROM `products`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`product_id` AND `cart_category` IS NULL AND `category` = 'product' GROUP BY c.`id`";
+        var bookCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`book_id` AS item_id,c.`quantity`,b.`title` AS name,b.sub_category,b.`discount_price`,b.`image_path`,SUM(b.`discount_price`*c.`quantity`) AS totalAmount  FROM `cart` c ,(SELECT `title`,`discount_price`,`id`,`category` AS sub_category,(SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`book_id` AND `cart_category` IS NULL AND `category` = 'book' GROUP BY c.`id`";
+        var bookVideosCart = "SELECT c.`id`,c.`category`,c.`cart_category`,c.`book_id` AS item_id,c.`quantity`,b.`title` AS name,b.`discount_price`,b.`image_path`,SUM(b.`discount_price`*c.`quantity`) AS totalAmount  FROM `cart` c ,(SELECT `title`,`discount_price`,`id`,(SELECT `path` FROM `images` WHERE `images`.`book_id` = `books`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `books`) b WHERE `user_id` = '"+ data.user_id +"' AND b.`id` = c.`book_id` AND `cart_category` IS NULL AND `category` = 'book-videos' GROUP BY c.`id`";
         pool.query(coupons,function(err,coupons){
             pool.query(courseCart,function(err,courseCart){
                 pool.query(productCart,function(err,productCart){

@@ -50,7 +50,7 @@ router.get('/app_data',(req,res) => {
                                                                             message:'Database_connection_error',
                                                                         });
                                                                     } else {
-                                                                        if(user[0].blocked == 1 || user[0].warning >=1){
+                                                                        if(user[0].blocked == 1){
                                                                             if(user.length > 1) {
                                                                                 var newUser = user.filter((element) => element.phone_number == null && element.device_id == req.headers.token);
                                                                                 res.json({

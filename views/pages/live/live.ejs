@@ -737,7 +737,7 @@ function sendNotification(title,live_id,share_url,image){
             data:{
                 title:title,
                 share_url:share_url,
-                link:`https://dashboard.cheftarunabirla.com/getLive/0&live_id=${live_id}`,
+                link:`https://dashboard.cheftarunabirla.com/getUserLive/1/${live_id}&live_id=${live_id}`,
                 item_id:live_id,
                 type:'live',
                 image:send_image

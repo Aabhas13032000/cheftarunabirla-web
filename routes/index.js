@@ -96,7 +96,7 @@ router.post('/sendNotification', function(req, res, next) {
   var url = req.body.share_url;
   var sql = "SELECT * FROM `users` WHERE LENGTH(`device_id`) > 30";
   var registration_ids = [];
-  // console.log(typeof url);
+  console.log(typeof req.body.image);
   if(url.length == 0 || url == 'null'){
       createDynamicLink(req.body.link).then((result) => {
           if(req.body.type == 'product'){
@@ -173,7 +173,7 @@ router.post('/sendNotification', function(req, res, next) {
                                   tokens: registration_ids,
                                   notification: {
                                       title: title,
-                                      body: 'Click here to know more about this course'
+                                      body: 'Click here to know more about this ' + req.body.type
                                   },
                                   android: {
                                       notification: {
@@ -226,7 +226,7 @@ router.post('/sendNotification', function(req, res, next) {
                                       tokens: registration_ids,
                                       notification: {
                                           title: title,
-                                          body: 'Click here to know more about this course'
+                                          body: 'Click here to know more about this ' + req.body.type
                                       },
                                       android: {
                                           notification: {
@@ -260,7 +260,7 @@ router.post('/sendNotification', function(req, res, next) {
                       tokens: registration_ids,
                       notification: {
                           title: title,
-                          body: 'Click here to know more about this course'
+                          body: 'Click here to know more about this ' + req.body.type
                       },
                       android: {
                           notification: {

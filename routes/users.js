@@ -70,6 +70,23 @@ router.get('/getCart/:user_id', function(req, res, next) {
     });
 });
 
+
+router.get('/getUserNotifications', function(req, res, next) {
+    var query = "SELECT * FROM `notifications` WHERE `user_id` = '"+ req.query.user_id +"'";
+    pool.query(query,function(err,results,fields){
+                if(err) {
+                    console.log(err);
+                    res.json({message:'Some error occured'});
+                } else {
+                    res.json({
+                        notifications: results,
+                    });
+                }
+            // });
+        // });
+    });
+});
+
 router.post('/checkUserInfo', function(req, res, next) {
     const query = "SELECT * FROM `users` WHERE `device_id` = '"+ req.body.token +"' AND `phone_number` = '"+ req.body.phoneNumber +"'";
     pool.query(query,function(err,results,fields){
@@ -186,7 +203,7 @@ router.post('/save_user_mobile', function(req, res, next) {
 
 router.post('/increaseWarningCount',function(req,res,next){
     if(req.headers.token) {
-        var query  = "UPDATE `users` SET `warning` = `warning` + 1 WHERE `device_id` = '"+ req.headers.token +"'";
+        var query  = "UPDATE `users` SET `warning` = `warning` + 1 , `blocked` = 1 WHERE `device_id` = '"+ req.headers.token +"'";
         // console.log(query);
         pool.query(query,function(err,results,fields){
             if(err) {

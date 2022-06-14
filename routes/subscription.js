@@ -66,17 +66,26 @@ async function setSubscription(user_id,total_price,actual_total_price,coupon_id,
                 }
                 if(result.category == 'course'){
                   var query4 = "INSERT INTO `orders` (`order_id`,`payment_status`,`payment_method`,`price`,`paid_price`,`address`,`approved`,`description`,`quantity`,`category`,`course_id`,`user_id`,`image_path`,`pincode`,`coupon_id`) VALUES ('"+ razorpay_payment_id +"','done','online','"+ total_price +"','"+ actual_total_price +"','"+ result.address +"',1,'"+ result.description +"','"+ result.quantity +"','"+ result.category +"','"+ result.course_id +"','"+ user_id +"','"+ result.order_image +"','"+ result.pincode +"','"+ coupon_id +"')";
+                  var notification = "INSERT INTO `notifications` (`item_id`,`message`,`category`,`user_id`) VALUES ('"+ result.course_id +"','You had puchased a course','course','"+ user_id +"')";
                 } else if(result.category == 'product') {
                   var query4 = "INSERT INTO `orders` (`order_id`,`payment_status`,`payment_method`,`price`,`paid_price`,`address`,`approved`,`description`,`quantity`,`category`,`product_id`,`user_id`,`image_path`,`pincode`,`coupon_id`) VALUES ('"+ razorpay_payment_id +"','done','online','"+ total_price +"','"+ actual_total_price +"','"+ result.address +"',1,'"+ result.description +"','"+ result.quantity +"','"+ result.category +"','"+ result.product_id +"','"+ user_id +"','"+ result.order_image +"','"+ result.pincode +"','"+ coupon_id +"')";
+                  var notification = "INSERT INTO `notifications` (`item_id`,`message`,`category`,`user_id`) VALUES ('"+ result.product_id +"','You had puchased a product','product','"+ user_id +"')";
                 } else if(result.category == 'book' || result.category == 'book-videos') {
                   var query4 = "INSERT INTO `orders` (`order_id`,`payment_status`,`payment_method`,`price`,`paid_price`,`address`,`approved`,`description`,`quantity`,`category`,`book_id`,`user_id`,`image_path`,`pincode`,`coupon_id`) VALUES ('"+ razorpay_payment_id +"','done','online','"+ total_price +"','"+ actual_total_price +"','"+ result.address +"',1,'"+ result.description +"','"+ result.quantity +"','"+ result.category +"','"+ result.book_id +"','"+ user_id +"','"+ result.order_image +"','"+ result.pincode +"','"+ coupon_id +"')";
+                  if(result.category == 'book'){
+                    var notification = "INSERT INTO `notifications` (`item_id`,`message`,`category`,`user_id`) VALUES ('"+ result.book_id +"','You had puchased a book','book','"+ user_id +"')";
+                  } else {
+                    var notification = "INSERT INTO `notifications` (`item_id`,`message`,`category`,`user_id`) VALUES ('"+ result.book_id +"','You had puchased a book','book',0)";
+                  }
                 } 
                 pool.query(query4,function(err,results4,fields){
-                  if(err) {
-                    console.log(err);
-                  } else {
-                    // console.log(results4);
-                  }
+                  pool.query(notification,function(err,notification,fields){
+                    if(err) {
+                      console.log(err);
+                    } else {
+                      // console.log(results4);
+                    }
+                  });
                 }); 
                 counter++;
                 check_counter(counter);
