@@ -155,8 +155,15 @@
 
     var offset = 0;
 
+    function removeHTML(str){ 
+        var tmp = document.createElement("DIV");
+        tmp.innerHTML = str;
+        return tmp.textContent || tmp.innerText || "";
+    }
 
-function sendNotification(title,blog_id,share_url,image){
+
+function sendNotification(title,blog_id,share_url,description,image){
+        // var desc = removeHTML(description);
         var send_image;
         if(image.length !=0){
                 send_image = `https://dashboard.cheftarunabirla.com${image}`;
@@ -175,7 +182,8 @@ function sendNotification(title,blog_id,share_url,image){
                 link:`https://dashboard.cheftarunabirla.com/getBlogs/0&blog_id=${blog_id}`,
                 item_id:blog_id,
                 type:'blog',
-                image:send_image
+                image:send_image,
+                description:description.slice(0,30) + '...',
             },
             success: function(data){
                 console.log('done');
@@ -204,7 +212,8 @@ function searchUser(value){
         success: function(response){
             if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+response.data[i].path+'\')" class="profile">Send Notification</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    var desc = removeHTML(response.data[i].description).replace(/(\r\n|\n|\r)/gm, "").replaceAll(`'`,``);
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+desc+'\',\''+response.data[i].path+'\')" class="profile">Send Notification</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Blogs present</td></tr>')
@@ -587,7 +596,8 @@ function searchUser(value){
                 // console.log(response);
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].pdf+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+response.data[i].path+'\')" class="profile">Send Notification</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    var desc = removeHTML(response.data[i].description).replace(/(\r\n|\n|\r)/gm, "").replaceAll(`'`,``);
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].pdf+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+desc+'\',\''+response.data[i].path+'\')" class="profile">Send Notification</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Blogs present</td></tr>')

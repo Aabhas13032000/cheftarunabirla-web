@@ -227,7 +227,14 @@ $(function(){
     }
 });
 
-function sendNotification(title,product_id,share_url,image){
+function removeHTML(str){ 
+        var tmp = document.createElement("DIV");
+        tmp.innerHTML = str;
+        return tmp.textContent || tmp.innerText || "";
+    }
+
+function sendNotification(title,product_id,share_url,description,image){
+        // var desc = removeHTML(description);
         var send_image;
         console.log(image);
         if(image.length !=0){
@@ -247,7 +254,8 @@ function sendNotification(title,product_id,share_url,image){
                 link:`https://dashboard.cheftarunabirla.com/getUserProductById/${product_id}&product_id=${product_id}`,
                 item_id:product_id,
                 type:'product',
-                image:send_image
+                image:send_image,
+                description:description.slice(0,30) + '...',
             },
             success: function(data){
                 console.log('done');
@@ -276,7 +284,8 @@ function searchUser(value){
         success: function(response){
             if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td> <td>'+ response.data[i].c_name +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].stock == 1 ? '<a style="color:green">In stock</a>' : '<a style="color:red">Out of stock</a>') +'</td> <td> <div class="options"> <a class="edit" onclick="editproducts(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].price+'\',\''+response.data[i].c_name+'\',\''+response.data[i].category_id+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].stock+'\',\''+response.data[i].related_products_array+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteproducts('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].name+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+response.data[i].image_path+'\')" class="profile">Send Notification</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    var desc = removeHTML(response.data[i].description).replace(/(\r\n|\n|\r)/gm, "").replaceAll(`'`,``);
+                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td> <td>'+ response.data[i].c_name +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].stock == 1 ? '<a style="color:green">In stock</a>' : '<a style="color:red">Out of stock</a>') +'</td> <td> <div class="options"> <a class="edit" onclick="editproducts(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].price+'\',\''+response.data[i].c_name+'\',\''+response.data[i].category_id+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].stock+'\',\''+response.data[i].related_products_array+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteproducts('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].name+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+desc+'\',\''+response.data[i].image_path+'\')" class="profile">Send Notification</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Products present</td></tr>')
@@ -779,7 +788,8 @@ function deleteproducts(id) {
                 // console.log(response);
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td> <td>'+ response.data[i].c_name +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].stock == 1 ? '<a style="color:green">In stock</a>' : '<a style="color:red">Out of stock</a>') +'</td> <td> <div class="options"> <a class="edit" onclick="editproducts(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].price+'\',\''+response.data[i].c_name+'\',\''+response.data[i].category_id+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].stock+'\',\''+response.data[i].related_products_array+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteproducts('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].name+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+response.data[i].image_path+'\')" class="profile">Send Notification</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    var desc = removeHTML(response.data[i].description).replace(/(\r\n|\n|\r)/gm, "").replaceAll(`'`,``);
+                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td> <td>'+ response.data[i].c_name +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td>'+ (response.data[i].stock == 1 ? '<a style="color:green">In stock</a>' : '<a style="color:red">Out of stock</a>') +'</td> <td> <div class="options"> <a class="edit" onclick="editproducts(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].price+'\',\''+response.data[i].c_name+'\',\''+response.data[i].category_id+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].stock+'\',\''+response.data[i].related_products_array+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteproducts('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].name+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+desc+'\',\''+response.data[i].image_path+'\')" class="profile">Send Notification</a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].featured == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleFeatured('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Products present</td></tr>')

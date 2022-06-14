@@ -317,7 +317,14 @@ var allVideosModal = new bootstrap.Modal(document.getElementById('allvideos'));
         }
     });
 
-    function sendNotification(title,book_id,share_url,image){
+    function removeHTML(str){ 
+        var tmp = document.createElement("DIV");
+        tmp.innerHTML = str;
+        return tmp.textContent || tmp.innerText || "";
+    }
+
+    function sendNotification(title,book_id,share_url,description,image){
+        // var desc = removeHTML(description);
         var send_image;
         if(image.length !=0){
                 send_image = `https://dashboard.cheftarunabirla.com${image}`;
@@ -336,7 +343,8 @@ var allVideosModal = new bootstrap.Modal(document.getElementById('allvideos'));
                 link:`https://dashboard.cheftarunabirla.com/getUserBookbyId/${book_id}&book_id=${book_id}`,
                 item_id:book_id,
                 type:'book',
-                image:send_image
+                image:send_image,
+                description:description.slice(0,30) + '...',
             },
             success: function(data){
                 console.log('done');
@@ -866,7 +874,8 @@ function editCourseVideo(id) {
             success: function(response){
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].price_with_video +'</td><td>'+ response.data[i].discont_price_with_video +'</td><td>'+ response.data[i].days +'</td><td>'+ response.data[i].video_days +'</td><td>'+ response.data[i].includes_videos +'</td> <td> <div class="options"> <a class="edit" onclick="editBooks(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].price_with_video+'\',\''+response.data[i].includes_videos+'\',\''+response.data[i].discont_price_with_video+'\',\''+response.data[i].video_days+'\',\''+response.data[i].only_video_price+'\',\''+response.data[i].only_video_discount_price+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBooks('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+response.data[i].image_path+'\')" class="profile">Send Notification</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    var desc = removeHTML(response.data[i].description).replace(/(\r\n|\n|\r)/gm, "").replaceAll(`'`,``);
+                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td>'+ response.data[i].price_with_video +'</td><td>'+ response.data[i].discont_price_with_video +'</td><td>'+ response.data[i].days +'</td><td>'+ response.data[i].video_days +'</td><td>'+ response.data[i].includes_videos +'</td> <td> <div class="options"> <a class="edit" onclick="editBooks(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].category+'\',\''+response.data[i].days+'\',\''+response.data[i].price_with_video+'\',\''+response.data[i].includes_videos+'\',\''+response.data[i].discont_price_with_video+'\',\''+response.data[i].video_days+'\',\''+response.data[i].only_video_price+'\',\''+response.data[i].only_video_discount_price+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBooks('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="videoCourses('+response.data[i].id+')" class="profile">View Videos</a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+desc+'\',\''+response.data[i].image_path+'\')" class="profile">Send Notification</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     $('#data').append('<tr><td>No Books present</td></tr>')

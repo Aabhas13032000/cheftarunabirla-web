@@ -94,6 +94,7 @@ async function createDynamicLink(linkToCreate) {
 router.post('/sendNotification', function(req, res, next) {
   var title = req.body.title;
   var url = req.body.share_url;
+  var description = req.body.description;
   var sql = "SELECT * FROM `users` WHERE LENGTH(`device_id`) > 30";
   var registration_ids = [];
   console.log(typeof req.body.image);
@@ -139,7 +140,7 @@ router.post('/sendNotification', function(req, res, next) {
                                                   tokens: registration_ids,
                                                   notification: {
                                                       title: title,
-                                                      body: 'Click here to know more about this ' + req.body.type
+                                                      body: description
                                                   },
                                                   android: {
                                                       notification: {
@@ -173,7 +174,7 @@ router.post('/sendNotification', function(req, res, next) {
                                   tokens: registration_ids,
                                   notification: {
                                       title: title,
-                                      body: 'Click here to know more about this ' + req.body.type
+                                      body: description
                                   },
                                   android: {
                                       notification: {
@@ -226,7 +227,7 @@ router.post('/sendNotification', function(req, res, next) {
                                       tokens: registration_ids,
                                       notification: {
                                           title: title,
-                                          body: 'Click here to know more about this ' + req.body.type
+                                          body: description
                                       },
                                       android: {
                                           notification: {
@@ -260,7 +261,7 @@ router.post('/sendNotification', function(req, res, next) {
                       tokens: registration_ids,
                       notification: {
                           title: title,
-                          body: 'Click here to know more about this ' + req.body.type
+                          body: description
                       },
                       android: {
                           notification: {
