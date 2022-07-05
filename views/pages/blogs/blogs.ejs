@@ -102,6 +102,7 @@
     </div>
     <table>
         <thead>
+            <th>S. No.</th>
             <th>TITLE</th>
             <th>DESCRIPTION</th>
             <th>FROMT IMAGE</th>
@@ -213,7 +214,7 @@ function searchUser(value){
             if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
                     var desc = removeHTML(response.data[i].description).replace(/(\r\n|\n|\r)/gm, "").replaceAll(`'`,``);
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+desc+'\',\''+response.data[i].path+'\')" class="profile">Send Notification</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    $('#data').append('<tr> <td>'+ (i+1) +'</td><td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+desc+'\',\''+response.data[i].path+'\')" class="profile">Send Notification</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Blogs present</td></tr>')
@@ -597,7 +598,7 @@ function searchUser(value){
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
                     var desc = removeHTML(response.data[i].description).replace(/(\r\n|\n|\r)/gm, "").replaceAll(`'`,``);
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].pdf+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+desc+'\',\''+response.data[i].path+'\')" class="profile">Send Notification</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    $('#data').append('<tr> <td>'+ (i+offset+1) +'</td><td>'+ response.data[i].title +'</td><td>'+ response.data[i].description.slice(0,50) +'...</td><td><a href="'+ response.data[i].path +'" target="_blank"><img src="'+ response.data[i].path +'" /></a></td> <td> <div class="options"> <a class="edit" onclick="editBlog(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].pdf+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteBlog('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+desc+'\',\''+response.data[i].path+'\')" class="profile">Send Notification</a></div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Blogs present</td></tr>')

@@ -56,6 +56,7 @@
                     </form>
                     <table style="table-layout: auto;">
                         <thead>
+                            <th>S. no.</th>
                             <th>PHONE NUMBER</th>
                             <th>NAME</th>
                             <th>OPTIONS</th>
@@ -177,6 +178,7 @@
     </div>
     <table>
         <thead>
+            <th>S. No.</th>
             <th>LIVE TITLE</th>
             <th>LIVE URL</th>
             <th>CREATED AT</th>
@@ -667,7 +669,7 @@ function deleteEditCurrentGalleryImage(id,path) {
                 success: function(response){
                     // console.log(response);
                     for(var i=0;i<response.data.length;i++) {
-                        $('#category_data').append('<tr><td>'+ response.data[i].phone_number +'</td><td>'+ response.data[i].name +'</td><td><a class="delete" onclick="deleteLiveClassUser('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></td></tr>');
+                        $('#category_data').append('<tr><td>'+ (i+1) +'</td><td>'+ response.data[i].phone_number +'</td><td>'+ response.data[i].name +'</td><td><a class="delete" onclick="deleteLiveClassUser('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></td></tr>');
                     }
                 document.getElementById('totalUsers').innerHTML = 'Total live users = ' + response.data.length;
                 },
@@ -774,7 +776,7 @@ function sendNotification(title,live_id,share_url,description,image){
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
                     var desc = removeHTML(response.data[i].description).replace(/(\r\n|\n|\r)/gm, "").replaceAll(`'`,``);
-                    $('#data').append('<tr> <td>'+ response.data[i].title +'</td><td><a href="'+ (response.data[i].url != null ? response.data[i].url : "#" ) +'" target="_blank">URL</a></td><td>'+ Date(response.data[i].created_at).slice(0,16) +'</td><td>'+ Date(response.data[i].live_date).slice(0,16) +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td><img src="'+ response.data[i].image_path +'" alt="no_image"></td> <td> <div class="options"> <a class="edit" onclick="editLiveClassValues(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].url+'\',\''+response.data[i].live_date+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].image_path+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteLiveClass('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+desc+'\',\''+response.data[i].image_path+'\')" class="profile">Send Notification</a><a onclick="liveClassUser('+response.data[i].id+')" class="profile">View Users</a>'+ (response.data[i].course_id != null ? '<a onclick="giveSubscription(\''+response.data[i].id+'\',\''+response.data[i].course_id+'\',\''+response.data[i].days+'\')" class="profile">Give Subscription</a>' : '') +'</div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
+                    $('#data').append('<tr><td>'+ (i+offset+1) +'</td> <td>'+ response.data[i].title +'</td><td><a href="'+ (response.data[i].url != null ? response.data[i].url : "#" ) +'" target="_blank">URL</a></td><td>'+ Date(response.data[i].created_at).slice(0,16) +'</td><td>'+ Date(response.data[i].live_date).slice(0,16) +'</td><td>'+ response.data[i].price +'</td><td>'+ response.data[i].discount_price +'</td><td><img src="'+ response.data[i].image_path +'" alt="no_image"></td> <td> <div class="options"> <a class="edit" onclick="editLiveClassValues(\''+response.data[i].id+'\',\''+response.data[i].title+'\',\''+response.data[i].url+'\',\''+response.data[i].live_date+'\',\''+response.data[i].price+'\',\''+response.data[i].discount_price+'\',\''+response.data[i].image_path+'\',\''+response.data[i].promo_video+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteLiveClass('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a><a onclick="sendNotification(\''+response.data[i].title+'\',\''+response.data[i].id+'\',\''+response.data[i].share_url+'\',\''+desc+'\',\''+response.data[i].image_path+'\')" class="profile">Send Notification</a><a onclick="liveClassUser('+response.data[i].id+')" class="profile">View Users</a>'+ (response.data[i].course_id != null ? '<a onclick="giveSubscription(\''+response.data[i].id+'\',\''+response.data[i].course_id+'\',\''+response.data[i].days+'\')" class="profile">Give Subscription</a>' : '') +'</div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].description +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Courses present</td></tr>')

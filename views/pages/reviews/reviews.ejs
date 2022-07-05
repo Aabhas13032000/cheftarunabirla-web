@@ -17,6 +17,7 @@
     </div>
     <table id="myTable">
         <thead>
+            <th>S. No.</th>
             <th>USER</th>
             <th>USER PHONE NUMBER</th>
             <th>MESSAGE</th>
@@ -89,7 +90,7 @@
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
                     var date = new Date(response.data[i].date);
-                    $('#data').append('<tr> <td>'+ response.data[i].username +'</td><td>'+ response.data[i].phoneNumber +'</td><td>'+ response.data[i].message +'</td><td>'+ response.data[i].item_name +'</td><td>'+ date.toString().slice(0,21) +'</td><td><a onclick="deleteReview('+response.data[i].id+')" class="profile">Delete</a></div> </td> </tr>');
+                    $('#data').append('<tr> <td>'+ (i+1) +'</td><td>'+ response.data[i].username +'</td><td>'+ response.data[i].phoneNumber +'</td><td>'+ response.data[i].message +'</td><td>'+ response.data[i].item_name +'</td><td>'+ date.toString().slice(0,21) +'</td><td><a onclick="deleteReview('+response.data[i].id+')" class="profile">Delete</a></div> </td> </tr>');
                   }
                 } else {
                     $('#data').append('<tr><td>No Reviews</td></tr>');

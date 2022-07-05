@@ -161,6 +161,7 @@
         <hr>
         <table>
             <thead>
+                <th>S. No.</th>
                 <th>IMAGE</th>
                 <th>NAME</th>
                 <th>URL</th>
@@ -170,8 +171,9 @@
                 <th>OPTIONS</th>
             </thead>
             <tbody id="data">
-                <% social_links.forEach(element => { %>
+                <% social_links.forEach((element,index) => { %>
                     <tr>
+                        <td><%= index + 1 %></td>
                         <td><a href="<%= element.image %>"><img src="<%= element.image %>"></a></td>
                         <td><%= element.name %></td>
                         <td><a href="<%= element.url %>" target="_blank"><%= element.url %></a></td>

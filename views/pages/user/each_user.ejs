@@ -11,6 +11,7 @@
     <hr>
     <table>
         <thead>
+            <th>S. No.</th>
             <th>START DATE</th>
             <th>END DATE</th>
             <th>CATEGORY</th>
@@ -18,8 +19,9 @@
             <th>STATUS</th>
         </thead>
         <tbody id="data">
-            <% subscriptions.forEach(element => { %>
+            <% subscriptions.forEach((element,index) => { %>
                 <tr>
+                    <td><%= index+1 %></td>
                     <td><%= new Date(element.date_purchased).toString().slice(4,15) %></td>
                     <td><%= new Date(element.end_date).toString().slice(4,15) %></td>
                     <td><%= element.category %></td>

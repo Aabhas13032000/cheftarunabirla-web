@@ -113,6 +113,7 @@
     <div id="totalUsers"></div>
     <table>
         <thead>
+            <th>S. No.</th>
             <th>PHONE NUMBER</th>
             <th>START DATE</th>
             <th>END DATE</th>
@@ -179,7 +180,7 @@
                             if(response.data[i].status == 1) {
                                 totalUsers++;
                             }
-                            $('#data').append('<tr><td>'+ response.data[i].phoneNumber +'</td><td>'+ date_purchased.toString().slice(4,15) +'</td><td>'+ end_date.toString().slice(4,15) +'</td><td>'+ response.data[i].category +'</td><td>'+ response.data[i].item_name +'</td><td>'+ response.data[i].item_category +'</td><td><div class="options"> <a class="edit" onclick="editsubscription(\''+response.data[i].id+'\',\''+response.data[i].end_date+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deletesubscription('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div></td></tr>');
+                            $('#data').append('<tr><td>'+ (i+1) +'</td><td>'+ response.data[i].phoneNumber +'</td><td>'+ date_purchased.toString().slice(4,15) +'</td><td>'+ end_date.toString().slice(4,15) +'</td><td>'+ response.data[i].category +'</td><td>'+ response.data[i].item_name +'</td><td>'+ response.data[i].item_category +'</td><td><div class="options"> <a class="edit" onclick="editsubscription(\''+response.data[i].id+'\',\''+response.data[i].end_date+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deletesubscription('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div></td></tr>');
                         }
                         }
                         document.getElementById('tableLoader').style.display = 'none';
@@ -211,7 +212,7 @@
                     if(response.data[i].status == 1){
                         totalUsers++;
                     }
-                    $('#data').append('<tr><td>'+ response.data[i].phoneNumber +'</td><td>'+ date_purchased.toString().slice(4,15) +'</td><td>'+ end_date.toString().slice(4,15) +'</td><td>'+ response.data[i].category +'</td><td>'+ response.data[i].item_name +'</td><td>'+ response.data[i].item_category +'</td><td><div class="options"> <a class="edit" onclick="editsubscription(\''+response.data[i].id+'\',\''+response.data[i].end_date+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deletesubscription('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div></td>'+ (response.data[i].status == 1 ? '<td style="color: green;">Active</td>' : '<td style="color: red;">Expired</td>') +'</tr>');
+                    $('#data').append('<tr><td>'+ (i+1) +'</td><td>'+ response.data[i].phoneNumber +'</td><td>'+ date_purchased.toString().slice(4,15) +'</td><td>'+ end_date.toString().slice(4,15) +'</td><td>'+ response.data[i].category +'</td><td>'+ response.data[i].item_name +'</td><td>'+ response.data[i].item_category +'</td><td><div class="options"> <a class="edit" onclick="editsubscription(\''+response.data[i].id+'\',\''+response.data[i].end_date+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deletesubscription('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div></td>'+ (response.data[i].status == 1 ? '<td style="color: green;">Active</td>' : '<td style="color: red;">Expired</td>') +'</tr>');
                   }
                 }
                   document.getElementById('tableLoader').style.display = 'none';
@@ -506,7 +507,7 @@ function deletesubscription(id) {
                       var end_date  = new Date(response.data[i].end_date);
                       var date_purchased  = new Date(response.data[i].date_purchased);
                     //   console.log(end_date);
-                    $('#data').append('<tr><td>'+ response.data[i].phoneNumber +'</td><td>'+ date_purchased.toString().slice(4,15) +'</td><td>'+ end_date.toString().slice(4,15) +'</td><td>'+ response.data[i].category +'</td><td>'+ response.data[i].item_name +'</td><td>'+ response.data[i].item_category +'</td><td><div class="options"> <a class="edit" onclick="editsubscription(\''+response.data[i].id+'\',\''+response.data[i].end_date+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deletesubscription('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div></td>'+ (response.data[i].status == 1 ? '<td style="color: green;">Active</td>' : '<td style="color: red;">Expired</td>') +'</tr>');
+                    $('#data').append('<tr><td>'+ (i+offset+1) +'</td><td>'+ response.data[i].phoneNumber +'</td><td>'+ date_purchased.toString().slice(4,15) +'</td><td>'+ end_date.toString().slice(4,15) +'</td><td>'+ response.data[i].category +'</td><td>'+ response.data[i].item_name +'</td><td>'+ response.data[i].item_category +'</td><td><div class="options"> <a class="edit" onclick="editsubscription(\''+response.data[i].id+'\',\''+response.data[i].end_date+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deletesubscription('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div></td>'+ (response.data[i].status == 1 ? '<td style="color: green;">Active</td>' : '<td style="color: red;">Expired</td>') +'</tr>');
                   }
                 }
                   document.getElementById('tableLoader').style.display = 'none';

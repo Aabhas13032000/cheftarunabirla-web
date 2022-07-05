@@ -91,6 +91,7 @@
     </div>
     <table>
         <thead>
+            <th>S. No.</th>
             <th>NAME</th>
             <th>MESSAGE</th>
             <th>OPTIONS</th>
@@ -439,7 +440,7 @@ function deleteCurrentGalleryImage(id,input_id) {
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
                     //   console.log(response.data[i].description);
-                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td><td>'+ response.data[i].message +'...</td><td> <div class="options"> <a class="edit" onclick="editTestimonials(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].image+'\',\''+response.data[i].profile_image+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a><a class="delete" onclick="deleteTestimonial('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].imp == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].message +'"><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].message +'">');
+                    $('#data').append('<tr><td>'+ (i+1) +'</td> <td>'+ response.data[i].name +'</td><td>'+ response.data[i].message +'...</td><td> <div class="options"> <a class="edit" onclick="editTestimonials(\''+response.data[i].id+'\',\''+response.data[i].name+'\',\''+response.data[i].image+'\',\''+response.data[i].profile_image+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a><a class="delete" onclick="deleteTestimonial('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td><td> <div class="form-check form-switch">'+ (response.data[i].imp == 0 ? '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')">' : '<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" onclick="toggleImportant('+response.data[i].id+')" checked>') +' </div> </td> </tr><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].message +'"><input type="hidden" id='+ 'ckeditorvalue' + response.data[i].id +' value="'+ response.data[i].message +'">');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Testimonial present</td></tr>')

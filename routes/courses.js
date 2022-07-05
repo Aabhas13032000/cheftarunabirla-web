@@ -34,16 +34,16 @@ router.get('/getCoursesByCategory', function(req, res, next) {
         if(data.category) {
             var totalcourses = "SELECT COUNT(*) AS total FROM `courses` WHERE `status` = 1 AND `category` = '"+ data.category +"'";
             if(data.offset){
-                var courses = "SELECT c.*,(SELECT DATEDIFF(end_date,CURRENT_TIMESTAMP) FROM `subscription` INNER JOIN `users` ON `users`.`id` = `subscription`.`user_id` WHERE `users`.`id` = '"+ data.user_id +"' AND `subscription`.`course_id` = c.`id`) AS subscribeddays,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 AND `category` = '"+ data.category +"' ORDER BY `created_at` DESC LIMIT 20 OFFSET "+ data.offset +"";
+                var courses = "SELECT c.*,(SELECT DATEDIFF(end_date,CURRENT_TIMESTAMP) FROM `subscription` INNER JOIN `users` ON `users`.`id` = `subscription`.`user_id` WHERE `users`.`id` = '"+ data.user_id +"' AND `subscription`.`course_id` = c.`id` AND `subscription`.`status` = 1 ORDER BY `subscription`.`id` DESC LIMIT 1 OFFSET 0) AS subscribeddays,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 AND `category` = '"+ data.category +"' ORDER BY `created_at` DESC LIMIT 20 OFFSET "+ data.offset +"";
             } else {
-                var courses = "SELECT c.*,(SELECT DATEDIFF(end_date,CURRENT_TIMESTAMP) FROM `subscription` INNER JOIN `users` ON `users`.`id` = `subscription`.`user_id` WHERE `users`.`id` = '"+ data.user_id +"' AND `subscription`.`course_id` = c.`id`) AS subscribeddays,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 AND `category` = '"+ data.category +"' ORDER BY `created_at`";
+                var courses = "SELECT c.*,(SELECT DATEDIFF(end_date,CURRENT_TIMESTAMP) FROM `subscription` INNER JOIN `users` ON `users`.`id` = `subscription`.`user_id` WHERE `users`.`id` = '"+ data.user_id +"' AND `subscription`.`course_id` = c.`id` AND `subscription`.`status` = 1 ORDER BY `subscription`.`id` DESC LIMIT 1 OFFSET 0) AS subscribeddays,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 AND `category` = '"+ data.category +"' ORDER BY `created_at`";
             }
         } else {
             var totalcourses = "SELECT COUNT(*) AS total FROM `courses` WHERE `status` = 1";
             if(data.offset){
-                var courses = "SELECT c.*,(SELECT DATEDIFF(end_date,CURRENT_TIMESTAMP) FROM `subscription` INNER JOIN `users` ON `users`.`id` = `subscription`.`user_id` WHERE `users`.`id` = '"+ data.user_id +"' AND `subscription`.`course_id` = c.`id`) AS subscribeddays,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `created_at` DESC LIMIT 20 OFFSET "+ data.offset +"";
+                var courses = "SELECT c.*,(SELECT DATEDIFF(end_date,CURRENT_TIMESTAMP) FROM `subscription` INNER JOIN `users` ON `users`.`id` = `subscription`.`user_id` WHERE `users`.`id` = '"+ data.user_id +"' AND `subscription`.`course_id` = c.`id` AND `subscription`.`status` = 1 ORDER BY `subscription`.`id` DESC LIMIT 1 OFFSET 0) AS subscribeddays,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `created_at` DESC LIMIT 20 OFFSET "+ data.offset +"";
             } else {
-                var courses = "SELECT c.*,(SELECT DATEDIFF(end_date,CURRENT_TIMESTAMP) FROM `subscription` INNER JOIN `users` ON `users`.`id` = `subscription`.`user_id` WHERE `users`.`id` = '"+ data.user_id +"' AND `subscription`.`course_id` = c.`id`) AS subscribeddays,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `created_at`";
+                var courses = "SELECT c.*,(SELECT DATEDIFF(end_date,CURRENT_TIMESTAMP) FROM `subscription` INNER JOIN `users` ON `users`.`id` = `subscription`.`user_id` WHERE `users`.`id` = '"+ data.user_id +"' AND `subscription`.`course_id` = c.`id` AND `subscription`.`status` = 1 ORDER BY `subscription`.`id` DESC LIMIT 1 OFFSET 0) AS subscribeddays,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 ORDER BY `created_at`";
             }
         }
         pool.query(totalcourses,function(err,totalcourses){
@@ -78,7 +78,7 @@ router.get('/getCoursesByCategory', function(req, res, next) {
 router.get('/getSearchedCourse/:value', function(req, res, next) {
     if(req.headers.token){
         var data = req.query;
-        var courses = "SELECT c.*,(SELECT DATEDIFF(end_date,CURRENT_TIMESTAMP) FROM `subscription` INNER JOIN `users` ON `users`.`id` = `subscription`.`user_id` WHERE `users`.`id` = '"+ data.user_id +"' AND `subscription`.`course_id` = c.`id`) AS subscribeddays,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 AND `title` LIKE '%"+ req.params.value +"%' ORDER BY `created_at` DESC";
+        var courses = "SELECT c.*,(SELECT DATEDIFF(end_date,CURRENT_TIMESTAMP) FROM `subscription` INNER JOIN `users` ON `users`.`id` = `subscription`.`user_id` WHERE `users`.`id` = '"+ data.user_id +"' AND `subscription`.`course_id` = c.`id` AND `subscription`.`status` = 1 ORDER BY `subscription`.`id` DESC LIMIT 1 OFFSET 0) AS subscribeddays,(SELECT `path` FROM `images` WHERE `images`.`course_id` = c.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path FROM `courses` c WHERE `status` = 1 AND `title` LIKE '%"+ req.params.value +"%' ORDER BY `created_at` DESC";
         pool.query(courses,function(err,courses){
             if(err) {
                 console.log(err);
@@ -105,7 +105,7 @@ router.get('/getEachCourse', function(req, res, next) {
         var data = req.query;
         var share_url = '';
         if(data.course_id){
-            var subscription = "SELECT DATEDIFF(end_date,CURRENT_TIMESTAMP) AS subscribeddays,`subscription`.`status`,`subscription`.`id` AS subscription_id FROM `subscription` INNER JOIN `users` ON `users`.`id` = `subscription`.`user_id` WHERE `users`.`id` = '"+ data.user_id +"' AND `subscription`.`course_id` = '"+ data.course_id +"'";
+            var subscription = "SELECT DATEDIFF(end_date,CURRENT_TIMESTAMP) AS subscribeddays,`subscription`.`status`,`subscription`.`id` AS subscription_id FROM `subscription` INNER JOIN `users` ON `users`.`id` = `subscription`.`user_id` WHERE `users`.`id` = '"+ data.user_id +"' AND `subscription`.`course_id` = '"+ data.course_id +"' ORDER BY `subscription`.`id` DESC LIMIT 1 OFFSET 0";
             var videos = "SELECT `name`,`path`,`is_full_screen` FROM `images` WHERE `course_id` = '"+ data.course_id +"' AND `iv_category` = 'video' ORDER BY `name`";
             var pdf = "SELECT `pdflink` FROM `recipies` WHERE `course_id` = '"+ data.course_id +"'";
             var course = "SELECT *, (SELECT `path` FROM `images` WHERE `images`.`course_id` = `courses`.`id` AND `iv_category` = 'image' LIMIT 1 OFFSET 0) AS image_path , (SELECT COUNT(*) FROM `cart` WHERE `cart_category` IS NULL AND `course_id` = '"+ data.course_id +"') AS cartcount FROM `courses` WHERE `status` = 1 AND `id` = '"+ data.course_id +"'";
@@ -136,7 +136,7 @@ router.get('/getEachCourse', function(req, res, next) {
                                                                 pdf: pdf,
                                                                 videos:videos,
                                                                 subscribeddays : 0,
-                                                                issubscribed: false,
+                                                                issubscribed: course[0].category == 'free' ? true : false,
                                                                 show_popup:true,
                                                                 shareText: `${course[0].title} Watch promo here ${course[0].promo_video} \n\n to explore more courses click on the link given below\n\n👇\n\n${course[0].share_url}}`
                                                             });
@@ -148,7 +148,7 @@ router.get('/getEachCourse', function(req, res, next) {
                                                             pdf: pdf,
                                                             videos:videos,
                                                             subscribeddays : 0,
-                                                            issubscribed: false,
+                                                            issubscribed: course[0].category == 'free' ? true : false,
                                                             show_popup:false,
                                                             shareText: `${course[0].title} Watch promo here ${course[0].promo_video} \n\n to explore more courses click on the link given below\n\n👇\n\n${course[0].share_url}}`
                                                         });
@@ -188,7 +188,7 @@ router.get('/getEachCourse', function(req, res, next) {
                                                     pdf: pdf,
                                                     videos:videos,
                                                     subscribeddays : 0,
-                                                    issubscribed: false,
+                                                    issubscribed: course[0].category == 'free' ? true : false,
                                                     show_popup:false,
                                                     shareText: `${course[0].title} Watch promo here ${course[0].promo_video} \n\n to explore more courses click on the link given below\n\n👇\n\n${course[0].share_url}}`
                                                 });
@@ -210,7 +210,7 @@ router.get('/getEachCourse', function(req, res, next) {
                                                     pdf: pdf,
                                                     videos:videos,
                                                     subscribeddays : 1,
-                                                    issubscribed: false,
+                                                    issubscribed: course[0].category == 'free' ? true : false,
                                                     show_popup:true,
                                                     shareText: `${course[0].title} Watch promo here ${course[0].promo_video} \n\n to explore more courses click on the link given below\n\n👇\n\n${course[0].share_url}}`
                                                 });
@@ -222,7 +222,7 @@ router.get('/getEachCourse', function(req, res, next) {
                                                 pdf: pdf,
                                                 videos:videos,
                                                 subscribeddays : 0,
-                                                issubscribed: false,
+                                                issubscribed: course[0].category == 'free' ? true : false,
                                                 show_popup:false,
                                                 shareText: `${course[0].title} Watch promo here ${course[0].promo_video} \n\n to explore more courses click on the link given below\n\n👇\n\n${course[0].share_url}}`
                                             });
@@ -262,7 +262,7 @@ router.get('/getEachCourse', function(req, res, next) {
                                         pdf: pdf,
                                         videos:videos,
                                         subscribeddays : 0,
-                                        issubscribed: false,
+                                        issubscribed: course[0].category == 'free' ? true : false,
                                         show_popup:false,
                                         shareText: `${course[0].title} Watch promo here ${course[0].promo_video} \n\n to explore more courses click on the link given below\n\n👇\n\n${course[0].share_url}}`
                                     });

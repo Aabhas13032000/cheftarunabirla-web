@@ -99,6 +99,7 @@
     </div>
     <table>
         <thead>
+            <th>S. No.</th>
             <th>PATH</th>
             <th>THUMBNAIL</th>
             <th>CATEGORY</th>
@@ -558,7 +559,7 @@
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
                       var date = new Date(response.data[i].date);
-                    $('#data').append('<tr> <td style="overflow:hidden"><a href="'+ response.data[i].path +'" target="_blank">'+ (response.data[i].category == 'video'? response.data[i].path : '<img src="'+ response.data[i].path +'" />') +'</a></td><td style="overflow:hidden">'+ (response.data[i].thumbnail.length !=0 ? '<a href="'+ response.data[i].thumbnail +'" target="_blank"><img src="'+ response.data[i].thumbnail +'" /></a>' : 'no thumbnail') +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].linked_category +'</td><td>'+ response.data[i].linked_array +'</td><td>'+ date.toString().slice(0,15) +'</td><td> <div class="options"> <a class="edit" onclick="editSlider(\''+response.data[i].id+'\',\''+response.data[i].linked_category+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteSlider('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr>');
+                    $('#data').append('<tr> <td>'+ (i+1) +'</td><td style="overflow:hidden"><a href="'+ response.data[i].path +'" target="_blank">'+ (response.data[i].category == 'video'? response.data[i].path : '<img src="'+ response.data[i].path +'" />') +'</a></td><td style="overflow:hidden">'+ (response.data[i].thumbnail.length !=0 ? '<a href="'+ response.data[i].thumbnail +'" target="_blank"><img src="'+ response.data[i].thumbnail +'" /></a>' : 'no thumbnail') +'</td> <td>'+ response.data[i].category +'</td><td>'+ response.data[i].linked_category +'</td><td>'+ response.data[i].linked_array +'</td><td>'+ date.toString().slice(0,15) +'</td><td> <div class="options"> <a class="edit" onclick="editSlider(\''+response.data[i].id+'\',\''+response.data[i].linked_category+'\')"><span class="iconify" data-icon="akar-icons:edit"></span></a> <a class="delete" onclick="deleteSlider('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr>');
                   }
                 } else {
                     $('#data').append('<tr><td>No Slider present</td></tr>');
